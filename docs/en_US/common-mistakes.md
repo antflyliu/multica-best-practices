@@ -147,6 +147,25 @@ The Leader only routes, gates, and escalates. Implementation is always delegated
 
 Why: the Leader is the conductor — conductors don't play the instruments.
 
+## 9. Silently skipping an in-scope artifact as "not needed"
+
+**Bad**
+
+```text
+Leader: let's skip the design this time, go straight to development.
+(no reason recorded, no confirmation)
+```
+
+**Good**
+
+```text
+Leader: design judged N/A — reason is this change reuses the existing export
+middleware with no new architecture decision; confirmed and recorded as N/A,
+downstream gates follow the "no design" branch.
+```
+
+Why: when an in-scope artifact is judged not applicable, it must be marked N/A with the reason and the Leader's confirmation — otherwise it's a silent scope change. An unconfirmed N/A counts as a missing scope and should be written back to the Issue. Same logic in reverse: once an artifact is modified, its downstream gates must be invalidated and re-judged, not carried over as an old PASS; and when the same artifact fails your gate 3 times in a row, escalate to a Human instead of looping on rework forever.
+
 ---
 
 ## Diagnostic checklist
@@ -158,3 +177,6 @@ If your squad "looks like it's running, but results are unstable," check in orde
 3. Is gatekeeping done by a non-producer? (Author self-judging → no real check)
 4. Is the completion standard evidence? (Verbal reports → can't be reviewed)
 5. Are hard constraints in CI / branch protection? (Only in the prompt → will eventually be bypassed)
+6. When an in-scope artifact is N/A, is it marked with a reason and confirmed by the Leader? (Silent skip → equals a stealthy scope change)
+7. After an upstream artifact is modified, are downstream gates invalidated and re-judged? (Carrying over an old PASS → gates are decorative)
+8. Does the same artifact failing repeatedly get escalated to a Human? (Endless rework → consumes without converging)

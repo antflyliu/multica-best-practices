@@ -27,6 +27,12 @@
 - [ ]
 - [ ]
 
+## Requirements traceability matrix (recommended, prevents broken links)
+<!-- Map REQ → DESIGN → API → CODE → CASE → TEST so every acceptance criterion traces to an artifact and a test -->
+| Acceptance criterion (AC) | Design (DESIGN-ID) | API (API-ID) | Code | Case (CASE-ID) | Test result |
+| --- | --- | --- | --- | --- | --- |
+| AC-1 | | | | | |
+
 ## Technical context
 <!-- Existing architecture, modules, APIs, constraints, etc. -->
 

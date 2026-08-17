@@ -80,4 +80,21 @@ Using "add a CSV export feature" as an example:
 5. **G3**: The Tester produces and executes feature / API cases per the multica-test-design skill, verifies "filter → export → inspect CSV content" against the acceptance criteria, and produces a test report; the Leader reviews whether the report covers every criterion.
 6. **G4**: A human reviews the evidence and decides whether to merge / ship.
 
-If any G2/G3 FAILs, the task returns to the responsible implementer and **previous gate conclusions are void — they must be rerun.** "It passed last time" doesn't excuse skipping the rerun.
+If any G2/G3 FAILs, the task returns to the responsible implementer and **previous gate conclusions are void — they must be rerun.** "It passed last time" doesn't excuse skipping the rerun. More generally: **once any artifact is modified, its downstream gates become invalid immediately and must be re-judged.** It's not just implementation changes: once design / API contract / cases change, the downstream implementation, testing, and acceptance gates also become invalid — never carry over an old PASS. And when an in-scope artifact is judged "Not Applicable (N/A)", never skip it silently — mark N/A explicitly with the reason and the Leader's confirmation; an unconfirmed N/A counts as a missing scope and is written back to the Issue.
+
+### Gate verdict values
+
+A gate verdict isn't just PASS / FAIL; use these four values:
+
+- **APPROVED**: the artifact stands; open the downstream.
+- **APPROVED_NA (not applicable but passed)**: the artifact is confirmed out of scope (e.g. design when "no design"), the branch is treated as passed, **no artifact is produced**, and the downstream follows the "no such artifact" branch. Note its downstream differs from a normal APPROVED — the Leader must state that difference in the routing map; don't conflate the two.
+- **REJECTED**: return to the original author with the blocking issue, locating evidence, owner, and verifiable pass condition; never vague notes like "keep optimizing".
+- **BLOCKED**: waiting on missing info / dependency; not a pass; never pass it via "environment issue".
+
+### Join gates (parallel branches)
+
+When multiple artifacts advance in parallel and join at one gate (e.g. software-dev G2 = API contract + feature cases, G3 = frontend + backend + API cases), that gate requires **every branch APPROVED to open the downstream**; if any branch is REJECTED, only that branch is returned and the join stays closed. The gatekeeper judges each branch independently and doesn't vouch for a failed branch.
+
+### The gatekeeper doesn't edit the artifact
+
+The gatekeeper (the Leader rerunning with multica-verification, or an independent Reviewer) only outputs a verdict and a fix list — **never edits the reviewed artifact on the author's behalf**; the orchestrator also never approves on the reviewer's behalf. This makes the "authors don't self-review" hard constraint hold at the process level.
