@@ -5,9 +5,10 @@
 ## 规则
 
 1. Agent 名 = `<角色>-<实例>`，角色取固定词表。
-2. 角色词表：`Leader / Architect / FrontendDev / BackendDev / Tester / Reviewer`
+2. 角色词表：`Leader / Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer`
 3. `<实例>` = 领域 / 服务 / 项目名（小写连字符），例如 `user-service`、`web`、`order`。
 4. 名字只区分实例，不承载职责；职责永远来自 Agent Instructions / Squad Instructions。
+5. `Architect` 是技术架构设计（改动方案 / 文件 / 验证），`Designer` 是 UI / 交互设计（Figma 视觉与标注）；二者专业与产物不同，不要合并。
 
 ## 示例
 
@@ -17,6 +18,7 @@
 | FrontendDev | `FrontendDev-web` | Web 前端 |
 | Tester | `Tester-order` | 订单域测试 |
 | Architect | `Architect-core` | 核心架构设计 |
+| Designer | `Designer-web` | Web UI / 交互设计（Figma） |
 | Leader | `Leader-core` | 核心小队 Leader |
 
 ## 小队实例后缀与前缀通配

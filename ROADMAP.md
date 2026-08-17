@@ -4,7 +4,7 @@
 
 ```text
 Software Development Starter
-├── 6 角色（Leader / Architect / FrontendDev / BackendDev / Tester / Reviewer）
+├── 7 角色（Leader / Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer）
 ├── 1 Squad（条件路由：任意角色可缺失）
 ├── 6 Skills
 ├── 1 Issue 模板（含「涉及端」范围声明）

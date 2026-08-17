@@ -22,6 +22,14 @@ All notable changes to this project will be documented in this file.
 - **需求追踪矩阵**（落到 `templates/zh_CN|en_US/squad/software-development/issue.md`）：建议 REQ → DESIGN → API → CODE → CASE → TEST 映射，保证验收标准无断链 / **Requirements traceability matrix** added to `templates/zh_CN|en_US/squad/software-development/issue.md`: suggested REQ → DESIGN → API → CODE → CASE → TEST mapping to prevent broken links
 - **判门不改产物**同步进 squad.md 推进规则与 bug-fix 规则（中英文）及 leader.md 第 9 条 / **Gatekeeper-doesn't-edit** also synced into the advance rules of both squad.md (zh_CN/en_US, software-development + bug-fix) and leader.md rule #9 (zh_CN/en_US)
 
+### Added（追加 · 新增 Designer 角色 / New Designer role）
+
+- 新增 `Designer` 角色，专做 UI / 交互设计、对接 Figma 出视觉与标注，与 `Architect`（技术架构设计）明确分离；新建 `templates/zh_CN|en_US/agents/designer.md` / Added a **Designer** role for UI / interaction design working with Figma, separated from `Architect` (technical design); new `templates/zh_CN|en_US/agents/designer.md`
+- `docs/zh_CN|en_US/naming-conventions.md` 角色词表加入 `Designer`，并注明 Architect ≠ Designer / `docs/zh_CN|en_US/naming-conventions.md` role vocabulary now includes `Designer`, noting Architect ≠ Designer
+- 两个 `squad.md`（中英文）的【团队】段加入 `@Designer`；software-development 的阶段-门禁对照表拆分为 S1a 技术设计(@Architect) / S1b UI 设计(@Designer) 双线，并明确 @FrontendDev 同时依赖二者；bug-fix 团队段也加入 @Designer（UI bug 场景）/ Both `squad.md` (zh_CN/en_US) gained `@Designer` in the team section; software-development's stage-gate map splits into S1a technical design (@Architect) / S1b UI design (@Designer) with @FrontendDev depending on both; bug-fix team section also lists @Designer
+- `frontend-developer.md`（中英文）明确 UI 来源为 @Designer 的 Figma 产出，缺位时回退设计文档或 mock / `frontend-developer.md` (zh_CN/en_US) now names @Designer's Figma output as the UI source, falling back to a design doc or mock when absent
+- 同步角色计数：README / README.en / ROADMAP / AGENTS.md / software-development README 由 6 角色更新为 7 或 5→6 Agent / Synced role counts in README / README.en / ROADMAP / AGENTS.md / software-development README (6→7 roles, or 5→6 agents)
+
 ## v0.0.2 - 2026-08-16 · Template correctness fixes / 模板正确性修复
 
 ### Changed / 变更

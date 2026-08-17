@@ -42,7 +42,7 @@ Don't have one yet? Read the [Multica docs](https://www.multica.ai/docs) or [How
 You get:
 
 - 1 Squad Leader (orchestration + gatekeeping)
-- 5 Agents: Architect / FrontendDev / BackendDev / Tester / Reviewer
+- 6 Agents: Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer
 - 6 Skills (`multica-verification` is the mandatory gatekeeping Skill)
 - 1 Issue template (with the "affected ends" scope declaration)
 - 1 software-development workflow (conditional routing where any role can be missing)

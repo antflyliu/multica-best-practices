@@ -42,7 +42,7 @@ Multica 很强大，但第一次上手可能意外地难：
 你将得到：
 
 - 1 个 Squad Leader（编排 + 判门）
-- 5 个 Agent：Architect / FrontendDev / BackendDev / Tester / Reviewer
+- 6 个 Agent：Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer
 - 6 个 Skill（其中 multica-verification 是必备判门 Skill）
 - 1 个 Issue 模板（含「涉及端」范围声明）
 - 1 个软件开发工作流（任意角色可缺失的条件路由）

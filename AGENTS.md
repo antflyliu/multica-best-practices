@@ -9,7 +9,7 @@ README.md            Project entry: quick start / principles / structure (biling
 AGENTS.md            Agent entry: project conventions and change rules (always English)
 templates/           Everything copy-paste-ready (split by language)
 ├── zh_CN/           Chinese templates (default)
-│   ├── agents/      Shared Agent Instructions (6 role definitions)
+│   ├── agents/      Shared Agent Instructions (7 role definitions)
 │   ├── skills/      Shared Skills (6, unified multica- prefix)
 │   │   └── multica-gate-setup/  CI hard-gate templates ship inside this Skill
 │   └── squad/       Squad starters (copy the whole subdirectory and run)

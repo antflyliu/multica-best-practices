@@ -5,9 +5,10 @@
 ## Rules
 
 1. Agent name = `<role>-<instance>`, where the role comes from a fixed vocabulary.
-2. Role vocabulary: `Leader / Architect / FrontendDev / BackendDev / Tester / Reviewer`
+2. Role vocabulary: `Leader / Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer`
 3. `<instance>` = domain / service / project name (lowercase hyphenated), e.g. `user-service`, `web`, `order`.
 4. The name only distinguishes instances; it carries no responsibility. Responsibilities always come from Agent Instructions / Squad Instructions.
+5. `Architect` is technical architecture design (change plan / files / verification); `Designer` is UI / interaction design (Figma visuals & specs). Different expertise and artifacts — don't merge them.
 
 ## Examples
 
@@ -17,6 +18,7 @@
 | FrontendDev | `FrontendDev-web` | Web frontend |
 | Tester | `Tester-order` | Order-domain testing |
 | Architect | `Architect-core` | Core architecture design |
+| Designer | `Designer-web` | Web UI / interaction design (Figma) |
 | Leader | `Leader-core` | Core squad Leader |
 
 ## Squad instance suffix & prefix wildcard
