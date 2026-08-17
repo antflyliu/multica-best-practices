@@ -21,7 +21,8 @@
 - 后端 API 契约（若后端在场）
 
 【我产出什么】
-- 页面 / 组件代码 + 测试
+- 读取上游：`artifacts/<issue-id>/design-ui.md`（@Designer 的 Figma 标注）+ `artifacts/<issue-id>/api-contract.md`（@BackendDev 的契约）
+- 页面 / 组件代码 + 测试（在真实仓库；变更文件列表写进实现说明）
 - 与 API 契约的对接说明
 - mock 数据（若后端缺失）
 - 变更文件列表

@@ -176,6 +176,7 @@ docs/          ⭐ 先读这一页：指令放哪 / 门禁证据 / 常见错误 
 | 文档 | 内容 |
 | --- | --- |
 | [where-to-put-things](docs/zh_CN/where-to-put-things.md) | 指令归属速查表（最值得读） |
+| [artifact-conventions](docs/zh_CN/artifact-conventions.md) | 协作产物落盘约定：各阶段产物放哪、下游怎么读 |
 | [gates-and-evidence](docs/zh_CN/gates-and-evidence.md) | 门禁 G0–G4 与证据要求 |
 | [common-mistakes](docs/zh_CN/common-mistakes.md) | Bad → Good 错误示范 |
 | [adapt-and-scale](docs/zh_CN/adapt-and-scale.md) | 裁剪、扩展、试点推广 |

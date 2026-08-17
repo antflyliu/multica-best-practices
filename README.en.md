@@ -178,6 +178,7 @@ Details:
 | Doc | Content |
 | --- | --- |
 | [where-to-put-things](docs/en_US/where-to-put-things.md) | Where instructions belong — cheat sheet (most worth reading) |
+| [artifact-conventions](docs/en_US/artifact-conventions.md) | Collaboration artifact landing: where each stage artifact goes, how downstream reads it |
 | [gates-and-evidence](docs/en_US/gates-and-evidence.md) | Gates G0–G4 and evidence requirements |
 | [common-mistakes](docs/en_US/common-mistakes.md) | Bad → Good examples |
 | [adapt-and-scale](docs/en_US/adapt-and-scale.md) | Cut down, extend, pilot, roll out |

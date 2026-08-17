@@ -10,6 +10,7 @@
 | 「这个项目有哪些背景」 | Project Instructions |
 | 「你是什么角色」 | Agent Instructions |
 | 「谁负责什么」 | Squad Instructions |
+| 「各阶段产物放哪 / 下游怎么读」 | `artifacts/<issue-id>/` 目录（见 [artifact-conventions](./artifact-conventions.md)） |
 | 「怎么做某类检查」 | Skill |
 | 「必须通过测试」 | CI（工程系统） |
 | 「谁最终决定上线」 | Human |

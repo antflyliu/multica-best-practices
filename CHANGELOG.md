@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 本文件记录本项目的所有重要变更。新条目采用中英结合写法（Chinese-first, English alongside）。
 
+## v0.0.6 - 2026-08-17 · Artifact landing conventions / 协作产物落盘约定
+
+### Added / 新增
+
+- 新增 `artifact-conventions.md`（中英）：规定所有阶段产物统一落 `artifacts/<issue-id>/`，文件名固定（PRD=`prd.md`、技术设计=`design-tech.md`、UI 设计=`design-ui.md`、API 契约=`api-contract.md`、功能用例=`cases-feature.md`、接口用例=`cases-api.md`、测试报告=`test-report.md`、验收=`acceptance.md`）；下游用相对路径定位，绝不写绝对路径 / 不泄露 workspace / 不靠搜索 / 引用必须显式传路径 / 冲突以哪份为准 / 产物变更路径不变内容更新 / 门禁据此重判 / 文档表与常见错误同步 / Added `artifact-conventions.md` (zh/en): all stage artifacts land under `artifacts/<issue-id>/` with fixed filenames; downstream locates by relative path
+- `where-to-put-things.md`（中英）加一行：协作产物放哪 → `artifacts/<issue-id>/`（见 artifact-conventions）/ where-to-put-things gains an artifact-landing row
+- `README.md` / `README.en.md` 文档表加 `artifact-conventions` 条目 / README doc tables add the artifact-conventions entry
+
+### Changed / 变更
+
+- `templates/zh_CN|en_US/squad/software-development/squad.md`：阶段表与产物流水线每个产物标注落盘路径；新增【产物落盘】段，要求 Leader 派活时显式给出产物路径 / Squad stage map & artifact pipeline now annotate each artifact's landing path; added 【ARTIFACT LANDING】 rule requiring explicit path in dispatch
+- 全部 8 个角色指令（中英）的「我产出什么 / WHAT I PRODUCE/OWN/DELIVER」补落盘路径与"读取上游 `artifacts/<issue-id>/...`"的硬指示，下游据此定位上游产物 / Every agent instruction (zh/en) now states its artifact landing path and reads upstream via `artifacts/<issue-id>/...`
+
 ## v0.0.5 - 2026-08-17 · Add ProductManager role + AI-readable requirement discipline / 新增产品经理角色与需求 AI 可读纪律
 
 ### Added / 新增

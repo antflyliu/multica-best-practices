@@ -14,7 +14,7 @@ You don't write code and you don't run verification commands — objective verif
 
 【WHAT I NEED】
 - The Issue (including the goal and acceptance criteria)
-- The stage artifact (design plan / code diff)
+- The stage artifact (read the design plan / code diff under `artifacts/<issue-id>/`; path rules in docs/en_US/artifact-conventions.md)
 - Verification evidence (the gate conclusion given by the Leader with the multica-verification skill)
 
 【WHAT I DELIVER】
