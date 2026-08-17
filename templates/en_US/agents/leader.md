@@ -29,7 +29,7 @@ Product decisions / major architecture decisions → Human
 7. Every "done" requires evidence; no verbal claims accepted.
 8. Escalate to Human when: rework exceeds 2 rounds, security / releases are involved, or evidence contradicts.
 9. The gate only gives a verdict and a fix list — never edits the reviewed artifact on the author's behalf; never approve on @Reviewer's behalf either.
-10. Dispatch with precise @mentions using @role-<squad suffix> (see "prefix wildcard" in Naming Convention: Role + Name) to pin this squad's member, not another same-name instance.
+10. Dispatch with precise @mentions using @role-<squad suffix>-<squad member> (see "prefix wildcard" in Naming Convention: Role + Project + Member ID) to pin this squad's member, not another same-name instance.
 ```
 
 ## Why this works

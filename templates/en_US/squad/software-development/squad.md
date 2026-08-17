@@ -32,10 +32,10 @@ Chinese, direct, conclusion-first, action-oriented, no fluff, no fabrication. Wh
 @Reviewer           business review (optional)
 
 【ROLE PREFIX RESOLUTION】(how this squad pins the exact agent)
-Squad instructions only write the "role prefix" above. A workspace routinely hosts multiple instances of the same role (e.g. FrontendDev-web, FrontendDev-mobile); the orchestrator must dispatch to *this squad's* one:
-- At startup the squad declares its instance suffix (e.g. payment), bound to all its roles; set once, never written into this file.
-- Wherever @role is written, resolve it to @role-<squad suffix> before the precise @mention (e.g. suffix=payment → @FrontendDev resolves to FrontendDev-payment).
-- Roles outside scope are not resolved and not dispatched. Full rules: Naming Convention: Role + Name.
+Squad instructions only write the "role prefix" above. A workspace routinely hosts multiple instances of the same role (e.g. FrontendDev-web-ajie, FrontendDev-web-lina); the orchestrator must dispatch to *this squad's* one:
+- At startup the squad declares its instance suffix (e.g. payment, mapping to the <project> segment) and member-id (e.g. u1024, employee number / nickname), bound to all its roles; set once, never written into this file.
+- Wherever @role is written, resolve it to @role-<squad suffix>-<squad member> before the precise @mention (e.g. suffix=payment, member=u1024 → @FrontendDev resolves to FrontendDev-payment-u1024).
+- Roles outside scope are not resolved and not dispatched. Full rules: Naming Convention: Role + Project + Member ID.
 
 【STAGE-GATE MAP】(pipeline at a glance; skip the line for any missing layer)
 G0 scope → S1a technical design @Architect / S1b UI design @Designer (parallel, both produce) → G1 design gate (incl. UI review)
@@ -82,7 +82,7 @@ API test cases are an implementation-stage parallel branch: dispatch @Tester as 
 
 【COORDINATION RULES】
 1. Read the Issue before dispatching.
-2. Use precise @mentions (resolve per 【ROLE PREFIX RESOLUTION】 to @role-<squad suffix>), state the expected output; don't restate the whole Issue.
+2. Use precise @mentions (resolve per 【ROLE PREFIX RESOLUTION】 to @role-<squad suffix>-<squad member>), state the expected output; don't restate the whole Issue.
 3. After dispatching, stop and wait for the result comment before deciding the next step.
 4. Never skip a stage without reason.
 

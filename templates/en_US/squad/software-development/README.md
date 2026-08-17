@@ -76,7 +76,7 @@ Done
 
 ### Step 1 — Create the Agents
 
-Create 5 Agents in Multica (decide which ones per your scope; naming follows "role + name" in [`docs/naming-conventions.md`](../../../../docs/en_US/naming-conventions.md)):
+Create 5 Agents in Multica (decide which ones per your scope; naming follows "role + project + member-id" in [`docs/naming-conventions.md`](../../../../docs/en_US/naming-conventions.md)):
 
 ```text
 Architect

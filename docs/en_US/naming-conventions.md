@@ -1,37 +1,40 @@
-# Naming Convention: Role + Name
+# Naming Convention: Role + Project + Member ID
 
-> Purpose: one role definition can be instantiated as multiple Agents, distinguished by name instead of edited instructions — so the flow stays reusable.
+> Purpose: one role definition can be instantiated as multiple Agents, distinguished by name instead of edited instructions — so the flow stays reusable. When a project has several members of the same role (e.g. multiple front-end devs), "role + project" alone still collides, so a third member-id segment is needed.
 
 ## Rules
 
-1. Agent name = `<role>-<instance>`, where the role comes from a fixed vocabulary.
+1. Agent name = `<role>-<project>-<member-id>`, where the role comes from a fixed vocabulary.
 2. Role vocabulary: `Leader / Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer`
-3. `<instance>` = domain / service / project name (lowercase hyphenated), e.g. `user-service`, `web`, `order`.
-4. The name only distinguishes instances; it carries no responsibility. Responsibilities always come from Agent Instructions / Squad Instructions.
-5. `Architect` is technical architecture design (change plan / files / verification); `Designer` is UI / interaction design (Figma visuals & specs). Different expertise and artifacts — don't merge them.
+3. `<project>` = service / domain / project name (lowercase hyphenated), e.g. `user-service`, `web`, `order`.
+4. `<member-id>` = the member's unique ID within "this project + this role", using an **employee number or nickname** (e.g. `u1024`, `ajie`). Do NOT use a full real name (avoids PII and cross-project ambiguity for the same person).
+5. The name only distinguishes instances; it carries no responsibility. Responsibilities always come from Agent Instructions / Squad Instructions.
+6. `Architect` is technical architecture design (change plan / files / verification); `Designer` is UI / interaction design (Figma visuals & specs). Different expertise and artifacts — don't merge them.
 
 ## Examples
 
 | Role | Example name | Meaning |
 | --- | --- | --- |
-| BackendDev | `BackendDev-user-service` | User-service backend |
-| FrontendDev | `FrontendDev-web` | Web frontend |
-| Tester | `Tester-order` | Order-domain testing |
-| Architect | `Architect-core` | Core architecture design |
-| Designer | `Designer-web` | Web UI / interaction design (Figma) |
-| Leader | `Leader-core` | Core squad Leader |
+| BackendDev | `BackendDev-user-service-u1024` | User-service backend (member u1024) |
+| FrontendDev | `FrontendDev-web-ajie` | Web frontend (member nickname ajie) |
+| Tester | `Tester-order-lina` | Order-domain testing (member nickname lina) |
+| Architect | `Architect-core-u2031` | Core architecture design (member u2031) |
+| Designer | `Designer-web-mei` | Web UI / interaction design (Figma, nickname mei) |
+| Leader | `Leader-core-u0001` | Core squad Leader (member u0001) |
+
+> The three-segment form resolves the "real name vs role name" collision: the role keeps the name readable and routable; the project segment isolates services; the member-id (employee number / nickname) uniquely distinguishes "same project, same role, multiple people". Templates use the placeholder `<member>` instead of a real name, preserving Copy-Paste-Run.
 
 ## Squad instance suffix & prefix wildcard
 
-Squad Instructions refer to members by the **role prefix** (`@Architect` / `@FrontendDev` / …), not a hardcoded full Agent name — that's what keeps `squad.md` copy-paste-ready. But a workspace routinely hosts multiple instances of the same role (e.g. `FrontendDev-web`, `FrontendDev-mobile`); the orchestrator must be able to pin the one that belongs to *this* squad. Rules:
+Squad Instructions refer to members by the **role prefix** (`@Architect` / `@FrontendDev` / …), not a hardcoded full Agent name — that's what keeps `squad.md` copy-paste-ready. But a workspace routinely hosts multiple instances of the same role (e.g. `FrontendDev-web-ajie`, `FrontendDev-web-lina`); the orchestrator must be able to pin the one that belongs to *this* squad. Rules:
 
-1. Each squad declares its **instance suffix** `suffix` (e.g. `payment`, `order`) at startup, bound to all its roles.
-2. Wherever the Squad Instructions write `@role`, the orchestrator resolves it to `@role-<squad suffix>` before dispatching the precise @mention.
-   - Example: with `suffix = payment`, `@FrontendDev` → actually dispatched to `FrontendDev-payment`, `@Architect` → `Architect-payment`.
+1. Each squad declares its **instance suffix** `suffix` (e.g. `payment`, `order`) at startup, bound to all its roles; it maps to the `<project>` segment above.
+2. Wherever the Squad Instructions write `@role`, the orchestrator resolves it to `@role-<squad suffix>-<squad member>` before dispatching the precise @mention.
+   - Example: with `suffix = payment` and `member = u1024`, `@FrontendDev` → actually dispatched to `FrontendDev-payment-u1024`, `@Architect` → `Architect-payment-u1024`.
 3. If a role is out of the squad's scope (the Issue 【Scope】 doesn't include that layer), skip its artifact per the existing rule — don't resolve, don't dispatch.
-4. `suffix` is set once in the squad configuration, never written into `squad.md`; `squad.md` always shows only the role prefix, staying copy-paste-ready.
+4. `suffix` and `member` are set once in the squad configuration, never written into `squad.md`; `squad.md` always shows only the role prefix, staying copy-paste-ready.
 
-> Thus the "role prefix" is the logical name inside the Squad, and `@role-suffix` is the physical name inside the workspace; the two are bridged by the squad configuration.
+> Thus the "role prefix" is the logical name inside the Squad, and `@role-project-member-id` is the physical name inside the workspace; the two are bridged by the squad configuration.
 
 ## Why
 

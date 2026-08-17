@@ -179,7 +179,7 @@ docs/          ⭐ 先读这一页：指令放哪 / 门禁证据 / 常见错误 
 | [gates-and-evidence](docs/zh_CN/gates-and-evidence.md) | 门禁 G0–G4 与证据要求 |
 | [common-mistakes](docs/zh_CN/common-mistakes.md) | Bad → Good 错误示范 |
 | [adapt-and-scale](docs/zh_CN/adapt-and-scale.md) | 裁剪、扩展、试点推广 |
-| [naming-conventions](docs/zh_CN/naming-conventions.md) | Agent 命名规范（角色+姓名） |
+| [naming-conventions](docs/zh_CN/naming-conventions.md) | Agent 命名规范（角色+项目+成员标识） |
 
 ## 与相关项目的关系
 

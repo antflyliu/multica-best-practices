@@ -78,7 +78,7 @@ A: Six roles are enough for ordinary features. The PM role is covered by the Iss
 
 **Q: Can I use my own Squad flow?**
 
-A: Yes. The Starter's core value is "responsibility boundaries" and "evidence gates"; the flow itself should adapt to your project. Multi-instance reuse: see [`naming-conventions.md`](./naming-conventions.md) (role + name).
+A: Yes. The Starter's core value is "responsibility boundaries" and "evidence gates"; the flow itself should adapt to your project. Multi-instance reuse: see [`naming-conventions.md`](./naming-conventions.md) (role + project + member-id).
 
 **Q: Why isn't there a technical-research Starter?**
 

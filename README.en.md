@@ -181,7 +181,7 @@ Details:
 | [gates-and-evidence](docs/en_US/gates-and-evidence.md) | Gates G0–G4 and evidence requirements |
 | [common-mistakes](docs/en_US/common-mistakes.md) | Bad → Good examples |
 | [adapt-and-scale](docs/en_US/adapt-and-scale.md) | Cut down, extend, pilot, roll out |
-| [naming-conventions](docs/en_US/naming-conventions.md) | Agent naming rules (role + name) |
+| [naming-conventions](docs/en_US/naming-conventions.md) | Agent naming rules (role + project + member-id) |
 
 ## Relationship to related projects
 

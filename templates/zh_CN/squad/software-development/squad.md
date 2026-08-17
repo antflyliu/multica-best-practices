@@ -32,10 +32,10 @@
 @Reviewer           业务评审（可选）
 
 【角色前缀解析】（本小队如何锁定具体智能体）
-Squad 指令只写上面的「角色前缀」。一个 workspace 里常驻多个同角色实例（如 FrontendDev-web、FrontendDev-mobile），指挥必须派给「本小队」那一个：
-- 小队启动时声明实例后缀 suffix（如 payment），与本小队所有角色绑定，只设一次、不写进本文件。
-- 凡写 @角色 处，一律解析为 @角色-<本小队 suffix> 再精确 @mention（例：suffix=payment 时，@FrontendDev → FrontendDev-payment）。
-- 不在范围的角色不解析、不派活。完整规则见《命名规范：角色 + 姓名》。
+Squad 指令只写上面的「角色前缀」。一个 workspace 里常驻多个同角色实例（如 FrontendDev-web-阿杰、FrontendDev-web-lina），指挥必须派给「本小队」那一个：
+- 小队启动时声明实例后缀 suffix（如 payment，对应命名的 <项目> 段）与成员标识 member（如 u1024，工号/花名），与本小队所有角色绑定，只设一次、不写进本文件。
+- 凡写 @角色 处，一律解析为 @角色-<本小队 suffix>-<本小队 member> 再精确 @mention（例：suffix=payment、member=u1024 时，@FrontendDev → FrontendDev-payment-u1024）。
+- 不在范围的角色不解析、不派活。完整规则见《命名规范：角色 + 项目 + 成员标识》。
 
 【阶段-门禁对照表】（流水线一览；缺层即跳过对应行）
 G0 范围确定 → S1a 技术设计 @Architect / S1b UI 设计 @Designer（并行，均产出）→ G1 设计门禁（含 UI 评审）
@@ -82,7 +82,7 @@ G0 范围确定 → S1a 技术设计 @Architect / S1b UI 设计 @Designer（并�
 
 【协调规则】
 1. 派发前先读 Issue。
-2. 用精确 @mention 派活（按【角色前缀解析】展开为 @角色-<本小队 suffix>），说清期望产出，不要复述 Issue 全文。
+2. 用精确 @mention 派活（按【角色前缀解析】展开为 @角色-<本小队 suffix>-<本小队 member>），说清期望产出，不要复述 Issue 全文。
 3. 派发后停止，等结果评论再决定下一步。
 4. 禁止无理由跳过阶段。
 

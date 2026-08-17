@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 本文件记录本项目的所有重要变更。新条目采用中英结合写法（Chinese-first, English alongside）。
 
+## v0.0.4 - 2026-08-17 · Three-segment naming (role + project + member-id) / 命名升级为三段式
+
+### Changed / 变更
+
+- 命名规范从「角色 + 实例」升级为「角色 + 项目 + 成员标识」`<角色>-<项目>-<成员标识>`，解决「真实姓名 vs 角色名」冲突：同项目同角色多人时靠成员标识（工号/花名，不用真实姓名全称）唯一区分 / Upgraded naming from `role + instance` to `role + project + member-id` `<role>-<project>-<member-id>` to resolve the "real name vs role name" collision: same project + same role + multiple people are disambiguated by the member-id (employee number / nickname, never a full real name)
+- 角色前缀通配解析同步扩为三段：`@角色` → 指挥按 `@角色-<本小队 suffix>-<本小队 member>` 精确 @mention（suffix 对应 `<项目>` 段，member 对应 `<成员标识>` 段）/ Role-prefix wildcard resolution extended to three segments: `@role` → orchestrator dispatches `@role-<squad suffix>-<squad member>`
+- 同步更新 `docs/zh_CN|en_US/naming-conventions.md`、`templates/zh_CN|en_US/squad/{software-development,bug-fix}/squad.md` 与 `templates/zh_CN|en_US/agents/leader.md` 的前缀解析段/精确派活描述，以及 README（中英文）、AGENTS.md、adapt-and-scale.md（中英文）、各 squad README 的命名标题引用 / Synced all references in README (zh/en), AGENTS.md, adapt-and-scale.md (zh/en), and each squad README
+
+### Removed / 移除
+
+- 未采纳「私有小队 Profile」机制（用户判定过于复杂，不引入）/ Did not adopt the "private squad Profile" mechanism (deemed too complex by the user)
+
 ## v0.0.3 - 2026-08-17 · Squad instructions re-leveled to Squad scope / Squad 指令重构为 Squad 级
 
 ### Changed / 变更

@@ -78,7 +78,7 @@ A：普通功能六个角色已足够。PM 职责可以用 Issue 模板替代（
 
 **Q：我可以用自己的 Squad 流程吗？**
 
-A：可以。Starter 的核心价值是「职责边界」和「证据门禁」，流程本身应该随你的项目调整。多实例复用见 [`naming-conventions.md`](./naming-conventions.md)（角色+姓名）。
+A：可以。Starter 的核心价值是「职责边界」和「证据门禁」，流程本身应该随你的项目调整。多实例复用见 [`naming-conventions.md`](./naming-conventions.md)（角色+项目+成员标识）。
 
 **Q：为什么没有 technical-research Starter？**
 

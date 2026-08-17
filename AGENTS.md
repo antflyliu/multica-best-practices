@@ -24,7 +24,7 @@ SECURITY.md          Security check before sharing templates
 
 - **Skill naming**: `multica-` prefix + lowercase hyphenated; the `name` field in `SKILL.md` matches the directory name.
 - **Skills mount by name**: documents reference `multica-xxx` (in backticks), never a repo path.
-- **Agent naming**: `role + name` (e.g. `BackendDev-user-service`).
+- **Agent naming**: `role + project + member-id` (e.g. `BackendDev-user-service-u1024`).
 - **Directory semantics**: inside each language tree, `agents/` = roles, `skills/` = practices, `squad/` = squad combinations, and `docs/` = methodology. CI hard-gate templates live in the `multica-gate-setup` skill; there is no standalone `gates/` directory.
 
 ## i18n convention (how Chinese and English coexist)
