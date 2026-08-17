@@ -5,7 +5,7 @@
 ## Rules
 
 1. Agent name = `<role>-<project>-<member-id>`, where the role comes from a fixed vocabulary.
-2. Role vocabulary: `Leader / Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer`
+2. Role vocabulary: `Leader / ProductManager / Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer`
 3. `<project>` = service / domain / project name (lowercase hyphenated), e.g. `user-service`, `web`, `order`.
 4. `<member-id>` = the member's unique ID within "this project + this role", using an **employee number or nickname** (e.g. `u1024`, `ajie`). Do NOT use a full real name (avoids PII and cross-project ambiguity for the same person).
 5. The name only distinguishes instances; it carries no responsibility. Responsibilities always come from Agent Instructions / Squad Instructions.

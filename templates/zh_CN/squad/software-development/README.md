@@ -150,7 +150,7 @@ multica-verification skill 是 Agent 世界的**软门禁**（由 Leader 执行�
 
 ## 为什么有效
 
-这个 Starter 有 7 个角色：Leader 负责编排与判门，Architect（技术架构）/ Designer（Figma UI）/ FrontendDev / BackendDev / Tester 各管一段产物，**Reviewer 做业务评审**。
+这个 Starter 有 8 个角色：Leader 负责编排与判门，ProductManager（产品需求 / PRD）把想法变可评审交付物，Architect（技术架构）/ Designer（Figma UI）/ FrontendDev / BackendDev / Tester 各管一段产物，**Reviewer 做业务评审**。
 判门动作标准化为 [`../../skills/multica-verification/SKILL.md`](../../skills/multica-verification/SKILL.md)，由不产出的 Leader 执行（执行者与判门者不同源）；客观验证能机器化就升级到 CI 硬门禁（见 [`../../skills/multica-gate-setup/`](../../skills/multica-gate-setup/)）。
 **门禁锚定产物而不是角色**：Issue 的「涉及端」决定路由，缺失角色对应产物跳过、门禁链不断——无设计 / 无前端 / 无后端 / 全栈都是同一套指令的排列组合。
 路由逻辑只写一次（Squad），不复制进每个 Agent；每个 Agent 职责很窄，可以原样照搬。

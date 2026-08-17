@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 本文件记录本项目的所有重要变更。新条目采用中英结合写法（Chinese-first, English alongside）。
 
+## v0.0.5 - 2026-08-17 · Add ProductManager role + AI-readable requirement discipline / 新增产品经理角色与需求 AI 可读纪律
+
+### Added / 新增
+
+- 新增 `ProductManager` 角色指令（`templates/zh_CN|en_US/agents/product-manager.md`）：把想法 / 诉求 / 会议结论整理成可评审、可设计、可开发、可测试的 PRD（含 G-/FR-/BR-/AC-/KPI-/RISK-/OP- 编号、六类读者对准、需求类型→产物形态、AI 可读纪律、协作偏好）/ New `ProductManager` agent instructions: turns ideas / asks / meeting notes into reviewable PRDs
+- 角色词表加入 `ProductManager`，`naming-conventions.md`（中英）第 2 条同步 / Role vocabulary now includes `ProductManager` in `naming-conventions.md` (zh/en)
+- 软件开发展望 Starter 接入 PM：团队段加 @ProductManager，阶段表加 S0 需求产出 @ProductManager → G0 范围确定（基于 PRD），产物流水线加第 0 步；无 PM 时 Issue 直接视为就绪范围、跳过 S0 / software-development Squad wires in PM: S0 requirement @ProductManager → G0 scope; without PM, Issue is the ready scope
+- `gates-and-evidence.md`（中英）新增「需求 / 设计类产物的 AI 可读纪律」：稳定标题、稳定表格字段、规则编号、待确认集中（OP- 未关闭不进开发）、文档互链、冲突指明准绳、禁用模糊词、规则文字化；违反任一条 G0/G1 判 REJECTED / Added "AI-readable discipline for requirement / design artifacts" to `gates-and-evidence.md` (zh/en)
+- Starter 角色计数 7 → 8（`templates/zh_CN|en_US/squad/software-development/README.md`）/ Starter role count 7 → 8
+
+### Changed / 变更
+
+- @Designer / @Architect（中英）的「产品需求」来源改为以 @ProductManager 的 PRD 为主（无 PM 退化到 Issue / @Architect 说明），并明确产品范围 / 业务规则 / 字段口径归 PM、无 PM 归 Leader 收敛 / Designer & Architect now take PRD from @ProductManager as the primary source; product scope / business rules / field definitions belong to PM (or Leader without PM)
+
 ## v0.0.4 - 2026-08-17 · Three-segment naming (role + project + member-id) / 命名升级为三段式
 
 ### Changed / 变更

@@ -95,6 +95,21 @@ A gate verdict isn't just PASS / FAIL; use these four values:
 
 When multiple artifacts advance in parallel and join at one gate (e.g. software-dev G2 = API contract + feature cases, G3 = frontend + backend + API cases), that gate requires **every branch APPROVED to open the downstream**; if any branch is REJECTED, only that branch is returned and the join stays closed. The gatekeeper judges each branch independently and doesn't vouch for a failed branch.
 
+### "AI-readable" discipline for requirement / design artifacts
+
+Requirements and product docs are not only for human review — downstream @Architect / @Designer / @FrontendDev / @BackendDev / @Tester use them to break down tasks. When the Leader gates G0/G1, beyond the four values, also check these hard constraints (from the Product Manager role):
+
+1. **Stable headings**: heading levels and section names in a doc are fixed, so AI can locate (e.g. "Acceptance Criteria" is always AC-, not "acceptance" today and "pass criteria" tomorrow).
+2. **Stable table columns**: field tables / metric definitions use fixed column names (e.g. "field / type / required / note").
+3. **Numbered rules**: business rules, acceptance criteria, and goals always use G- / FR- / BR- / AC- / KPI- / OP- / RISK- numbering; no unnumbered prose demands.
+4. **Centralized open questions**: all uncertainty goes only into the OP- list, not scattered in the body pretending to be confirmed; OP- must be closed before development.
+5. **Cross-linked docs**: PRD / prototype notes / metric definitions / acceptance checklist link to each other; don't rely on "that table earlier".
+6. **Conflict source-of-truth**: on conflicting sources, state "which doc is authoritative"; don't leave two contradictory docs unarbitrated.
+7. **Ban vague words**: no "etc. / relevant / appropriate / optimize a bit" that can't be built or accepted; requirements must be testable.
+8. **Rules as text**: important rules must exist as text, not only in images / prototypes (images supplement, never the sole source).
+
+> Violating any point → G0/G1 verdict REJECTED, naming which point is missing; don't silently pass.
+
 ### The gatekeeper doesn't edit the artifact
 
 The gatekeeper (the Leader rerunning with multica-verification, or an independent Reviewer) only outputs a verdict and a fix list — **never edits the reviewed artifact on the author's behalf**; the orchestrator also never approves on the reviewer's behalf. This makes the "authors don't self-review" hard constraint hold at the process level.
