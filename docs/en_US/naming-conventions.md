@@ -9,7 +9,7 @@
 3. `<project>` = service / domain / project name (lowercase hyphenated), e.g. `user-service`, `web`, `order`.
 4. `<member-id>` = the member's unique ID within "this project + this role", using an **employee number or nickname** (e.g. `u1024`, `ajie`). Do NOT use a full real name (avoids PII and cross-project ambiguity for the same person).
 5. The name only distinguishes instances; it carries no responsibility. Responsibilities always come from Agent Instructions / Squad Instructions.
-6. `Architect` is technical architecture design (change plan / files / verification); `Designer` is UI / interaction design (Figma visuals & specs). Different expertise and artifacts — don't merge them.
+6. `Architect` is technical architecture design (change plan / files / verification); `Designer` is UI / interaction design (design platform decided by the `multica-artifact-ui-sync` skill). Different expertise and artifacts — don't merge them.
 
 ## Examples
 
@@ -19,7 +19,7 @@
 | FrontendDev | `FrontendDev-web-ajie` | Web frontend (member nickname ajie) |
 | Tester | `Tester-order-lina` | Order-domain testing (member nickname lina) |
 | Architect | `Architect-core-u2031` | Core architecture design (member u2031) |
-| Designer | `Designer-web-mei` | Web UI / interaction design (Figma, nickname mei) |
+| Designer | `Designer-web-mei` | Web UI / interaction design (platform decided by skill, nickname mei) |
 | Leader | `Leader-core-u0001` | Core squad Leader (member u0001) |
 
 > The three-segment form resolves the "real name vs role name" collision: the role keeps the name readable and routable; the project segment isolates services; the member-id (employee number / nickname) uniquely distinguishes "same project, same role, multiple people". Templates use the placeholder `<member>` instead of a real name, preserving Copy-Paste-Run.

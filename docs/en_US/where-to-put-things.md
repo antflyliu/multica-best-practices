@@ -10,7 +10,7 @@
 | "What background does this project have" | Project Instructions |
 | "What role are you" | Agent Instructions |
 | "Who is responsible for what" | Squad Instructions |
-| "Where do stage artifacts go / how does downstream read" | `artifacts/<issue-id>/` dir (see [artifact-conventions](./artifact-conventions.md)) |
+| "Where do stage artifacts go / how does downstream read" | landed by the `multica-artifact-*-sync` skill to the team platform, returning a stable link (see [artifact-conventions](./artifact-conventions.md)) |
 | "How to do a certain kind of check" | Skill |
 | "Tests must pass" | CI (engineering system) |
 | "Who decides what ships" | Human |

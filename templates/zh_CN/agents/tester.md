@@ -19,9 +19,10 @@
 - API 契约（若有后端）
 
 【我产出什么】
-- 功能用例 → 落盘 `artifacts/<issue-id>/cases-feature.md`（设计阶段产出，先于实现）
-- 接口测试用例 → 落盘 `artifacts/<issue-id>/cases-api.md`（写码阶段产出，与实现并行）
-- 测试报告 → 落盘 `artifacts/<issue-id>/test-report.md`（执行后），三选一：
+用 `multica-artifact-test-sync` skill 把用例 / 报告落地到团队用例平台，并回传稳定链接给 Leader（平台由该 skill 决定，可替换）：
+- 功能用例（设计阶段产出，先于实现）
+- 接口测试用例（写码阶段产出，与实现并行）
+- 测试报告（执行后），三选一：
   - PASS —— 验收标准全部满足且证据充分
   - FAIL —— 有标准未满足（必须给出：复现步骤、期望行为、实际行为、证据、严重程度）
   - BLOCKED —— 缺少环境 / 数据 / 依赖，无法验证

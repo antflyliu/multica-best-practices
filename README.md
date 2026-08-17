@@ -73,8 +73,13 @@ Multica 很强大，但第一次上手可能意外地难：
 | `multica-requirement-analysis` | [`templates/zh_CN/skills/multica-requirement-analysis/SKILL.md`](./templates/zh_CN/skills/multica-requirement-analysis/SKILL.md) | Leader / Architect |
 | `multica-technical-design` | [`templates/zh_CN/skills/multica-technical-design/SKILL.md`](./templates/zh_CN/skills/multica-technical-design/SKILL.md) | Architect |
 | `multica-implementation` | [`templates/zh_CN/skills/multica-implementation/SKILL.md`](./templates/zh_CN/skills/multica-implementation/SKILL.md) | FrontendDev / BackendDev |
+| `multica-artifact-req-sync` | [`templates/zh_CN/skills/multica-artifact-req-sync/SKILL.md`](./templates/zh_CN/skills/multica-artifact-req-sync/SKILL.md) | ProductManager（产物落地到需求平台） |
+| `multica-artifact-ui-sync` | [`templates/zh_CN/skills/multica-artifact-ui-sync/SKILL.md`](./templates/zh_CN/skills/multica-artifact-ui-sync/SKILL.md) | Designer（产物落地到设计平台） |
+| `multica-artifact-design-sync` | [`templates/zh_CN/skills/multica-artifact-design-sync/SKILL.md`](./templates/zh_CN/skills/multica-artifact-design-sync/SKILL.md) | Architect（产物落地到 Git/知识平台） |
+| `multica-artifact-api-sync` | [`templates/zh_CN/skills/multica-artifact-api-sync/SKILL.md`](./templates/zh_CN/skills/multica-artifact-api-sync/SKILL.md) | BackendDev（产物落地到接口平台） |
+| `multica-artifact-test-sync` | [`templates/zh_CN/skills/multica-artifact-test-sync/SKILL.md`](./templates/zh_CN/skills/multica-artifact-test-sync/SKILL.md) | Tester（产物落地到用例平台） |
 
-> 6 个 Skill 全部共享放在 `templates/zh_CN/skills/`，统一 `multica-` 前缀命名空间（multica-verification 是判门，Bug Fix 也在用；multica-gate-setup 用于把 CI 硬门禁装进仓库并在判门时感知 CI 结论；multica-test-design 给 Tester 生成用例与测试报告）。Skill 靠**名称**挂载，谁需要就在自己的 Instructions 里写「用 xxx skill」，与仓库路径无关。
+> 11 个 Skill 全部共享放在 `templates/zh_CN/skills/`，统一 `multica-` 前缀命名空间（multica-verification 是判门，Bug Fix 也在用；multica-gate-setup 用于把 CI 硬门禁装进仓库并在判门时感知 CI 结论；multica-test-design 给 Tester 生成用例与测试报告；`multica-artifact-*-sync` 五个 skill 负责把产物落地到团队平台——**角色提示词只说"用哪个 skill"，平台在 skill 内实现、可替换**，详见 artifact-conventions）。Skill 靠**名称**挂载，谁需要就在自己的 Instructions 里写「用 xxx skill」，与仓库路径无关。
 
 ### Step 3 — 创建 Squad
 
@@ -176,7 +181,7 @@ docs/          ⭐ 先读这一页：指令放哪 / 门禁证据 / 常见错误 
 | 文档 | 内容 |
 | --- | --- |
 | [where-to-put-things](docs/zh_CN/where-to-put-things.md) | 指令归属速查表（最值得读） |
-| [artifact-conventions](docs/zh_CN/artifact-conventions.md) | 协作产物落盘约定：各阶段产物放哪、下游怎么读 |
+| [artifact-conventions](docs/zh_CN/artifact-conventions.md) | 协作产物约定：内容规范 + 对接 skill（平台不写进角色提示词，下沉到 `multica-artifact-*-sync`，换公司只换 skill） |
 | [gates-and-evidence](docs/zh_CN/gates-and-evidence.md) | 门禁 G0–G4 与证据要求 |
 | [common-mistakes](docs/zh_CN/common-mistakes.md) | Bad → Good 错误示范 |
 | [adapt-and-scale](docs/zh_CN/adapt-and-scale.md) | 裁剪、扩展、试点推广 |

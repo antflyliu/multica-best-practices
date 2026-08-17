@@ -150,7 +150,7 @@ The multica-verification skill is a **soft gate** in the agent world (executed b
 
 ## Why this works
 
-This Starter has 8 roles: the Leader owns orchestration and gatekeeping; ProductManager (product requirement / PRD) turns ideas into reviewable deliverables; Architect (technical) / Designer (Figma UI) / FrontendDev / BackendDev / Tester each own a piece of the artifacts, and the **Reviewer does the business review**.
+This Starter has 8 roles: the Leader owns orchestration and gatekeeping; ProductManager (product requirement / PRD) turns ideas into reviewable deliverables; Architect (technical) / Designer (UI, platform via `multica-artifact-ui-sync`) / FrontendDev / BackendDev / Tester each own a piece of the artifacts, and the **Reviewer does the business review**.
 Gatekeeping is standardized as [`../../skills/multica-verification/SKILL.md`](../../skills/multica-verification/SKILL.md), executed by the non-producing Leader (executor and gatekeeper are different parties); objective verification that can be machine-run is upgraded to CI hard gates (see [`../../skills/multica-gate-setup/`](../../skills/multica-gate-setup/)).
 **Gates anchor to artifacts, not roles**: the Issue's "affected ends" decides routing; artifacts for missing roles are skipped and the gate chain stays intact — no design / no frontend / no backend / full-stack are all permutations of the same instructions.
 Routing logic is written once (Squad), not copied into every Agent; each Agent has a narrow responsibility and can be copied as-is.

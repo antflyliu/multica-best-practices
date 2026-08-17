@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 本文件记录本项目的所有重要变更。新条目采用中英结合写法（Chinese-first, English alongside）。
 
+## v0.0.7 - 2026-08-17 · Artifact platform decoupled into skills / 产物平台对接下沉到 skill
+
+### Added / 新增
+
+- 新增 5 个产物对接 skill（中英，每个默认平台可替换）：`multica-artifact-req-sync`（PRD→Confluence）、`multica-artifact-ui-sync`（UI→Figma）、`multica-artifact-design-sync`（技术设计→Git/Confluence）、`multica-artifact-api-sync`（API 契约→Apifox）、`multica-artifact-test-sync`（用例→本地 XMind 转 Jira）/ Added 5 artifact-sync skills (zh/en, swappable default platform each)
+- 新增 `artifact-conventions.md`（中英）重写为「产物内容规范 + 对接 skill」：内容归角色、平台归 skill，角色提示词不写平台名；换公司只换 skill / Rewrote `artifact-conventions.md` (zh/en) into "content spec + sync skill": content belongs to role, platform to skill; no platform name in prompts
+- `README.md` / `README.en.md` Skill 表加 5 个 `multica-artifact-*-sync` 条目，计数 6→11 / README skill tables add the 5 artifact-sync skills, count 6→11
+
+### Changed / 变更
+
+- 全部 8 个角色指令（中英）：「我产出什么 / WHAT I PRODUCE/OWN/DELIVER」改为"用 `multica-artifact-*-sync` skill 落地并回传稳定链接"，去掉写死的 `artifacts/<issue-id>/xxx.md` 与本地产平台名（如 Designer 的 Figma）/ All 8 agent instructions (zh/en): outputs now "land via multica-artifact-*-sync and return a stable link", dropping hard-coded local paths and platform names
+- `templates/zh_CN|en_US/squad/software-development/squad.md`：阶段表与产物流水线改为"角色经 skill 回传链接"，【产物落盘】段改为【产物落盘与取回】，不再写死本地路径 / Squad stage map & pipeline now say "role returns link via skill"; 【ARTIFACT LANDING】 becomes landing+retrieval, no hard-coded local paths
+
 ## v0.0.6 - 2026-08-17 · Artifact landing conventions / 协作产物落盘约定
 
 ### Added / 新增

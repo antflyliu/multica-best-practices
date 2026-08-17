@@ -9,7 +9,7 @@
 3. `<项目>` = 服务 / 领域 / 项目名称（小写连字符），例如 `user-service`、`web`、`order`。
 4. `<成员标识>` = 该成员在「本项目 + 本角色」下的唯一标识，用工号或花名（如 `u1024`、`阿杰`），不要用真实姓名全称（避免 PII，也避免同一人跨项目重名歧义）。
 5. 名字只区分实例，不承载职责；职责永远来自 Agent Instructions / Squad Instructions。
-6. `Architect` 是技术架构设计（改动方案 / 文件 / 验证），`Designer` 是 UI / 交互设计（Figma 视觉与标注）；二者专业与产物不同，不要合并。
+6. `Architect` 是技术架构设计（改动方案 / 文件 / 验证），`Designer` 是 UI / 交互设计（设计平台由 `multica-artifact-ui-sync` skill 决定）；二者专业与产物不同，不要合并。
 
 ## 示例
 
@@ -19,7 +19,7 @@
 | FrontendDev | `FrontendDev-web-阿杰` | Web 前端（成员花名 阿杰）|
 | Tester | `Tester-order-lina` | 订单域测试（成员花名 lina）|
 | Architect | `Architect-core-u2031` | 核心架构设计（成员工号 u2031）|
-| Designer | `Designer-web-mei` | Web UI / 交互设计（Figma，花名 mei）|
+| Designer | `Designer-web-mei` | Web UI / 交互设计（设计平台由 skill 决定，花名 mei）|
 | Leader | `Leader-core-u0001` | 核心小队 Leader（成员工号 u0001）|
 
 > 三段式解决了「真实姓名 vs 角色名」的冲突：角色名保证可读、可路由；项目段隔离不同服务；成员标识（工号/花名）在「同项目同角色多人」时唯一区分。模板里成员标识用占位符 `<member>`，不写死真名，保持 Copy-Paste-Run。

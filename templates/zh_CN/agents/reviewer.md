@@ -14,7 +14,7 @@
 
 【我需要什么】
 - Issue（含目标与验收标准）
-- 阶段产物（读取 `artifacts/<issue-id>/` 下的设计方案 / 代码 diff；路径见 docs/zh_CN/artifact-conventions.md）
+- 阶段产物（读取各角色经 `multica-artifact-*-sync` skill 回传的链接 / 引用；约定见 docs/zh_CN/artifact-conventions.md）
 - 验证证据（Leader 用 multica-verification skill 给出的判门结论）
 
 【我产出什么】

@@ -73,8 +73,13 @@ In Multica, create 6 Skills, copying the code block from the matching `SKILL.md`
 | `multica-requirement-analysis` | [`templates/en_US/skills/multica-requirement-analysis/SKILL.md`](./templates/en_US/skills/multica-requirement-analysis/SKILL.md) | Leader / Architect |
 | `multica-technical-design` | [`templates/en_US/skills/multica-technical-design/SKILL.md`](./templates/en_US/skills/multica-technical-design/SKILL.md) | Architect |
 | `multica-implementation` | [`templates/en_US/skills/multica-implementation/SKILL.md`](./templates/en_US/skills/multica-implementation/SKILL.md) | FrontendDev / BackendDev |
+| `multica-artifact-req-sync` | [`templates/en_US/skills/multica-artifact-req-sync/SKILL.md`](./templates/en_US/skills/multica-artifact-req-sync/SKILL.md) | ProductManager (lands artifacts to the requirement platform) |
+| `multica-artifact-ui-sync` | [`templates/en_US/skills/multica-artifact-ui-sync/SKILL.md`](./templates/en_US/skills/multica-artifact-ui-sync/SKILL.md) | Designer (lands artifacts to the design platform) |
+| `multica-artifact-design-sync` | [`templates/en_US/skills/multica-artifact-design-sync/SKILL.md`](./templates/en_US/skills/multica-artifact-design-sync/SKILL.md) | Architect (lands artifacts to Git / knowledge platform) |
+| `multica-artifact-api-sync` | [`templates/en_US/skills/multica-artifact-api-sync/SKILL.md`](./templates/en_US/skills/multica-artifact-api-sync/SKILL.md) | BackendDev (lands artifacts to the API platform) |
+| `multica-artifact-test-sync` | [`templates/en_US/skills/multica-artifact-test-sync/SKILL.md`](./templates/en_US/skills/multica-artifact-test-sync/SKILL.md) | Tester (lands artifacts to the case platform) |
 
-> All 6 Skills are shared under `templates/en_US/skills/` with the unified `multica-` prefix namespace (`multica-verification` is the gatekeeper and is also used by Bug Fix; `multica-gate-setup` installs CI hard gates into a repo and lets gatekeeping read the CI verdict; `multica-test-design` has the Tester generate cases and test reports). Skills mount **by name** — whoever needs one writes "use the xxx skill" in their Instructions, independent of repo paths.
+> All 11 Skills are shared under `templates/en_US/skills/` with the unified `multica-` prefix namespace (`multica-verification` is the gatekeeper and is also used by Bug Fix; `multica-gate-setup` installs CI hard gates into a repo and lets gatekeeping read the CI verdict; `multica-test-design` has the Tester generate cases and test reports; the five `multica-artifact-*-sync` skills land artifacts to the team's platforms — **role prompts only say "which skill to use"; the platform is implemented inside the skill and is swappable**, see artifact-conventions). Skills mount **by name** — whoever needs one writes "use the xxx skill" in their Instructions, independent of repo paths.
 
 ### Step 3 — Create the Squad
 
@@ -178,7 +183,7 @@ Details:
 | Doc | Content |
 | --- | --- |
 | [where-to-put-things](docs/en_US/where-to-put-things.md) | Where instructions belong — cheat sheet (most worth reading) |
-| [artifact-conventions](docs/en_US/artifact-conventions.md) | Collaboration artifact landing: where each stage artifact goes, how downstream reads it |
+| [artifact-conventions](docs/en_US/artifact-conventions.md) | Collaboration artifact conventions: content spec + sync skill (platforms are not written into role prompts; they sink into `multica-artifact-*-sync` and are swappable per company) |
 | [gates-and-evidence](docs/en_US/gates-and-evidence.md) | Gates G0–G4 and evidence requirements |
 | [common-mistakes](docs/en_US/common-mistakes.md) | Bad → Good examples |
 | [adapt-and-scale](docs/en_US/adapt-and-scale.md) | Cut down, extend, pilot, roll out |

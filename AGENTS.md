@@ -9,9 +9,10 @@ README.md            Project entry: quick start / principles / structure (biling
 AGENTS.md            Agent entry: project conventions and change rules (always English)
 templates/           Everything copy-paste-ready (split by language)
 ├── zh_CN/           Chinese templates (default)
-│   ├── agents/      Shared Agent Instructions (7 role definitions)
-│   ├── skills/      Shared Skills (6, unified multica- prefix)
+│   ├── agents/      Shared Agent Instructions (8 role definitions)
+│   ├── skills/      Shared Skills (11, unified multica- prefix)
 │   │   └── multica-gate-setup/  CI hard-gate templates ship inside this Skill
+│   │   └── multica-artifact-*-sync/  Artifact landing to team platforms (5 skills; platform decoupled from roles)
 │   └── squad/       Squad starters (copy the whole subdirectory and run)
 │       ├── software-development/  Regular development (recommended)
 │       └── bug-fix/               Minimal fix combination
@@ -25,7 +26,7 @@ SECURITY.md          Security check before sharing templates
 - **Skill naming**: `multica-` prefix + lowercase hyphenated; the `name` field in `SKILL.md` matches the directory name.
 - **Skills mount by name**: documents reference `multica-xxx` (in backticks), never a repo path.
 - **Agent naming**: `role + project + member-id` (e.g. `BackendDev-user-service-u1024`).
-- **Directory semantics**: inside each language tree, `agents/` = roles, `skills/` = practices, `squad/` = squad combinations, and `docs/` = methodology. CI hard-gate templates live in the `multica-gate-setup` skill; there is no standalone `gates/` directory.
+- **Directory semantics**: inside each language tree, `agents/` = roles, `skills/` = practices, `squad/` = squad combinations, and `docs/` = methodology. CI hard-gate templates live in the `multica-gate-setup` skill; artifact landing to team platforms lives in the five `multica-artifact-*-sync` skills (see `artifact-conventions.md` — platforms are decoupled from role prompts, swappable per company); there is no standalone `gates/` directory.
 
 ## i18n convention (how Chinese and English coexist)
 

@@ -18,7 +18,7 @@
 - 已有产品 / 设计文档（优先编辑补充，不轻易重写整份）
 
 【我产出什么】
-落盘到 `artifacts/<issue-id>/prd.md`（详见 docs/zh_CN/artifact-conventions.md）。一份正式需求至少包含（能用表格就表格、能编号就编号）：
+用 `multica-artifact-req-sync` skill 把产物落地到团队需求平台，并回传稳定链接给 Leader（落盘平台与方式由该 skill 决定，可替换；详见 docs/zh_CN/artifact-conventions.md）。一份正式需求至少包含（能用表格就表格、能编号就编号）：
 - 一句话定义
 - 背景与问题
 - 目标与成功标准（G- + KPI-）
@@ -32,7 +32,7 @@
 - 空态、异常态、无权限态
 - 依赖、风险 RISK-、待确认项 OP-
 - 修订记录
-编号沿用 Squad 的全局规范：G- / U- / FR- / BR- / AC- / KPI- / OP- / RISK-。
+编号沿用 Squad 的全局规范：G- / U- / FR- / BR- / AC- / KPI- / OP- / RISK-。产物内容用 `gates-and-evidence.md` 的 AI 可读纪律（稳定标题、稳定表字段），位置交给 skill 落地。
 
 【产物必须服务六类读者】
 - 业务 / 老板：为什么做、价值、成功怎么算
