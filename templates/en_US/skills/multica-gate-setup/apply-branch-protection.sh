@@ -6,13 +6,8 @@ set -euo pipefail
 OWNER="YOUR_OWNER"          # 改成你的 GitHub 组织/用户名
 REPO="YOUR_REPO"            # 改成你的仓库名
 BRANCH="main"               # 受保护分支
-REVIEW_TEAM=""              # 可选：独立审批团队 slug，如 "core-maintainers"
 
 RULE=$(cat "$(dirname "$0")/branch-protection.json")
-
-if [ -n "$REVIEW_TEAM" ]; then
-  RULE=$(echo "$RULE" | jq --arg t "$REVIEW_TEAM" '.required_pull_request_reviews + {teams: [$t]}')
-fi
 
 echo "🔒 Applying branch protection to $OWNER/$REPO@$BRANCH ..."
 gh api -X PUT "repos/$OWNER/$REPO/branches/$BRANCH/protection" \

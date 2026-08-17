@@ -76,7 +76,7 @@ Done
 
 ### Step 1 — 创建 Agents
 
-在 Multica 创建 5 个 Agent（按你的范围决定建哪些；命名遵循 [`docs/naming-conventions.md`](../../../../docs/chinese/naming-conventions.md) 的「角色+姓名」）：
+在 Multica 创建 5 个 Agent（按你的范围决定建哪些；命名遵循 [`docs/naming-conventions.md`](../../../../docs/zh_CN/naming-conventions.md) 的「角色+姓名」）：
 
 ```text
 Architect

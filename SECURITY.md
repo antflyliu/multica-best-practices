@@ -33,5 +33,5 @@ If you find a security-sensitive mistake in this repo (e.g. an accidental secret
 
 ## Agent behavior / Agent 行为
 
-AI Agent 是非确定性的。在破坏性文件操作、生产部署、外部发布等高风险动作之前，必须设置人类门禁，详见 [`docs/chinese/gates-and-evidence.md`](docs/chinese/gates-and-evidence.md)。
-AI agents are non-deterministic. Human gates are required before high-risk actions such as destructive file operations, production deploys, and external publishing — see [`docs/chinese/gates-and-evidence.md`](docs/chinese/gates-and-evidence.md).
+AI Agent 是非确定性的。在破坏性文件操作、生产部署、外部发布等高风险动作之前，必须设置人类门禁，详见 [`docs/zh_CN/gates-and-evidence.md`](docs/zh_CN/gates-and-evidence.md)。
+AI agents are non-deterministic. Human gates are required before high-risk actions such as destructive file operations, production deploys, and external publishing — see [`docs/zh_CN/gates-and-evidence.md`](docs/zh_CN/gates-and-evidence.md).

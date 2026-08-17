@@ -14,11 +14,11 @@ Multica is powerful, but the first run can be surprisingly hard:
 - How do you stop agents from skipping steps?
 - How do verification and testing divide the work?
 
-This repo gives you battle-tested, ready-to-reuse answers.
+This repo gives you ready-to-reuse practices that continue to be validated on real tasks.
 
 ## What this is
 
-In one sentence: **a set of Multica squad configurations proven on real tasks** — each agent owns one thing, the Leader owns orchestration and gatekeeping, and every step must produce evidence.
+In one sentence: **a set of Multica squad configurations continuously refined through real tasks** — each agent owns one thing, the Leader owns orchestration and gatekeeping, and every step must produce evidence.
 
 ```text
 You create: Agents (roles) + Squad (orchestration) + Skills (practices) + Issue (task)
@@ -37,7 +37,7 @@ Don't have one yet? Read the [Multica docs](https://www.multica.ai/docs) or [How
 
 ### Copy the software-development Starter
 
-👉 **[`templates/english/squad/software-development/README.md`](./templates/english/squad/software-development/README.md)**
+👉 **[`templates/en_US/squad/software-development/README.md`](./templates/en_US/squad/software-development/README.md)**
 
 You get:
 
@@ -49,7 +49,7 @@ You get:
 
 ### Step 1 — Create Agents
 
-In Multica, create 5 Agents (naming follows [`docs/english/naming-conventions.md`](./docs/english/naming-conventions.md)) and copy the code block from the matching file under [`templates/english/agents/`](./templates/english/agents/) into each Agent's Instructions:
+In Multica, create 5 Agents (naming follows [`docs/en_US/naming-conventions.md`](./docs/en_US/naming-conventions.md)) and copy the code block from the matching file under [`templates/en_US/agents/`](./templates/en_US/agents/) into each Agent's Instructions:
 
 | Agent | Copy |
 | --- | --- |
@@ -67,28 +67,30 @@ In Multica, create 6 Skills, copying the code block from the matching `SKILL.md`
 
 | Skill | Source | Mount to |
 | --- | --- | --- |
-| `multica-verification` (gatekeeping, required) | [`templates/english/skills/multica-verification/SKILL.md`](./templates/english/skills/multica-verification/SKILL.md) | **Leader** |
-| `multica-gate-setup` | [`templates/english/skills/multica-gate-setup/SKILL.md`](./templates/english/skills/multica-gate-setup/SKILL.md) | Leader (when integrating CI hard gates) |
-| `multica-test-design` | [`templates/english/skills/multica-test-design/SKILL.md`](./templates/english/skills/multica-test-design/SKILL.md) | Tester |
-| `multica-requirement-analysis` | [`templates/english/skills/multica-requirement-analysis/SKILL.md`](./templates/english/skills/multica-requirement-analysis/SKILL.md) | Leader / Architect |
-| `multica-technical-design` | [`templates/english/skills/multica-technical-design/SKILL.md`](./templates/english/skills/multica-technical-design/SKILL.md) | Architect |
-| `multica-implementation` | [`templates/english/skills/multica-implementation/SKILL.md`](./templates/english/skills/multica-implementation/SKILL.md) | FrontendDev / BackendDev |
+| `multica-verification` (gatekeeping, required) | [`templates/en_US/skills/multica-verification/SKILL.md`](./templates/en_US/skills/multica-verification/SKILL.md) | **Leader** |
+| `multica-gate-setup` | [`templates/en_US/skills/multica-gate-setup/SKILL.md`](./templates/en_US/skills/multica-gate-setup/SKILL.md) | Leader (when integrating CI hard gates) |
+| `multica-test-design` | [`templates/en_US/skills/multica-test-design/SKILL.md`](./templates/en_US/skills/multica-test-design/SKILL.md) | Tester |
+| `multica-requirement-analysis` | [`templates/en_US/skills/multica-requirement-analysis/SKILL.md`](./templates/en_US/skills/multica-requirement-analysis/SKILL.md) | Leader / Architect |
+| `multica-technical-design` | [`templates/en_US/skills/multica-technical-design/SKILL.md`](./templates/en_US/skills/multica-technical-design/SKILL.md) | Architect |
+| `multica-implementation` | [`templates/en_US/skills/multica-implementation/SKILL.md`](./templates/en_US/skills/multica-implementation/SKILL.md) | FrontendDev / BackendDev |
 
-> All 6 Skills are shared under `templates/english/skills/` with the unified `multica-` prefix namespace (`multica-verification` is the gatekeeper and is also used by Bug Fix; `multica-gate-setup` installs CI hard gates into a repo and lets gatekeeping read the CI verdict; `multica-test-design` has the Tester generate cases and test reports). Skills mount **by name** — whoever needs one writes "use the xxx skill" in their Instructions, independent of repo paths.
+> All 6 Skills are shared under `templates/en_US/skills/` with the unified `multica-` prefix namespace (`multica-verification` is the gatekeeper and is also used by Bug Fix; `multica-gate-setup` installs CI hard gates into a repo and lets gatekeeping read the CI verdict; `multica-test-design` has the Tester generate cases and test reports). Skills mount **by name** — whoever needs one writes "use the xxx skill" in their Instructions, independent of repo paths.
 
 ### Step 3 — Create the Squad
 
-Create a Squad and copy `templates/english/squad/software-development/squad.md` into the Squad Instructions.
+Create a Squad and copy `templates/en_US/squad/software-development/squad.md` into the Squad Instructions.
 
 ### Step 4 — Create the Issue
 
-Copy `templates/english/squad/software-development/issue.md` into a new Issue and fill in your requirement.
+Copy `templates/en_US/squad/software-development/issue.md` into a new Issue and fill in your requirement.
 
 ### Step 5 — Assign
 
 Assign the Issue to this Squad.
 
 ### Step 6 — Run
+
+During implementation, dispatch API test cases in parallel as soon as the API contract is ready; the test report follows the relevant implementation and API-test gates.
 
 ```text
 Issue → [Design] → [API contract ∥ feature cases] → [Frontend ∥ Backend implementation] → [Testing] → Human
@@ -148,8 +150,8 @@ CI / PR = What must actually pass?
 
 | Starter | Use | Status |
 | --- | --- | --- |
-| [Software Development](./templates/english/squad/software-development/README.md) | Regular feature development (frontend/backend routed by scope; any role can be missing) | Recommended |
-| [Bug Fix](./templates/english/squad/bug-fix/README.md) | Root cause / fix / regression (routed by impact, skips Architect) | Experimental |
+| [Software Development](./templates/en_US/squad/software-development/README.md) | Regular feature development (frontend/backend routed by scope; any role can be missing) | Recommended |
+| [Bug Fix](./templates/en_US/squad/bug-fix/README.md) | Root cause / fix / regression (routed by impact, skips Architect) | Experimental |
 
 More starters (Technical Research, etc.) will be added after being validated on real tasks. **Don't pretend best practices are finished.**
 
@@ -158,28 +160,28 @@ More starters (Technical Research, etc.) will be added after being validated on 
 ```text
 AGENTS.md     ⭐ Agent entry: project conventions and change rules
 templates/  ⭐ Start here: all copy-paste-ready configs
-├── chinese/               Chinese templates (default; copy the whole subdirectory and run)
+├── zh_CN/                Chinese templates (default; copy the whole subdirectory and run)
 │   ├── agents/            Shared Agent Instructions (6 role definitions)
 │   ├── skills/            Shared Skills (6, unified multica- prefix: gatekeeping / CI integration / test design / requirement analysis / technical design / implementation)
 │   │   └── multica-gate-setup/  CI hard-gate templates ship inside this Skill (delivery-gate.yml, etc.)
 │   └── squad/             Squad starters
 │       ├── software-development/  Regular development (squad / issue / README incl. workflow)
 │       └── bug-fix/              Minimal fix combination (only the orchestration changes)
-└── english/               English templates (same structure as chinese/)
+└── en_US/                English templates (same structure as zh_CN/)
 docs/          ⭐ Read first: where instructions go / gates & evidence / common mistakes / adapt & scale
-├── chinese/               Chinese methodology
-└── english/               English methodology
+├── zh_CN/                Chinese methodology
+└── en_US/                English methodology
 ```
 
 Details:
 
 | Doc | Content |
 | --- | --- |
-| [where-to-put-things](docs/english/where-to-put-things.md) | Where instructions belong — cheat sheet (most worth reading) |
-| [gates-and-evidence](docs/english/gates-and-evidence.md) | Gates G0–G4 and evidence requirements |
-| [common-mistakes](docs/english/common-mistakes.md) | Bad → Good examples |
-| [adapt-and-scale](docs/english/adapt-and-scale.md) | Cut down, extend, pilot, roll out |
-| [naming-conventions](docs/english/naming-conventions.md) | Agent naming rules (role + name) |
+| [where-to-put-things](docs/en_US/where-to-put-things.md) | Where instructions belong — cheat sheet (most worth reading) |
+| [gates-and-evidence](docs/en_US/gates-and-evidence.md) | Gates G0–G4 and evidence requirements |
+| [common-mistakes](docs/en_US/common-mistakes.md) | Bad → Good examples |
+| [adapt-and-scale](docs/en_US/adapt-and-scale.md) | Cut down, extend, pilot, roll out |
+| [naming-conventions](docs/en_US/naming-conventions.md) | Agent naming rules (role + name) |
 
 ## Relationship to related projects
 

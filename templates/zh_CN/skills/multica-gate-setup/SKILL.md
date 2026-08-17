@@ -50,7 +50,8 @@ Leader 只有 Skill + MCP，无 shell。因此按运行时环境走分支：
 | | `required_approving_review_count` | 独立审批人数（默认 1） |
 | `apply-branch-protection.sh` | `YOUR_OWNER` | GitHub 组织 / 用户名 |
 | | `YOUR_REPO` | 仓库名 |
-| | `REVIEW_TEAM` | 可选：审批团队 slug（留空则只要求 1 人审批） |
+
+> 该分支保护 API 只能要求审批数量，不能用团队 slug 限定“必须由某团队审批”。如需团队级审批，请配置 `CODEOWNERS` 并启用 code owner review，或使用 GitHub Rulesets；本模板不自动创建这些仓库策略。
 
 3. 安装到目标仓库：
    - **有写权限 MCP**：创建 `.github/workflows/delivery-gate.yml`；用 GitHub API `PUT /repos/{owner}/{repo}/branches/main/protection` 设置分支保护（等效于脚本动作，body 用 `branch-protection.json`）。

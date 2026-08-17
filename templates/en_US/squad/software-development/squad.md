@@ -24,12 +24,15 @@ From the Issue's 【Scope】, confirm: is design needed? frontend? backend?
 3. Parallel artifacts (dispatch together after the design is final):
    a. API contract (scope includes backend) → @BackendDev → you gate (parallel input for frontend and testing)
    b. Feature cases (@Tester present) → @Tester (use the multica-test-design skill) → you gate
-4. Implementation (in parallel, don't wait; each judged at its own G2):
+4. Implementation and API test cases (advance in parallel; gate each artifact when complete):
    a. Frontend implementation (scope includes frontend) → @FrontendDev → G2: prefer the CI verdict (e.g. [G2 PASS · CI #123]), check the diff scope; only rerun the verification commands if CI is missing
    b. Backend implementation (scope includes backend) → @BackendDev → G2: same as above
-5. API test cases (@Tester present) → @Tester (use the multica-test-design skill) → you gate
-6. Test report (@Tester present) → @Tester (use the multica-test-design skill to execute and report) → G3: you review whether it covers every acceptance criterion
-7. Human acceptance (G4) → only a Human (or explicit authorization) can declare Done / ship
+   c. API test cases (@Tester present; start as soon as the API contract is ready) → @Tester (use the multica-test-design skill) → you gate
+5. Test report (@Tester present; after the relevant implementations and API test cases pass) → @Tester (use the multica-test-design skill to execute and report) → G3: you review whether it covers every acceptance criterion
+6. Human acceptance (G4) → only a Human (or explicit authorization) can declare Done / ship
+
+【PARALLEL DISPATCH】
+API test cases are an implementation-stage parallel branch: dispatch @Tester as soon as the API contract is ready, without waiting for frontend or backend implementation; the test report still waits for the relevant implementations and API test cases to pass.
 
 【ADVANCE RULES】
 1. After each artifact is complete, you gate it; only a PASS dispatches the next one. A role finishing ≠ the flow advancing; advancing is your call.

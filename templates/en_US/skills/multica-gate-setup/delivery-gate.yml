@@ -34,8 +34,9 @@ jobs:
         if: always()
         run: |
           if [ "${{ job.status }}" = "success" ]; then
-            echo "GATE=PASS" >> "$GITHUB_ENV"
+            GATE=PASS
           else
-            echo "GATE=FAIL" >> "$GITHUB_ENV"
+            GATE=FAIL
           fi
+          echo "GATE=$GATE" >> "$GITHUB_ENV"
           echo "::notice title=Delivery Gate::$GATE"

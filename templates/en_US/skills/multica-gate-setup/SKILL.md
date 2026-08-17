@@ -50,7 +50,8 @@ The Leader only has the Skill + MCP, no shell. So branch by the runtime environm
 | | `required_approving_review_count` | Independent approval count (default 1) |
 | `apply-branch-protection.sh` | `YOUR_OWNER` | GitHub org / username |
 | | `YOUR_REPO` | Repository name |
-| | `REVIEW_TEAM` | Optional: approval team slug (leave empty for a single required approval) |
+
+> This branch-protection API can require an approval count, but it cannot use a team slug to require approval from a specific team. For team-level approval, configure `CODEOWNERS` with required code-owner reviews or use GitHub Rulesets; this template does not create those repository policies automatically.
 
 3. Install into the target repository:
    - **With write-capable MCP**: create `.github/workflows/delivery-gate.yml`; set branch protection with the GitHub API `PUT /repos/{owner}/{repo}/branches/main/protection` (equivalent to the script's action; body from `branch-protection.json`).
