@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 本文件记录本项目的所有重要变更。新条目采用中英结合写法（Chinese-first, English alongside）。
 
+## v0.0.8 - 2026-08-20 · CI/CD gate + Tester three-phase + DevOps role + platform shells / CI/CD 门禁、Tester 三阶段、DevOps 角色与平台层占位壳
+
+### Added / 新增
+
+- 新增 `DevOps` 角色（`templates/zh_CN/agents/devops.md`）：G2 PASS 且代码已 push 后触发 CI/CD、回传部署环境 URL，不写业务代码 / New `DevOps` agent: triggers CI/CD after G2, returns deploy URL, no business code
+- 新增 5 个平台层占位壳 skill（不带内网地址/凭据，仅占位）：`multica-platform-confluence`、`multica-platform-jira`、`multica-platform-jenkins`、`multica-artifact-cicd-sync`、`multica-test-automation` / Added 5 platform-layer shell skills (no internal URLs/credentials, placeholder only)
+- 新增 `docs/zh_CN/cicd-and-test-pipeline.md`：G2.5 与 Tester T1/T2/T3 方法论、deploy branch 模型 / New `docs/zh_CN/cicd-and-test-pipeline.md` methodology
+- `artifact-conventions.md`（中英）新增「三层架构：内容/编排/平台」与 PM/Architect 双 skill 标准用法 / `artifact-conventions.md` (zh/en) adds three-layer architecture + dual-skill usage
+- 角色计数 8 → 9（新增 DevOps）；Skill 11 → 16（新增 5 平台层壳）/ Roles 8 → 9 (DevOps); Skills 11 → 16 (5 platform shells)
+
+### Changed / 变更
+
+- `gates-and-evidence.md`（中英）门禁表新增 **G2.5（CI/CD 部署）** 行 + 走查示例 / `gates-and-evidence.md` (zh/en) adds **G2.5** row + walkthrough
+- `tester.md`（中英）升级为 **T1/T2/T3 三阶段**（T1 用例、T2 覆盖率、T3 部署后自动化），移除具体平台绑定 / `tester.md` (zh/en) upgraded to T1/T2/T3 three-phase
+- `leader.md`（中英）路由新增 PM 首派、Tester 三阶段路由、DevOps/G2.5 路由 / `leader.md` (zh/en) routing adds PM-first, Tester three-phase, DevOps/G2.5
+- `product-manager.md`（中英）增加「先 `multica-requirement-analysis` 结构化，再 `multica-artifact-req-sync` 落地」双 skill 句式 / `product-manager.md` (zh/en) gains dual-skill pattern
+- `software-development/squad.md` 与 `issue.md`（中英）阶段表加入 G2.5 与 deploy branch 声明；issue 模板新增「Git 分支」区块 / Squad & issue add G2.5 + deploy branch
+- AGENTS.md 结构图更新为 9 角色 + 平台层占位壳 + 三层模型说明 / AGENTS.md structure updated to 9 roles + platform shells + three-layer model
+
+### Removed / 移除
+
+- 无真实内网地址/凭据进入公开仓库：所有 platform skill 仅占位壳，接入时由团队填 `config.yaml` / No real internal URLs/credentials enter the public repo; platform skills are placeholder shells only
+
 ## v0.0.7 - 2026-08-17 · Artifact platform decoupled into skills / 产物平台对接下沉到 skill
 
 ### Added / 新增

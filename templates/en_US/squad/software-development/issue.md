@@ -42,8 +42,14 @@
 ## Verification method
 - [ ] Build
 - [ ] Unit tests
-- [ ] Integration tests (if applicable)
+- [ ] CI/CD deploy to test env (check if scope includes CI/CD; G2.5)
+- [ ] Automated test (after G2.5, T3)
 - [ ] Manual verification (if applicable)
+
+## Git Branch
+<!-- Declared by Leader at G0; all implementations merge to this deploy branch, @DevOps triggers CI/CD on it only. Feature branches are not used for CI/CD -->
+- Deploy branch: `release/<ISSUE-KEY>-<slug>`
+- Feature branch (optional): `<ISSUE-KEY>-<desc>`
 
 ## References
 <!-- Docs, Issues, screenshots, code locations -->

@@ -13,7 +13,8 @@ A gate is a checkpoint that can clearly answer "pass / fail". In the software-de
 | G0 | Requirements ready: goal + testable acceptance criteria | Leader / Human |
 | G1 | Design approved: design aligns with acceptance criteria + acceptable from a business standpoint | Leader (multica-verification skill) + Reviewer |
 | G2 | Implementation accepted: prefer the CI verdict; only rerun verification when CI is missing | Leader (multica-verification / multica-gate-setup) |
-| G3 | Tests pass: test report maps every acceptance criterion | Leader (reviews the report) |
+| G2.5 | CI/CD deploy: after G2 PASS and code push, build & deploy to the test env and return the env URL | Leader (checks CI evidence, triggered by @DevOps) |
+| G3 | Tests pass: the T3 automation report maps every acceptance criterion (depends on the G2.5 deploy env) | Leader (reviews the report) |
 | G4 | Human acceptance: delivery decision | Human |
 
 The key property of a gate is **decidability**: every gate maps to a question that can be answered PASS / FAIL. If you can't judge it, it's not a gate — it's a wish.
@@ -77,8 +78,9 @@ Using "add a CSV export feature" as an example:
 2. **G1**: Architect gives a minimal-change plan (reuse the existing export middleware). The Leader uses the multica-verification skill to confirm the plan covers the acceptance criteria, and the Reviewer checks business acceptability.
 3. **Implementation**: Frontend / BackendDev (per the Issue scope) submit code + unit tests + changed-file list + verification command output (self-claimed).
 4. **G2**: The Leader prefers the CI verdict (or reruns the verification commands if there's no CI) and checks that the diff only touches this requirement. PASS.
-5. **G3**: The Tester produces and executes feature / API cases per the multica-test-design skill, verifies "filter → export → inspect CSV content" against the acceptance criteria, and produces a test report; the Leader reviews whether the report covers every criterion.
-6. **G4**: A human reviews the evidence and decides whether to merge / ship.
+5. **G2.5**: @DevOps, after G2 PASS and code pushed, triggers CI/CD, builds & deploys to the test env and returns the env URL; the Leader gates G2.5 PASS from the CI evidence. (Skip when no @DevOps / no triggerable CI; T3 degrades to local/manual verification with explicit labeling.)
+6. **G3**: The Tester produces and executes feature / API cases per the multica-test-design skill; after G2.5, runs automation via multica-test-automation against the deploy env, verifies "filter → export → inspect CSV content" against the acceptance criteria, and produces a test report; the Leader reviews whether the report covers every criterion.
+7. **G4**: A human reviews the evidence and decides whether to merge / ship.
 
 If any G2/G3 FAILs, the task returns to the responsible implementer and **previous gate conclusions are void — they must be rerun.** "It passed last time" doesn't excuse skipping the rerun. More generally: **once any artifact is modified, its downstream gates become invalid immediately and must be re-judged.** It's not just implementation changes: once design / API contract / cases change, the downstream implementation, testing, and acceptance gates also become invalid — never carry over an old PASS. And when an in-scope artifact is judged "Not Applicable (N/A)", never skip it silently — mark N/A explicitly with the reason and the Leader's confirmation; an unconfirmed N/A counts as a missing scope and is written back to the Issue.
 

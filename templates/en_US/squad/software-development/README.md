@@ -76,7 +76,7 @@ Done
 
 ### Step 1 — Create the Agents
 
-Create 5 Agents in Multica (decide which ones per your scope; naming follows "role + project + member-id" in [`docs/naming-conventions.md`](../../../../docs/en_US/naming-conventions.md)):
+Create Agents in Multica (decide which ones per your scope; naming follows "role + project + member-id" in [`docs/naming-conventions.md`](../../../../docs/en_US/naming-conventions.md)). Minimum usable set:
 
 ```text
 Architect
@@ -86,13 +86,13 @@ Tester
 Reviewer
 ```
 
-Copy the code block from the matching file under [`../../agents/`](../../agents/) into each Agent's Instructions.
+Add `DevOps` when scope includes CI/CD; `ProductManager` when the Issue doesn't already provide a ready scope. Copy the code block from the matching file under [`../../agents/`](../../agents/) into each Agent's Instructions.
 
 > The Leader doesn't need a separate Agent: `squad.md` is the Leader's behavior config (Multica's Squad Instructions are only injected into the Leader).
 
 ### Step 2 — Create the Skills
 
-Create 6 Skills in Multica:
+Create 16 Skills in Multica:
 
 | Skill | Source | Mount to |
 | --- | --- | --- |
@@ -102,8 +102,18 @@ Create 6 Skills in Multica:
 | `multica-requirement-analysis` | [`../../skills/multica-requirement-analysis/SKILL.md`](../../skills/multica-requirement-analysis/SKILL.md) | Leader / Architect |
 | `multica-technical-design` | [`../../skills/multica-technical-design/SKILL.md`](../../skills/multica-technical-design/SKILL.md) | Architect |
 | `multica-implementation` | [`../../skills/multica-implementation/SKILL.md`](../../skills/multica-implementation/SKILL.md) | FrontendDev / BackendDev |
+| `multica-artifact-req-sync` | [`../../skills/multica-artifact-req-sync/SKILL.md`](../../skills/multica-artifact-req-sync/SKILL.md) | ProductManager |
+| `multica-artifact-ui-sync` | [`../../skills/multica-artifact-ui-sync/SKILL.md`](../../skills/multica-artifact-ui-sync/SKILL.md) | Designer |
+| `multica-artifact-design-sync` | [`../../skills/multica-artifact-design-sync/SKILL.md`](../../skills/multica-artifact-design-sync/SKILL.md) | Architect |
+| `multica-artifact-api-sync` | [`../../skills/multica-artifact-api-sync/SKILL.md`](../../skills/multica-artifact-api-sync/SKILL.md) | BackendDev |
+| `multica-artifact-test-sync` | [`../../skills/multica-artifact-test-sync/SKILL.md`](../../skills/multica-artifact-test-sync/SKILL.md) | Tester |
+| `multica-artifact-cicd-sync` | [`../../skills/multica-artifact-cicd-sync/SKILL.md`](../../skills/multica-artifact-cicd-sync/SKILL.md) | DevOps |
+| `multica-test-automation` | [`../../skills/multica-test-automation/SKILL.md`](../../skills/multica-test-automation/SKILL.md) | Tester (T3) |
+| `multica-platform-jenkins` | [`../../skills/multica-platform-jenkins/SKILL.md`](../../skills/multica-platform-jenkins/SKILL.md) | platform shell (CI/CD) |
+| `multica-platform-jira` | [`../../skills/multica-platform-jira/SKILL.md`](../../skills/multica-platform-jira/SKILL.md) | platform shell (Issue) |
+| `multica-platform-confluence` | [`../../skills/multica-platform-confluence/SKILL.md`](../../skills/multica-platform-confluence/SKILL.md) | platform shell (Wiki) |
 
-> All 6 Skills are shared under [`../../skills/`](../../skills/) with the unified `multica-` prefix namespace. Skills mount **by name** — whoever needs one writes "use the xxx skill" in their Instructions, independent of repo paths.
+> All 16 Skills are shared under [`../../skills/`](../../skills/) with the unified `multica-` prefix namespace, in three classes: gatekeeping/design, artifact-orchestration (`multica-artifact-*-sync`), and platform-layer shells (only place holding internal URLs/credentials; public repo ships placeholder shells). Skills mount **by name** — whoever needs one writes "use the xxx skill" in their Instructions, independent of repo paths.
 
 ### Step 3 — Create the Squad
 
@@ -150,7 +160,7 @@ The multica-verification skill is a **soft gate** in the agent world (executed b
 
 ## Why this works
 
-This Starter has 8 roles: the Leader owns orchestration and gatekeeping; ProductManager (product requirement / PRD) turns ideas into reviewable deliverables; Architect (technical) / Designer (UI, platform via `multica-artifact-ui-sync`) / FrontendDev / BackendDev / Tester each own a piece of the artifacts, and the **Reviewer does the business review**.
+This Starter has 9 roles: the Leader owns orchestration and gatekeeping; ProductManager (product requirement / PRD) turns ideas into reviewable deliverables; Architect (technical) / Designer (UI, platform via `multica-artifact-ui-sync`) / FrontendDev / BackendDev / Tester (T1/T2/T3 three-phase) / DevOps (G2.5 triggers CI/CD) each own a piece of the artifacts, and the **Reviewer does the business review**.
 Gatekeeping is standardized as [`../../skills/multica-verification/SKILL.md`](../../skills/multica-verification/SKILL.md), executed by the non-producing Leader (executor and gatekeeper are different parties); objective verification that can be machine-run is upgraded to CI hard gates (see [`../../skills/multica-gate-setup/`](../../skills/multica-gate-setup/)).
 **Gates anchor to artifacts, not roles**: the Issue's "affected ends" decides routing; artifacts for missing roles are skipped and the gate chain stays intact — no design / no frontend / no backend / full-stack are all permutations of the same instructions.
 Routing logic is written once (Squad), not copied into every Agent; each Agent has a narrow responsibility and can be copied as-is.

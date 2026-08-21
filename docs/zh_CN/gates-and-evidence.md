@@ -13,7 +13,8 @@
 | G0 | 需求就绪：有目标 + 可测试的验收标准 | Leader / Human |
 | G1 | 设计通过：设计与验收标准对齐 + 业务上可接受 | Leader（multica-verification skill）+ Reviewer |
 | G2 | 实现验收：优先引用 CI 结论；CI 缺失才复跑验证 | Leader（multica-verification / multica-gate-setup） |
-| G3 | 测试通过：测试报告逐条对照验收标准 | Leader（复核报告） |
+| G2.5 | CI/CD 部署：G2 PASS 且代码已 push 后，构建部署到测试环境并回传环境 URL | Leader（核对 CI 证据，由 @DevOps 触发） |
+| G3 | 测试通过：T3 自动化报告逐条对照验收标准（依赖 G2.5 部署环境） | Leader（复核报告） |
 | G4 | 人类验收：交付决策 | Human |
 
 门禁的关键是**可判定**：每个门禁对应一个可以 PASS / FAIL 的问题。判不了，就不是门禁，是愿望。
@@ -77,8 +78,9 @@ Tests / Lint / Build / CI / 分支保护 / PR 审批
 2. **G1**：Architect 给出最小改动方案（复用现有导出中间件）。Leader 用 multica-verification skill 确认方案覆盖验收标准，Reviewer 评审业务上可接受。
 3. **实现**：Frontend / BackendDev（按 Issue 范围）提交代码 + 单元测试 + 变更文件列表 + 验证命令输出（自证）。
 4. **G2**：Leader 优先引用 CI 结论（未配 CI 则自己复跑验证命令），并检查 diff 是否只涉及本次需求。PASS。
-5. **G3**：Tester 按 multica-test-design skill 出功能 / 接口用例并执行，按验收标准验证「筛选 → 导出 → 检查 CSV 内容」出测试报告，Leader 复核报告是否逐条覆盖验收标准。
-6. **G4**：人类查看证据后决定是否合并 / 上线。
+5. **G2.5**：@DevOps 在 G2 PASS 且代码已 push 后触发 CI/CD，构建部署到测试环境并回传环境 URL；Leader 核对 CI 证据判 G2.5 PASS。（无 @DevOps / 无 CI 时可略过，T3 退化为本地或手动验证并显式标注。）
+6. **G3**：Tester 按 multica-test-design skill 出功能 / 接口用例；在 G2.5 部署环境就绪后，用 multica-test-automation 执行，按验收标准验证「筛选 → 导出 → 检查 CSV 内容」出测试报告，Leader 复核报告是否逐条覆盖验收标准。
+7. **G4**：人类查看证据后决定是否合并 / 上线。
 
 任何一个 G2/G3 FAIL，任务回到对应实现者，且**之前的门禁结论作废，需要重新走**——不能因为「上次通过了」就跳过复跑。更一般地：**任一产物被修改，其下游门禁立即失效，必须重判**。不只是实现改动：设计 / API 契约 / 用例一旦变更，下游的实现、测试、验收门禁同样重新失效，不得沿用旧 PASS。范围内某产物若判定为「不适用（N/A）」，也禁止静默跳过——必须显式标注 N/A、写明理由并由 Leader 确认；未确认的 N/A 视为范围缺失，回写 Issue。
 

@@ -76,7 +76,7 @@ Done
 
 ### Step 1 — 创建 Agents
 
-在 Multica 创建 5 个 Agent（按你的范围决定建哪些；命名遵循 [`docs/naming-conventions.md`](../../../../docs/zh_CN/naming-conventions.md) 的「角色+项目+成员标识」）：
+在 Multica 创建 Agent（按你的范围决定建哪些；命名遵循 [`docs/naming-conventions.md`](../../../../docs/zh_CN/naming-conventions.md) 的「角色+项目+成员标识」）。最小可用集合：
 
 ```text
 Architect
@@ -86,13 +86,13 @@ Tester
 Reviewer
 ```
 
-把 [`../../agents/`](../../agents/) 下对应文件的代码块分别复制到各 Agent 的 Instructions。
+范围含 CI/CD 时再加 `DevOps`；`ProductManager` 在 Issue 未给出就绪范围时启用。把 [`../../agents/`](../../agents/) 下对应文件的代码块分别复制到各 Agent 的 Instructions。
 
 > Leader 不需要单独建 Agent：`squad.md` 就是 Leader 的行为配置（Multica 的 Squad Instructions 只注入 Leader）。
 
 ### Step 2 — 创建 Skills
 
-在 Multica 创建 6 个 Skill：
+在 Multica 创建 16 个 Skill：
 
 | Skill | 来源 | 挂给谁 |
 | --- | --- | --- |
@@ -102,8 +102,18 @@ Reviewer
 | `multica-requirement-analysis` | [`../../skills/multica-requirement-analysis/SKILL.md`](../../skills/multica-requirement-analysis/SKILL.md) | Leader / Architect |
 | `multica-technical-design` | [`../../skills/multica-technical-design/SKILL.md`](../../skills/multica-technical-design/SKILL.md) | Architect |
 | `multica-implementation` | [`../../skills/multica-implementation/SKILL.md`](../../skills/multica-implementation/SKILL.md) | FrontendDev / BackendDev |
+| `multica-artifact-req-sync` | [`../../skills/multica-artifact-req-sync/SKILL.md`](../../skills/multica-artifact-req-sync/SKILL.md) | ProductManager |
+| `multica-artifact-ui-sync` | [`../../skills/multica-artifact-ui-sync/SKILL.md`](../../skills/multica-artifact-ui-sync/SKILL.md) | Designer |
+| `multica-artifact-design-sync` | [`../../skills/multica-artifact-design-sync/SKILL.md`](../../skills/multica-artifact-design-sync/SKILL.md) | Architect |
+| `multica-artifact-api-sync` | [`../../skills/multica-artifact-api-sync/SKILL.md`](../../skills/multica-artifact-api-sync/SKILL.md) | BackendDev |
+| `multica-artifact-test-sync` | [`../../skills/multica-artifact-test-sync/SKILL.md`](../../skills/multica-artifact-test-sync/SKILL.md) | Tester |
+| `multica-artifact-cicd-sync` | [`../../skills/multica-artifact-cicd-sync/SKILL.md`](../../skills/multica-artifact-cicd-sync/SKILL.md) | DevOps |
+| `multica-test-automation` | [`../../skills/multica-test-automation/SKILL.md`](../../skills/multica-test-automation/SKILL.md) | Tester（T3） |
+| `multica-platform-jenkins` | [`../../skills/multica-platform-jenkins/SKILL.md`](../../skills/multica-platform-jenkins/SKILL.md) | 平台层占位壳（CI/CD） |
+| `multica-platform-jira` | [`../../skills/multica-platform-jira/SKILL.md`](../../skills/multica-platform-jira/SKILL.md) | 平台层占位壳（Issue） |
+| `multica-platform-confluence` | [`../../skills/multica-platform-confluence/SKILL.md`](../../skills/multica-platform-confluence/SKILL.md) | 平台层占位壳（Wiki） |
 
-> 6 个 Skill 全部共享放在 [`../../skills/`](../../skills/)，统一 `multica-` 前缀命名空间。Skill 靠**名称**挂载，谁需要就在自己的 Instructions 里写「用 xxx skill」，与仓库路径无关。
+> 16 个 Skill 全部共享放在 [`../../skills/`](../../skills/)，统一 `multica-` 前缀命名空间，分三类：判门/设计类、产物编排类（`multica-artifact-*-sync`）、平台层占位壳（唯一允许出现内网地址/凭据的地方，公开仓库只给占位壳）。Skill 靠**名称**挂载，谁需要就在自己的 Instructions 里写「用 xxx skill」，与仓库路径无关。
 
 ### Step 3 — 创建 Squad
 
@@ -145,12 +155,12 @@ multica-verification skill 是 Agent 世界的**软门禁**（由 Leader 执行�
 | `squad.md` | Squad Instructions（条件路由 + 产物门禁 + 证据要求） |
 | `issue.md` | 标准 Issue 模板（含「涉及端」范围声明） |
 | `README.md` | 本文件（工作流 + 产物门禁 + 上手步骤） |
-| [`../../agents/`](../../agents/) | 共享 Agent Instructions（architect / frontend-developer / backend-developer / tester / reviewer / leader） |
-| [`../../skills/`](../../skills/) | 共享 Skill（6 个，统一 multica- 前缀：判门 / 集成 CI / 测试设计 / 需求分析 / 技术设计 / 实现） |
+| [`../../agents/`](../../agents/) | 共享 Agent Instructions（architect / frontend-developer / backend-developer / tester / reviewer / devops / leader） |
+| [`../../skills/`](../../skills/) | 共享 Skill（统一 multica- 前缀：判门 / 集成 CI / 测试设计 / 需求分析 / 技术设计 / 实现 / 产物落地 / 平台层占位壳） |
 
 ## 为什么有效
 
-这个 Starter 有 8 个角色：Leader 负责编排与判门，ProductManager（产品需求 / PRD）把想法变可评审交付物，Architect（技术架构）/ Designer（Figma UI）/ FrontendDev / BackendDev / Tester 各管一段产物，**Reviewer 做业务评审**。
+这个 Starter 有 9 个角色：Leader 负责编排与判门，ProductManager（产品需求 / PRD）把想法变可评审交付物，Architect（技术架构）/ Designer（UI）/ FrontendDev / BackendDev / Tester（T1/T2/T3 三阶段）/ DevOps（G2.5 触发 CI/CD）各管一段产物，**Reviewer 做业务评审**。
 判门动作标准化为 [`../../skills/multica-verification/SKILL.md`](../../skills/multica-verification/SKILL.md)，由不产出的 Leader 执行（执行者与判门者不同源）；客观验证能机器化就升级到 CI 硬门禁（见 [`../../skills/multica-gate-setup/`](../../skills/multica-gate-setup/)）。
 **门禁锚定产物而不是角色**：Issue 的「涉及端」决定路由，缺失角色对应产物跳过、门禁链不断——无设计 / 无前端 / 无后端 / 全栈都是同一套指令的排列组合。
 路由逻辑只写一次（Squad），不复制进每个 Agent；每个 Agent 职责很窄，可以原样照搬。

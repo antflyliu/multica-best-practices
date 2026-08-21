@@ -2,6 +2,7 @@
 
 [English](./README.en.md) | 中文
 
+> 一个复用度极高的超级个体编排流程（从 PRD 到 CICD）。
 > 面向 [Multica](https://github.com/multica-ai/multica) 的 Agent · Squad · Skill · Issue 实战模板。
 > **Copy. Paste. Run.**
 
@@ -28,6 +29,143 @@ Multica 很强大，但第一次上手可能意外地难：
    每步判门（multica-verification skill 复跑）→ Human 最终验收
 ```
 
+## 完整流程一览
+
+一个需求从 Issue 进来到测试通过的全链路（基于 `templates/zh_CN/squad/software-development`）：
+
+```mermaid
+flowchart TB
+    IN([需求 / 想法 / Issue 输入])
+
+    subgraph P0["阶段 0：需求收敛与 G0"]
+        direction TB
+        L0["@Leader<br/>读取 Issue，判断事实源"]
+        PM["@ProductManager（可选）<br/>multica-requirement-analysis<br/>+ multica-artifact-req-sync<br/>落地平台由 sync skill 决定"]
+        REQ[/"需求事实源<br/>PRD 或已有 Issue<br/>G- FR- BR- AC- OP- RISK-"/]
+        SCOPE["@Leader<br/>确定范围、在场角色、路由图<br/>声明 deploy branch"]
+        OP{"OP- 关闭且范围明确？"}
+        CLARIFY["人类 / @ProductManager<br/>补充口径与待确认项"]
+        G0["G0 人工确认<br/>范围、业务规则、参与角色"]
+
+        L0 --> PM --> REQ
+        REQ --> SCOPE --> OP
+        OP -->|"否"| CLARIFY --> SCOPE
+        OP -->|"是"| G0
+    end
+
+    subgraph P1["阶段 1：设计、测试左移与 G1"]
+        direction TB
+        ARCH["@Architect（可选）<br/>multica-technical-design<br/>+ multica-artifact-design-sync<br/>Output: 技术设计稳定引用"]
+        DESIGNER["@Designer（可选）<br/>multica-artifact-ui-sync<br/>Output: UI、全状态、Token、标注"]
+        T1["@Tester T1（可选）<br/>multica-test-design<br/>+ multica-artifact-test-sync<br/>Output: 功能用例 + AC- 追溯"]
+        R1["@Reviewer（可选）<br/>G1 业务设计评审"]
+        V1["@Leader<br/>multica-verification<br/>检查设计与 AC- 对齐"]
+        G1{"G1 通过？"}
+        FIX1["退回对应设计角色<br/>最多返工 2 次"]
+
+        ARCH --> R1
+        DESIGNER --> R1
+        T1 --> R1
+        R1 --> V1 --> G1
+        G1 -->|"FAIL"| FIX1 --> R1
+    end
+
+    subgraph P2["阶段 2：契约先行、并行实现与 G2"]
+        direction TB
+        API["@BackendDev（可选）<br/>先发布 API 契约<br/>multica-artifact-api-sync"]
+        BDEV["@BackendDev（可选）<br/>multica-implementation<br/>Output: 服务端代码 + 单测"]
+        FDEV["@FrontendDev（可选）<br/>依赖 UI + API 契约<br/>multica-implementation"]
+        APICASE["@Tester（可选）<br/>与开发并行写接口用例<br/>multica-artifact-test-sync"]
+        SELF["开发自查<br/>multica-verification"]
+        R2["@Reviewer（可选）<br/>G2 业务 / 安全 / 兼容性评审"]
+        V2["@Leader<br/>multica-verification<br/>独立复跑实现证据"]
+        G2{"G2 通过？"}
+        FIX2["退回对应开发角色<br/>附失败证据与修改清单"]
+        PUSH["各端 merge 到 deploy branch 并 push"]
+
+        API --> BDEV
+        API --> FDEV
+        API --> APICASE
+        BDEV --> SELF
+        FDEV --> SELF
+        APICASE --> R2
+        SELF --> R2 --> V2 --> G2
+        G2 -->|"FAIL"| FIX2 --> SELF
+        G2 -->|"PASS"| PUSH
+    end
+
+    subgraph P25["阶段 2.5：覆盖率评估、CI/CD 与部署"]
+        direction TB
+        T2["@Tester T2（可选）<br/>multica-test-design<br/>Output: 用例补充 + AC- 覆盖率评估"]
+        DEVOPS["@DevOps（可选）<br/>multica-artifact-cicd-sync<br/>（内部调用 multica-platform-* 壳）"]
+        DISCOVER["discover-only<br/>复制上次成功参数，仅改 deploy branch"]
+        READY{"discover ready？"}
+        CICD["触发 CI/CD 构建、打包、部署<br/>（平台由 platform 壳决定）"]
+        DEPLOY[/"CI/CD 证据<br/>Build URL + 日志摘要 + 环境 URL"/]
+        G25["G2.5 @Leader 判门<br/>核对部署证据"]
+        FIX25["BLOCKED / FAIL<br/>补参数、修流水线或退回开发"]
+
+        DEVOPS --> DISCOVER --> READY
+        READY -->|"否"| FIX25 --> DEVOPS
+        READY -->|"是"| CICD --> DEPLOY --> G25
+    end
+
+    subgraph P3["阶段 3：真实环境自动化测试与 G3"]
+        direction TB
+        T3["@Tester T3（可选）<br/>输入: T1 + 接口用例 + T2 + 环境 URL<br/>multica-test-automation<br/>+ multica-artifact-test-sync"]
+        REPORT[/"测试报告<br/>自动化日志 + AC- 逐条结果<br/>PASS / FAIL / BLOCKED"/]
+        V3["@Leader<br/>multica-verification<br/>复核测试证据"]
+        G3{"G3 通过？"}
+        FAIL3["FAIL: 建缺陷并退回开发<br/>修复后重新经过 G2 / G2.5 / G3"]
+        BLOCK3["BLOCKED: 补环境、数据或权限"]
+
+        T3 --> REPORT --> V3 --> G3
+        G3 -->|"FAIL"| FAIL3
+        G3 -->|"BLOCKED"| BLOCK3
+    end
+
+    subgraph P4["阶段 4：人工验收"]
+        direction TB
+        G4["G4 人工验收<br/>业务价值、发布风险、最终放行"]
+        DONE([测试通过 / 可合并 / Done])
+        REJECT["不通过: 指定责任角色返工<br/>重新经过对应门禁"]
+        ESC["统一升级人类<br/>返工超 2 次 / 安全或发布风险 / 证据矛盾"]
+
+        G4 -->|"通过"| DONE
+        G4 -->|"不通过"| REJECT
+        REJECT -. "达到升级条件" .-> ESC
+    end
+
+    IN --> L0
+    G0 -. "范围含技术设计" .-> ARCH
+    G0 -. "范围含 UI" .-> DESIGNER
+    G0 -. "Tester 在场，启动 T1" .-> T1
+    G1 -->|"PASS"| API
+    G1 -. "仅前端或无后端时跳过 API 契约" .-> FDEV
+    PUSH --> T2
+    PUSH --> DEVOPS
+    T2 --> T3
+    G25 -->|"PASS"| T3
+    G25 -->|"FAIL"| FIX25
+    G3 -->|"PASS"| G4
+
+    classDef terminal fill:#1f2937,color:#fff,stroke:#111827,stroke-width:2px;
+    classDef role fill:#e8f5e9,color:#173b1b,stroke:#2e7d32,stroke-width:1.5px;
+    classDef artifact fill:#f3e5f5,color:#3b1742,stroke:#8e24aa,stroke-width:1.5px;
+    classDef gate fill:#ffebee,color:#56151b,stroke:#c62828,stroke-width:2px;
+    classDef human fill:#eeeeee,color:#222,stroke:#616161,stroke-width:1.5px;
+    classDef action fill:#fff8e1,color:#3d3100,stroke:#b58500,stroke-width:1.2px;
+
+    class IN,DONE terminal;
+    class L0,PM,SCOPE,ARCH,DESIGNER,T1,R1,V1,API,BDEV,FDEV,APICASE,SELF,R2,V2,T2,DEVOPS,T3,V3 role;
+    class REQ,DEPLOY,REPORT artifact;
+    class OP,G0,G1,G2,READY,G25,G3,G4 gate;
+    class CLARIFY,ESC human;
+    class FIX1,FIX2,PUSH,DISCOVER,CICD,FIX25,FAIL3,BLOCK3,REJECT action;
+```
+
+> 关键约束：① 所有判门由 Leader 用 `multica-verification` 独立复跑，不采信成员自述；② T3 **必须**等 G2.5 PASS 后才派发；③ 外部工具（Confluence / JIRA / Jenkins / Figma / 用例平台）经 `multica-artifact-*-sync` 与 `multica-platform-*` 壳层可替换接入，公开仓库只保留占位壳；④ 任一产物被修改后，其下游门禁立即失效、必须重新判门。
+
 ## 5 分钟快速开始
 
 ### 前置条件
@@ -42,10 +180,10 @@ Multica 很强大，但第一次上手可能意外地难：
 你将得到：
 
 - 1 个 Squad Leader（编排 + 判门）
-- 6 个 Agent：Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer
+- 7 个 Agent：Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer / DevOps
 - 6 个 Skill（其中 multica-verification 是必备判门 Skill）
-- 1 个 Issue 模板（含「涉及端」范围声明）
-- 1 个软件开发工作流（任意角色可缺失的条件路由）
+- 1 个 Issue 模板（含「涉及端」范围声明 + Git 分支）
+- 1 个软件开发工作流（任意角色可缺失的条件路由，含 G2.5 CI/CD）
 
 ### Step 1 — 创建 Agents
 
@@ -58,6 +196,7 @@ Multica 很强大，但第一次上手可能意外地难：
 | BackendDev | `backend-developer.md` |
 | Tester | `tester.md` |
 | Reviewer | `reviewer.md` |
+| DevOps | `devops.md` |
 
 > `leader.md` 不需要单独建 Agent：Squad Instructions 只注入 Leader，`squad.md` 就是它的行为配置。
 
@@ -78,8 +217,13 @@ Multica 很强大，但第一次上手可能意外地难：
 | `multica-artifact-design-sync` | [`templates/zh_CN/skills/multica-artifact-design-sync/SKILL.md`](./templates/zh_CN/skills/multica-artifact-design-sync/SKILL.md) | Architect（产物落地到 Git/知识平台） |
 | `multica-artifact-api-sync` | [`templates/zh_CN/skills/multica-artifact-api-sync/SKILL.md`](./templates/zh_CN/skills/multica-artifact-api-sync/SKILL.md) | BackendDev（产物落地到接口平台） |
 | `multica-artifact-test-sync` | [`templates/zh_CN/skills/multica-artifact-test-sync/SKILL.md`](./templates/zh_CN/skills/multica-artifact-test-sync/SKILL.md) | Tester（产物落地到用例平台） |
+| `multica-artifact-cicd-sync` | [`templates/zh_CN/skills/multica-artifact-cicd-sync/SKILL.md`](./templates/zh_CN/skills/multica-artifact-cicd-sync/SKILL.md) | DevOps（触发 CI/CD 部署） |
+| `multica-test-automation` | [`templates/zh_CN/skills/multica-test-automation/SKILL.md`](./templates/zh_CN/skills/multica-test-automation/SKILL.md) | Tester（T3 自动化执行） |
+| `multica-platform-jenkins` | [`templates/zh_CN/skills/multica-platform-jenkins/SKILL.md`](./templates/zh_CN/skills/multica-platform-jenkins/SKILL.md) | 平台层占位壳（CI/CD 系统） |
+| `multica-platform-jira` | [`templates/zh_CN/skills/multica-platform-jira/SKILL.md`](./templates/zh_CN/skills/multica-platform-jira/SKILL.md) | 平台层占位壳（Issue 系统） |
+| `multica-platform-confluence` | [`templates/zh_CN/skills/multica-platform-confluence/SKILL.md`](./templates/zh_CN/skills/multica-platform-confluence/SKILL.md) | 平台层占位壳（知识库/Wiki） |
 
-> 11 个 Skill 全部共享放在 `templates/zh_CN/skills/`，统一 `multica-` 前缀命名空间（multica-verification 是判门，Bug Fix 也在用；multica-gate-setup 用于把 CI 硬门禁装进仓库并在判门时感知 CI 结论；multica-test-design 给 Tester 生成用例与测试报告；`multica-artifact-*-sync` 五个 skill 负责把产物落地到团队平台——**角色提示词只说"用哪个 skill"，平台在 skill 内实现、可替换**，详见 artifact-conventions）。Skill 靠**名称**挂载，谁需要就在自己的 Instructions 里写「用 xxx skill」，与仓库路径无关。
+> 16 个 Skill 全部共享放在 `templates/zh_CN/skills/`，统一 `multica-` 前缀命名空间。三类：**判门/设计类**（multica-verification / multica-gate-setup / multica-test-design / multica-requirement-analysis / multica-technical-design / multica-implementation）；**产物编排类**（`multica-artifact-*-sync` 五个 + cicd-sync，负责把产物落地到团队平台，平台在 skill 内实现、可替换）；**平台层占位壳**（multica-platform-* 三个 + multica-test-automation，唯一允许出现公司内网地址/凭据的地方，公开仓库只给占位壳）。角色提示词只说"用哪个 skill"，不写平台名；换公司只填平台壳。详见 artifact-conventions 的三层架构。Skill 靠**名称**挂载，谁需要就在自己的 Instructions 里写「用 xxx skill」，与仓库路径无关。
 
 ### Step 3 — 创建 Squad
 
@@ -96,10 +240,10 @@ Multica 很强大，但第一次上手可能意外地难：
 ### Step 6 — 运行
 
 ```text
-Issue → [设计] → [API 契约 ∥ 功能用例] → [前端 ∥ 后端实现 ∥ API 测试用例] → [测试报告] → Human
+Issue → [设计] → [API 契约 ∥ 功能用例] → [前端 ∥ 后端实现 ∥ API 测试用例] → [G2.5 CI/CD 部署] → [T3 测试报告] → Human
 ```
 
-每个产物的门禁由 Leader 用 multica-verification skill 判门，PASS 才进入下一阶段；范围里没有的角色直接跳过；设计与关键改动由 Reviewer 做业务评审。
+每个产物的门禁由 Leader 用 multica-verification skill 判门，PASS 才进入下一阶段；范围里没有的角色直接跳过；设计与关键改动由 Reviewer 做业务评审；G2 后由 DevOps 触发 CI/CD（G2.5），Tester 在其部署环境跑自动化（T3）。
 就这些。先跑一个真实需求，再按你的团队调整。
 
 ## Agent Matrix
@@ -109,7 +253,8 @@ Issue → [设计] → [API 契约 ∥ 功能用例] → [前端 ∥ 后端实�
 | Architect | 设计方案 | 大量写代码 |
 | FrontendDev | 前端实现（对接 UI 设计） | 修改需求 / 自审自放行 / 发明 API |
 | BackendDev | 后端实现 + API 契约 | 修改需求 / 自审自放行 / 处理 UI |
-| Tester | 功能用例 / 接口测试用例 / 验证验收标准 | 修改需求 |
+| Tester | T1/T2 用例与覆盖率 / T3 部署后自动化验证 | 修改需求 / 在 G2.5 前跑自动化 |
+| DevOps | G2 后触发 CI/CD、回传部署 URL | 写业务代码 / 自宣部署成功 |
 | Reviewer | 业务评审（设计 / 关键改动） | 替代客观验证 / 替代人类验收 |
 | Leader | 编排与判门（用 multica-verification skill） | 亲自实现 / 给自己盖章 |
 
@@ -182,7 +327,8 @@ docs/          ⭐ 先读这一页：指令放哪 / 门禁证据 / 常见错误 
 | --- | --- |
 | [where-to-put-things](docs/zh_CN/where-to-put-things.md) | 指令归属速查表（最值得读） |
 | [artifact-conventions](docs/zh_CN/artifact-conventions.md) | 协作产物约定：内容规范 + 对接 skill（平台不写进角色提示词，下沉到 `multica-artifact-*-sync`，换公司只换 skill） |
-| [gates-and-evidence](docs/zh_CN/gates-and-evidence.md) | 门禁 G0–G4 与证据要求 |
+| [gates-and-evidence](docs/zh_CN/gates-and-evidence.md) | 门禁 G0–G4（+G2.5 CI/CD）与证据要求 |
+| [cicd-and-test-pipeline](docs/zh_CN/cicd-and-test-pipeline.md) | CI/CD 与测试流水线方法论（G2.5、Tester 三阶段、deploy branch） |
 | [common-mistakes](docs/zh_CN/common-mistakes.md) | Bad → Good 错误示范 |
 | [adapt-and-scale](docs/zh_CN/adapt-and-scale.md) | 裁剪、扩展、试点推广 |
 | [naming-conventions](docs/zh_CN/naming-conventions.md) | Agent 命名规范（角色+项目+成员标识） |

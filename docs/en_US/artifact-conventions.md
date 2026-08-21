@@ -8,15 +8,42 @@
 - **Upload / retrieval is handled by the `multica-artifact-*-sync` skill family.** Each role writes only one line in its prompt: "use `multica-artifact-xxx-sync` to land it". The concrete platform is implemented inside that skill and is swappable.
 - **Stable reference = link or path**: downstream locates upstream artifacts via the link/path returned by the skill, not via "you should know what upstream produced".
 
+## 1.1 Three-layer architecture: content / orchestration / platform
+
+To make "switch company, switch only the skill" actually hold, artifact landing splits into three layers — the deeper, the more internal; the higher, the more reusable:
+
+| Layer | Who | What it writes | Contains internal details? |
+| --- | --- | --- | --- |
+| **Content** | Role prompts (agents/*.md) | What content to produce (sections, fields, numbering) | No — never a platform name |
+| **Orchestration** | `multica-artifact-*-sync` skills | Land content as an artifact class (PRD / design / API / cases), return stable reference | No — only declares "which platform skill to call", no URL |
+| **Platform** | `multica-platform-*` skills | Actually connect the system: Wiki / Issue / CI / test tool read/write | **Yes — URLs, spaces, Job names, credentials live here** |
+
+**Key constraints**:
+
+1. The content layer (roles) never names a platform; it only says "use `multica-artifact-xxx-sync` to land it".
+2. The orchestration layer (`multica-artifact-*-sync`) only calls platform-layer skills; it never hardcodes a URL / pageId / Job name.
+3. The platform layer (`multica-platform-*`) is the **only** place allowed to hold internal URLs, space IDs, and credential variables; and credentials only go through runtime env, never into any prompt.
+
+So: the public repo ships only content + orchestration + **platform-layer placeholder shells**; a team onboarding its own internal network only fills the shell's `config.yaml` and `scripts/`, with zero changes upstream.
+
+### Standard usage (PM / Architect dual-skill phrasing)
+
+- **@ProductManager**: first structure the Issue into a numbered PRD with `multica-requirement-analysis`, then land it via `multica-artifact-req-sync` (which calls the platform layer internally).
+- **@Architect**: first write the local design doc with `multica-technical-design`, then publish via `multica-artifact-design-sync`.
+- **@Tester**: first produce cases with `multica-test-design`, then land via `multica-artifact-test-sync`; T3 automation uses `multica-test-automation`.
+
+The "analysis / design" skills own **content**; the "artifact-sync" skills own **landing & reference return** — separation makes content reusable and platform swappable.
+
 ## 2. Artifact → content spec → sync skill (one-to-one)
 
 | Artifact | Owner | Content spec (role side) | Sync skill (platform side, swappable) |
 | --- | --- | --- | --- |
 | UI design | @Designer | page structure, states, interaction, annotations (aligned to PRD IA) | `multica-artifact-ui-sync` (default Figma) |
-| Product requirement PRD | @ProductManager | G-/FR-/BR-/AC-/KPI-/RISK-/OP- numbered requirements | `multica-artifact-req-sync` (default Confluence) |
-| Technical design doc | @Architect | current arch, minimal change, affected components, steps, risks | `multica-artifact-design-sync` (default Git repo / Confluence) |
-| API contract | @BackendDev | endpoints, in/out params, error codes, auth, BR- mapping | `multica-artifact-api-sync` (default Apifox) |
-| Test cases / report | @Tester | feature/api cases, AC- coverage, test report | `multica-artifact-test-sync` (default local XMind → Jira) |
+| Product requirement PRD | @ProductManager | G-/FR-/BR-/AC-/KPI-/RISK-/OP- numbered requirements | `multica-artifact-req-sync` (default Wiki platform) |
+| Technical design doc | @Architect | current arch, minimal change, affected components, steps, risks | `multica-artifact-design-sync` (default Git repo / Wiki platform) |
+| API contract | @BackendDev | endpoints, in/out params, error codes, auth, BR- mapping | `multica-artifact-api-sync` (default API tool) |
+| Test cases / report | @Tester | feature/api cases, AC- coverage, test report | `multica-artifact-test-sync` (default case platform) |
+| CI/CD deployment | @DevOps | build/deploy records, env URL, log summary | `multica-artifact-cicd-sync` (default CI system) |
 
 > Code artifacts live in the real code repo; the changed-file list is written into the corresponding stage artifact file for downstream/gate review.
 

@@ -42,8 +42,14 @@
 ## 验证方式
 - [ ] 构建
 - [ ] 单元测试
-- [ ] 集成测试（如适用）
+- [ ] CI/CD 部署到测试环境（范围含 CI/CD 时勾选；G2.5）
+- [ ] 自动化测试（G2.5 后，T3）
 - [ ] 手动验证（如适用）
+
+## Git 分支
+<!-- 由 Leader 在 G0 声明；所有实现 merge 到该 deploy branch，@DevOps 仅对其触发 CI/CD。feature 分支不用于 CI/CD -->
+- Deploy branch：`release/<ISSUE-KEY>-<slug>`
+- Feature branch（可选）：`<ISSUE-KEY>-<desc>`
 
 ## 参考资料
 <!-- 文档、Issue、截图、代码位置 -->
