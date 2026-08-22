@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - `en_US/squad/software-development/README.md`：目录表「Shared Skills」数量由遗留的 6 修正为 16，与正文一致 / en starter README fixes the stale "6 Skills" count
 - `software-development/issue.md`（中英）+ `bug-fix/issue.md`（中英）：「为什么这么写」字段列举与模板实际章节（参考资料 / 备注、References / Notes）对齐；bug-fix 补「常见失败」段，与 software-development 体例一致 / Issue "why" sections list the real sections; bug-fix adds a "common failure modes" section
 - `agents/devops.md`（中英）+ `skills/multica-platform-jenkins/SKILL.md`（中英）：移除对已删除的 Issue「Git 分支」区块的引用，deploy branch 改为「由 Issue 来源与涉及端确定，链接型以外部系统分支为准」/ DevOps & Jenkins skill drop the stale reference to the removed Issue "Git Branch" block
+- `agents/backend-developer.md`（中英）：「为什么有效」补「契约由后端 owner、架构师只给方案与步骤」的分工说明；并将「自证」改为「自查证据」，明确用 `multica-verification` 跑的是自查、判门权只在 Leader / Backend Dev doc clarifies the contract-owner split and that self-check ≠ Leader gate
 
 ### Why / 背景
 
