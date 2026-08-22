@@ -180,25 +180,28 @@ Don't have one yet? Read the [Multica docs](https://www.multica.ai/docs) or [How
 You get:
 
 - 1 Squad Leader (orchestration + gatekeeping)
-- 7 Agents: Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer / DevOps
-- 6 Skills (`multica-verification` is the mandatory gatekeeping Skill)
+- 9 Agents: Leader / ProductManager / Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer / DevOps
+- 16 Skills (`multica-verification` is the mandatory gatekeeping Skill)
 - 1 Issue template (with the "affected ends" scope declaration + Git branch)
 - 1 software-development workflow (conditional routing where any role can be missing, incl. G2.5 CI/CD)
 
 ### Step 1 — Create Agents
 
-In Multica, create 5 Agents (naming follows [`docs/en_US/naming-conventions.md`](./docs/en_US/naming-conventions.md)) and copy the code block from the matching file under [`templates/en_US/agents/`](./templates/en_US/agents/) into each Agent's Instructions:
+In Multica, create 9 Agents (naming follows [`docs/en_US/naming-conventions.md`](./docs/en_US/naming-conventions.md)) and copy the code block from the matching file under [`templates/en_US/agents/`](./templates/en_US/agents/) into each Agent's Instructions:
 
 | Agent | Copy |
 | --- | --- |
+| Leader | `leader.md` (injected by Squad Instructions, usually no separate Agent needed) |
+| ProductManager | `product-manager.md` |
 | Architect | `architect.md` |
+| Designer | `designer.md` |
 | FrontendDev | `frontend-developer.md` |
 | BackendDev | `backend-developer.md` |
 | Tester | `tester.md` |
 | Reviewer | `reviewer.md` |
 | DevOps | `devops.md` |
 
-> `leader.md` does not need a separate Agent: Squad Instructions only inject the Leader, and `squad.md` is its behavior config.
+> `leader.md` does not need a separate Agent: Squad Instructions only inject the Leader, and `squad.md` is its behavior config. ProductManager is optional — dispatched by the Leader only when the requirement has no ready-scope marker.
 
 ### Step 2 — Create Skills
 
@@ -311,8 +314,8 @@ More starters (Technical Research, etc.) will be added after being validated on 
 AGENTS.md     ⭐ Agent entry: project conventions and change rules
 templates/  ⭐ Start here: all copy-paste-ready configs
 ├── zh_CN/                Chinese templates (default; copy the whole subdirectory and run)
-│   ├── agents/            Shared Agent Instructions (6 role definitions)
-│   ├── skills/            Shared Skills (6, unified multica- prefix: gatekeeping / CI integration / test design / requirement analysis / technical design / implementation)
+│   ├── agents/            Shared Agent Instructions (9 role definitions)
+│   ├── skills/            Shared Skills (16, unified multica- prefix: gatekeeping / CI integration / test design / requirement analysis / technical design / implementation / artifact-orchestration / platform-shell)
 │   │   └── multica-gate-setup/  CI hard-gate templates ship inside this Skill (delivery-gate.yml, etc.)
 │   └── squad/             Squad starters
 │       ├── software-development/  Regular development (squad / issue / README incl. workflow)

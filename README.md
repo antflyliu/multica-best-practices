@@ -19,14 +19,14 @@ Multica 很强大，但第一次上手可能意外地难：
 
 ## 这是什么
 
-一句话：**一套面向真实任务持续迭代的 Multica 小队配置**——每个 Agent 只负责一件事，Leader 负责编排与判门，每步产出都要证据。
+一句话：**一套面向真实任务持续迭代的 Multica 小队配置**——每个 Agent 只负责一件事，Leader 负责编排与门禁，每步产出都要证据。
 
 ```text
 你创建：Agent（角色） + Squad（编排） + Skill（做法） + Issue（任务）
                   ↓
        Leader 带队：设计 → 实现 → 测试
                   ↓
-   每步判门（multica-verification skill 复跑）→ Human 最终验收
+   每步门禁（multica-verification skill 复跑）→ Human 最终验收
 ```
 
 ## 完整流程一览
@@ -102,7 +102,7 @@ flowchart TB
         READY{"discover ready？"}
         CICD["触发 CI/CD 构建、打包、部署<br/>（平台由 platform 壳决定）"]
         DEPLOY[/"CI/CD 证据<br/>Build URL + 日志摘要 + 环境 URL"/]
-        G25["G2.5 @Leader 判门<br/>核对部署证据"]
+        G25["G2.5 @Leader 门禁<br/>核对部署证据"]
         FIX25["BLOCKED / FAIL<br/>补参数、修流水线或退回开发"]
 
         DEVOPS --> DISCOVER --> READY
@@ -164,7 +164,7 @@ flowchart TB
     class FIX1,FIX2,PUSH,DISCOVER,CICD,FIX25,FAIL3,BLOCK3,REJECT action;
 ```
 
-> 关键约束：① 所有判门由 Leader 用 `multica-verification` 独立复跑，不采信成员自述；② T3 **必须**等 G2.5 PASS 后才派发；③ 外部工具（Confluence / JIRA / Jenkins / Figma / 用例平台）经 `multica-artifact-*-sync` 与 `multica-platform-*` 壳层可替换接入，公开仓库只保留占位壳；④ 任一产物被修改后，其下游门禁立即失效、必须重新判门。
+> 关键约束：① 所有门禁由 Leader 用 `multica-verification` 独立复跑，不采信成员自述；② T3 **必须**等 G2.5 PASS 后才派发；③ 外部工具（Confluence / JIRA / Jenkins / Figma / 用例平台）经 `multica-artifact-*-sync` 与 `multica-platform-*` 壳层可替换接入，公开仓库只保留占位壳；④ 任一产物被修改后，其下游门禁立即失效、必须重新门禁。
 
 ## 5 分钟快速开始
 
@@ -179,34 +179,37 @@ flowchart TB
 
 你将得到：
 
-- 1 个 Squad Leader（编排 + 判门）
-- 7 个 Agent：Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer / DevOps
-- 6 个 Skill（其中 multica-verification 是必备判门 Skill）
+- 1 个 Squad Leader（编排 + 门禁）
+- 9 个 Agent：Leader / ProductManager / Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer / DevOps
+- 16 个 Skill（其中 multica-verification 是必备门禁 Skill）
 - 1 个 Issue 模板（含「涉及端」范围声明 + Git 分支）
 - 1 个软件开发工作流（任意角色可缺失的条件路由，含 G2.5 CI/CD）
 
 ### Step 1 — 创建 Agents
 
-在 Multica 创建 5 个 Agent（命名遵循 [`docs/zh_CN/naming-conventions.md`](./docs/zh_CN/naming-conventions.md)），把 [`templates/zh_CN/agents/`](./templates/zh_CN/agents/) 下对应文件的代码块复制到各自 Instructions：
+在 Multica 创建 9 个 Agent（命名遵循 [`docs/zh_CN/naming-conventions.md`](./docs/zh_CN/naming-conventions.md)），把 [`templates/zh_CN/agents/`](./templates/zh_CN/agents/) 下对应文件的代码块复制到各自 Instructions：
 
 | Agent | 复制 |
 | --- | --- |
+| Leader | `leader.md`（Squad Instructions 注入，通常不需单独建 Agent） |
+| ProductManager | `product-manager.md` |
 | Architect | `architect.md` |
+| Designer | `designer.md` |
 | FrontendDev | `frontend-developer.md` |
 | BackendDev | `backend-developer.md` |
 | Tester | `tester.md` |
 | Reviewer | `reviewer.md` |
 | DevOps | `devops.md` |
 
-> `leader.md` 不需要单独建 Agent：Squad Instructions 只注入 Leader，`squad.md` 就是它的行为配置。
+> `leader.md` 不需要单独建 Agent：Squad Instructions 只注入 Leader，`squad.md` 就是它的行为配置。ProductManager 为可选角色，仅当需求无就绪范围标识时由 Leader 派发。
 
 ### Step 2 — 创建 Skills
 
-在 Multica 创建 6 个 Skill，把 `SKILL.md` 的代码块复制到对应 Skill：
+在 Multica 创建 16 个 Skill，把 `SKILL.md` 的代码块复制到对应 Skill（清单见下表的 16 行）：
 
 | Skill | 来源 | 挂给谁 |
 | --- | --- | --- |
-| `multica-verification`（判门，必备） | [`templates/zh_CN/skills/multica-verification/SKILL.md`](./templates/zh_CN/skills/multica-verification/SKILL.md) | **Leader** |
+| `multica-verification`（门禁，必备） | [`templates/zh_CN/skills/multica-verification/SKILL.md`](./templates/zh_CN/skills/multica-verification/SKILL.md) | **Leader** |
 | `multica-gate-setup` | [`templates/zh_CN/skills/multica-gate-setup/SKILL.md`](./templates/zh_CN/skills/multica-gate-setup/SKILL.md) | Leader（集成 CI 硬门禁时） |
 | `multica-test-design` | [`templates/zh_CN/skills/multica-test-design/SKILL.md`](./templates/zh_CN/skills/multica-test-design/SKILL.md) | Tester |
 | `multica-requirement-analysis` | [`templates/zh_CN/skills/multica-requirement-analysis/SKILL.md`](./templates/zh_CN/skills/multica-requirement-analysis/SKILL.md) | Leader / Architect |
@@ -223,7 +226,7 @@ flowchart TB
 | `multica-platform-jira` | [`templates/zh_CN/skills/multica-platform-jira/SKILL.md`](./templates/zh_CN/skills/multica-platform-jira/SKILL.md) | 平台层占位壳（Issue 系统） |
 | `multica-platform-confluence` | [`templates/zh_CN/skills/multica-platform-confluence/SKILL.md`](./templates/zh_CN/skills/multica-platform-confluence/SKILL.md) | 平台层占位壳（知识库/Wiki） |
 
-> 16 个 Skill 全部共享放在 `templates/zh_CN/skills/`，统一 `multica-` 前缀命名空间。三类：**判门/设计类**（multica-verification / multica-gate-setup / multica-test-design / multica-requirement-analysis / multica-technical-design / multica-implementation）；**产物编排类**（`multica-artifact-*-sync` 五个 + cicd-sync，负责把产物落地到团队平台，平台在 skill 内实现、可替换）；**平台层占位壳**（multica-platform-* 三个 + multica-test-automation，唯一允许出现公司内网地址/凭据的地方，公开仓库只给占位壳）。角色提示词只说"用哪个 skill"，不写平台名；换公司只填平台壳。详见 artifact-conventions 的三层架构。Skill 靠**名称**挂载，谁需要就在自己的 Instructions 里写「用 xxx skill」，与仓库路径无关。
+> 16 个 Skill 全部共享放在 `templates/zh_CN/skills/`，统一 `multica-` 前缀命名空间。三类：**门禁/设计类**（multica-verification / multica-gate-setup / multica-test-design / multica-requirement-analysis / multica-technical-design / multica-implementation）；**产物编排类**（`multica-artifact-*-sync` 五个 + cicd-sync，负责把产物落地到团队平台，平台在 skill 内实现、可替换）；**平台层占位壳**（multica-platform-* 三个 + multica-test-automation，唯一允许出现公司内网地址/凭据的地方，公开仓库只给占位壳）。角色提示词只说"用哪个 skill"，不写平台名；换公司只填平台壳。详见 artifact-conventions 的三层架构。Skill 靠**名称**挂载，谁需要就在自己的 Instructions 里写「用 xxx skill」，与仓库路径无关。
 
 ### Step 3 — 创建 Squad
 
@@ -243,7 +246,7 @@ flowchart TB
 Issue → [设计] → [API 契约 ∥ 功能用例] → [前端 ∥ 后端实现 ∥ API 测试用例] → [G2.5 CI/CD 部署] → [T3 测试报告] → Human
 ```
 
-每个产物的门禁由 Leader 用 multica-verification skill 判门，PASS 才进入下一阶段；范围里没有的角色直接跳过；设计与关键改动由 Reviewer 做业务评审；G2 后由 DevOps 触发 CI/CD（G2.5），Tester 在其部署环境跑自动化（T3）。
+每个产物的门禁由 Leader 用 multica-verification skill 执行，PASS 才进入下一阶段；范围里没有的角色直接跳过；设计与关键改动由 Reviewer 做业务评审；G2 后由 DevOps 触发 CI/CD（G2.5），Tester 在其部署环境跑自动化（T3）。
 就这些。先跑一个真实需求，再按你的团队调整。
 
 ## Agent Matrix
@@ -256,7 +259,7 @@ Issue → [设计] → [API 契约 ∥ 功能用例] → [前端 ∥ 后端实�
 | Tester | T1/T2 用例与覆盖率 / T3 部署后自动化验证 | 修改需求 / 在 G2.5 前跑自动化 |
 | DevOps | G2 后触发 CI/CD、回传部署 URL | 写业务代码 / 自宣部署成功 |
 | Reviewer | 业务评审（设计 / 关键改动） | 替代客观验证 / 替代人类验收 |
-| Leader | 编排与判门（用 multica-verification skill） | 亲自实现 / 给自己盖章 |
+| Leader | 编排与门禁（用 multica-verification skill） | 亲自实现 / 给自己盖章 |
 
 ## 一条指令该放哪？
 
@@ -284,7 +287,7 @@ CI / PR = 什么必须真的通过？
 1. Agent 职责保持狭窄。
 2. 不要把路由逻辑复制进每个 Agent。
 3. 由 Squad Leader 统一协调。
-4. 完成者不得审批自己的工作（判门动作标准化为 multica-verification skill，由不产出的 Leader 或 CI 执行）。
+4. 完成者不得审批自己的工作（门禁动作标准化为 multica-verification skill，由不产出的 Leader 或 CI 执行）。
 5. 用证据代替「做完了」的口头声明。
 6. 不用自然语言指令做硬性约束。
 7. 复杂多 Agent 之前，先用简单流程。
@@ -309,8 +312,8 @@ CI / PR = 什么必须真的通过？
 AGENTS.md     ⭐ Agent 入口：项目约定与改动规范
 templates/  ⭐ 从这里开始：可直接复制的全部配置
 ├── zh_CN/              中文模板（默认；复制整个子目录即用）
-│   ├── agents/           共享 Agent Instructions（6 个角色定义）
-│   ├── skills/           共享 Skill（6 个，统一 multica- 前缀：判门 / 集成 CI / 测试设计 / 需求分析 / 技术设计 / 实现）
+│   ├── agents/           共享 Agent Instructions（9 个角色定义）
+│   ├── skills/           共享 Skill（16 个，统一 multica- 前缀：门禁 / 集成 CI / 测试设计 / 需求分析 / 技术设计 / 实现 / 产物编排 / 平台壳）
 │   │   └── multica-gate-setup/  CI 硬门禁模板随 Skill 自包含（delivery-gate.yml 等）
 │   └── squad/            小队 Starter
 │       ├── software-development/ 常规开发（squad / issue / README 含工作流）
