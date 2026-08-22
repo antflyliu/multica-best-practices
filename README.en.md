@@ -24,7 +24,7 @@ In one sentence: **a set of Multica squad configurations continuously refined th
 ```text
 You create: Agents (roles) + Squad (orchestration) + Skills (practices) + Issue (task)
                   ↓
-       Leader runs the squad: design → implement → test
+       Leader runs the squad: converge (G0) → design → implement → test
                   ↓
    Gate each step (rerun via the multica-verification skill) → Human final acceptance
 ```
@@ -182,7 +182,7 @@ You get:
 - 1 Squad Leader (orchestration + gatekeeping)
 - 9 Agents: Leader / ProductManager / Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer / DevOps
 - 16 Skills (`multica-verification` is the mandatory gatekeeping Skill)
-- 1 Issue template (with the "affected ends" scope declaration + Git branch)
+- 1 Issue template (with the "affected ends" scope declaration; source supports "linked / fully self-contained" — pick one)
 - 1 software-development workflow (conditional routing where any role can be missing, incl. G2.5 CI/CD)
 
 ### Step 1 — Create Agents
@@ -234,7 +234,7 @@ Create a Squad and copy `templates/en_US/squad/software-development/squad.md` in
 
 ### Step 4 — Create the Issue
 
-Copy `templates/en_US/squad/software-development/issue.md` into a new Issue and fill in your requirement.
+Copy `templates/en_US/squad/software-development/issue.md` into a new Issue: if requirements already live in Jira/Tapd, pick "External link" and fill only the link + affected ends; otherwise pick "Fully self-contained" and fill everything.
 
 ### Step 5 — Assign
 

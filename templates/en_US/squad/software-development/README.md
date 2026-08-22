@@ -153,10 +153,10 @@ The multica-verification skill is a **soft gate** in the agent world (executed b
 | File | Purpose |
 | --- | --- |
 | `squad.md` | Squad Instructions (conditional routing + artifact gates + evidence requirements) |
-| `issue.md` | Standard Issue template (with the "affected ends" scope declaration) |
+| `issue.md` | Standard Issue template (trimmed to a requirement contract: source pick-one + background/goal/scope-with-affected-ends/non-goals/acceptance criteria only) |
 | `README.md` | This file (workflow + artifact gates + setup steps) |
 | [`../../agents/`](../../agents/) | Shared Agent Instructions (architect / frontend-developer / backend-developer / tester / reviewer / leader) |
-| [`../../skills/`](../../skills/) | Shared Skills (6, unified multica- prefix: gatekeeping / CI integration / test design / requirement analysis / technical design / implementation) |
+| [`../../skills/`](../../skills/) | Shared Skills (16, unified multica- prefix: gatekeeping / CI integration / test design / requirement analysis / technical design / implementation / artifact-orchestration / platform-shell) |
 
 ## Why this works
 

@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 本文件记录本项目的所有重要变更。新条目采用中英结合写法（Chinese-first, English alongside）。
 
+## v0.0.10 - 2026-08-22 · 全量 Review 修复：一致性/双语文档同步 / Full-review fixes: consistency & bilingual sync
+
+### Changed / 变更
+
+- `bug-fix/squad.md`（中英）：【团队】段移除 `@Architect` / `@Designer`，与「Bug 修复不经过 Architect」的核心设计一致；影响端只有前端 / 后端，不再误列设计端 / Bug squad removes Architect & Designer from the team list to match the "no Architect" design
+- `bug-fix/squad.md`（中英）+ `software-development/squad.md`（中英）：第一步/需求就绪补充「链接型 Issue 按 `<ISSUE-KEY>` 或链接去外部系统取回需求/范围/验收标准」的取数指引，与 issue.md 的「来源二选一」对齐 / Squad instructions now pull requirements for linked Issues from the external system
+- `README.md` / `README.en.md`：Issue 模板描述由「含 Git 分支」改为「来源支持链接型 / 全量自包含二选一」（issue.md 已在 v0.0.9 删除 Git 分支章）/ Root READMEs drop the stale "Git branch" claim
+- `en_US/squad/software-development/README.md`：目录表「Shared Skills」数量由遗留的 6 修正为 16，与正文一致 / en starter README fixes the stale "6 Skills" count
+- `software-development/issue.md`（中英）+ `bug-fix/issue.md`（中英）：「为什么这么写」字段列举与模板实际章节（参考资料 / 备注、References / Notes）对齐；bug-fix 补「常见失败」段，与 software-development 体例一致 / Issue "why" sections list the real sections; bug-fix adds a "common failure modes" section
+- `agents/devops.md`（中英）+ `skills/multica-platform-jenkins/SKILL.md`（中英）：移除对已删除的 Issue「Git 分支」区块的引用，deploy branch 改为「由 Issue 来源与涉及端确定，链接型以外部系统分支为准」/ DevOps & Jenkins skill drop the stale reference to the removed Issue "Git Branch" block
+
+### Why / 背景
+
+- 全量 Review 发现上述文档在多次演进后留下数字遗漏、与已删除章节不符的声称、以及 Squad 指令未接入轻量链接型用法等问题；本次集中修正，保证「复制即运行」不踩坑 / Full-review sweep fixed leftover counts, stale claims, and Squad instructions lagging behind the lightweight Issue mode
+
+## v0.0.9 - 2026-08-22 · Issue 模板支持双形态（Jira/Tapd 链接型轻量填写）/ Issue template dual-form: lightweight Jira/Tapd link mode
+
+### Changed / 变更
+
+- `software-development/issue.md`（中英）新增「Issue 来源（必填，二选一）」块：支持「外部系统链接（轻量）」只填链接 + 涉及端 + 一句话摘要，或「全量自包含」完整填写；底部「为什么这么写」补充来源分流说明 / Issue template adds "Issue source (pick one)" — lightweight external-link mode vs fully self-contained
+- `bug-fix/issue.md`（中英）同步新增「Issue 来源（必填，二选一）」块 / Bug issue template gets the same "Issue source (pick one)" block
+- `software-development/README.md`（中英）文件清单与 Step 4、根 `README.md` / `README.en.md` Step 4 描述更新，反映链接型轻量用法 / Starter READMEs + root READMEs updated to mention link-style filling
+- `software-development/issue.md`（中英）修正角色错配：需求追踪矩阵改标「提 Issue 留空、由 Tester 回填」；技术上下文改选填（Architect 在 G1 补全）；约束拆「业务约束（PM 填）/ 工程约束（Architect 补）」；验证方式降为「期望验证维度（示意，Leader/Tester 定）」；根 README 流程补「需求收敛(G0)」阶段 / Issue template fixes role mismatch: matrix is Tester-backfilled, context is optional, constraints split, verification is indicative; root README flow adds G0
+- `software-development/issue.md`（中英）进一步精简：删除「需求追踪矩阵 / 技术上下文 / 约束 / 验证方式 / Git 分支」五章，仅保留背景/目标/范围(含涉及端)/非目标/验收标准/来源/参考资料/备注，模板回到纯需求契约 / Issue template trimmed: drop matrix/context/constraints/verification/Git-branch; keep requirement-contract sections only
+
+### Why / 背景
+
+- Issue 真实形态有两种：Jira/Tapd 链接（全量需求在外部系统）与全量自包含 Markdown。原模板默认全量、对链接型过重；新增来源分流后，链接型只需「链接 + 涉及端 + 摘要」即可驱动 G0 路由与 multica-verification 门禁，两种形态共用同一 `<ISSUE-KEY>` / Issues come in two real forms; the source selector lightens link-type Issues while keeping gates intact
+- 提 Issue 者通常是 PM（一个 Issue 即一个需求），而追踪矩阵/技术上下文/工程约束/验证方式属下游角色产物。前置成 PM 必填会凭空编 ID 或写入过期信息；Issue 应只作需求契约（为什么做 / 做什么 / 验收 / 非目标），其余由 Squad 运行中回填 / The filer is usually a PM; matrix/context/constraints/verification are downstream artifacts, not requirement inputs
+
 ## v0.0.8 - 2026-08-20 · CI/CD gate + Tester three-phase + DevOps role + platform shells / CI/CD 门禁、Tester 三阶段、DevOps 角色与平台层占位壳
 
 ### Added / 新增

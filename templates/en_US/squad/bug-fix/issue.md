@@ -5,6 +5,13 @@
 ```markdown
 # Bug
 
+## Issue source (required, pick one)
+<!-- With "External link", only fill link + repro summary + impact area, skip the rest and reference the KEY in References; full details live in Jira/Tapd etc. -->
+- [ ] External link (lightweight): only fill "link / one-line repro summary / impact area"
+      - Link: https://jira.example.com/browse/<ISSUE-KEY>
+      - Summary: <!-- one line on the symptom -->
+- [ ] Fully self-contained (default): this Issue is the requirement; fill in all sections below
+
 ## Repro steps
 1.
 2.
@@ -44,3 +51,11 @@
 ## Why it's written this way
 
 The first priority of a Bug Issue is "reproducible." With the repro steps + expected/actual behavior written out, the implementer can locate the root cause without guessing.
+
+## Common failure modes
+
+- **A one-line description with no repro steps**: the implementer can only guess-and-patch; the root cause is never found, and the fix breaks one place while healing another.
+- **Repro steps depend on environmental details that were left out** (version, data, auth state): others can't reproduce, so the gate can't reach PASS.
+- **Missing expected/actual behavior**: after a change there's no way to tell "it's fixed" — the acceptance criteria become decorative.
+- **A "solution" given instead of a root cause**: this template wants a root-cause hypothesis, not a patch written into the Issue; root-cause-less fixes almost always regress.
+- **Regression verification skipped**: changing code without adding a regression case means the same trigger will blow up again next time.

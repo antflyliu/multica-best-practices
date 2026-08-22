@@ -24,7 +24,7 @@ Multica 很强大，但第一次上手可能意外地难：
 ```text
 你创建：Agent（角色） + Squad（编排） + Skill（做法） + Issue（任务）
                   ↓
-       Leader 带队：设计 → 实现 → 测试
+       Leader 带队：需求收敛(G0) → 设计 → 实现 → 测试
                   ↓
    每步门禁（multica-verification skill 复跑）→ Human 最终验收
 ```
@@ -182,7 +182,7 @@ flowchart TB
 - 1 个 Squad Leader（编排 + 门禁）
 - 9 个 Agent：Leader / ProductManager / Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer / DevOps
 - 16 个 Skill（其中 multica-verification 是必备门禁 Skill）
-- 1 个 Issue 模板（含「涉及端」范围声明 + Git 分支）
+- 1 个 Issue 模板（含「涉及端」范围声明；来源支持「链接型 / 全量自包含」二选一）
 - 1 个软件开发工作流（任意角色可缺失的条件路由，含 G2.5 CI/CD）
 
 ### Step 1 — 创建 Agents
@@ -234,7 +234,7 @@ flowchart TB
 
 ### Step 4 — 创建 Issue
 
-把 `templates/zh_CN/squad/software-development/issue.md` 复制到新 Issue，填上你的需求。
+把 `templates/zh_CN/squad/software-development/issue.md` 复制到新 Issue：若需求已在 Jira/Tapd，选「外部系统链接」只填链接 + 涉及端即可；否则选「全量自包含」完整填写。
 
 ### Step 5 — 分配
 

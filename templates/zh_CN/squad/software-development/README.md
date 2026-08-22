@@ -153,7 +153,7 @@ multica-verification skill 是 Agent 世界的**软门禁**（由 Leader 执行�
 | 文件 | 用途 |
 | --- | --- |
 | `squad.md` | Squad Instructions（条件路由 + 产物门禁 + 证据要求） |
-| `issue.md` | 标准 Issue 模板（含「涉及端」范围声明） |
+| `issue.md` | 标准 Issue 模板（精简为需求契约：来源二选一 + 背景/目标/范围含涉及端/非目标/验收标准，仅此） |
 | `README.md` | 本文件（工作流 + 产物门禁 + 上手步骤） |
 | [`../../agents/`](../../agents/) | 共享 Agent Instructions（architect / frontend-developer / backend-developer / tester / reviewer / devops / leader） |
 | [`../../skills/`](../../skills/) | 共享 Skill（统一 multica- 前缀：判门 / 集成 CI / 测试设计 / 需求分析 / 技术设计 / 实现 / 产物落地 / 平台层占位壳） |

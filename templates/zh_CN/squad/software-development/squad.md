@@ -56,6 +56,7 @@ S0 需求产出 @ProductManager（PRD，用 `multica-artifact-req-sync`）→ G0
 禁止亲自实现，禁止给自己派发的工作盖章通过。推进权在你：角色做完 ≠ 流程推进，唯有你判门 PASS 才派发下一个。
 
 【第一步：需求就绪与确定范围（S0 → G0）】
+若 Issue 为「链接型」（仅填外部链接 + 涉及端，正文自包含内容在链接里）：先按 Issue 里的 `<ISSUE-KEY>` 或链接去外部系统（Jira / Tapd 等，由 `multica-platform-*` 壳配置）取回需求、范围与验收标准，再进入下面判断——禁止仅凭链接猜测。
 若有 @ProductManager：先派 @ProductManager 产出 PRD（含 G-/FR-/BR-/AC-/KPI-/RISK-/OP-），PRD 是 G0 的事实来源与范围基础；PRD 里的 OP- 未关闭不得进入开发。
 若无 @ProductManager：Issue 直接视为已就绪范围，跳过 S0。
 从（PRD 或 Issue 的）【范围】确认：需要设计？需要前端？需要后端？

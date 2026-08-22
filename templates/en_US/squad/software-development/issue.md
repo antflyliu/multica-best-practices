@@ -5,6 +5,13 @@
 ```markdown
 # Feature
 
+## Issue source (required, pick one)
+<!-- Decides how much to fill in. With "External link", only fill the link + summary + affected ends below; skip the other sections and reference the KEY in Notes. Full requirements live in Jira/Tapd etc., the Squad pulls them by KEY -->
+- [ ] External link (lightweight): only fill "link / one-line summary / affected ends"; other sections omitted
+      - Link: https://jira.example.com/browse/<ISSUE-KEY>
+      - Summary: <!-- one line on what to do -->
+- [ ] Fully self-contained (default): this Issue is the requirement; fill in all sections below
+
 ## Background
 <!-- Why are we doing this? -->
 
@@ -27,30 +34,6 @@
 - [ ]
 - [ ]
 
-## Requirements traceability matrix (recommended, prevents broken links)
-<!-- Map REQ → DESIGN → API → CODE → CASE → TEST so every acceptance criterion traces to an artifact and a test -->
-| Acceptance criterion (AC) | Design (DESIGN-ID) | API (API-ID) | Code | Case (CASE-ID) | Test result |
-| --- | --- | --- | --- | --- | --- |
-| AC-1 | | | | | |
-
-## Technical context
-<!-- Existing architecture, modules, APIs, constraints, etc. -->
-
-## Constraints
-<!-- Compatibility, performance, security, deadlines, etc. -->
-
-## Verification method
-- [ ] Build
-- [ ] Unit tests
-- [ ] CI/CD deploy to test env (check if scope includes CI/CD; G2.5)
-- [ ] Automated test (after G2.5, T3)
-- [ ] Manual verification (if applicable)
-
-## Git Branch
-<!-- Declared by Leader at G0; all implementations merge to this deploy branch, @DevOps triggers CI/CD on it only. Feature branches are not used for CI/CD -->
-- Deploy branch: `release/<ISSUE-KEY>-<slug>`
-- Feature branch (optional): `<ISSUE-KEY>-<desc>`
-
 ## References
 <!-- Docs, Issues, screenshots, code locations -->
 
@@ -64,7 +47,8 @@
 
 - **The "affected ends" in the scope is the routing input**: the Leader's G0 uses it to decide which roles to dispatch. Missing or vague scope → G0 FAIL, instead of the Leader guessing.
 - **Goal / Scope / Non-goals separated**: prevents agents from freewheeling and expanding the scope.
-- **Acceptance criteria must be testable**: without testable criteria, gatekeeping can't execute (the multica-verification skill has nothing to map against), and the whole gate system breaks.
+- **"Source: pick one" lightens link-type Issues**: when the source is Jira/Tapd, full requirements live externally; this Issue only needs "link + affected ends + one-line summary" to drive G0 routing and gating. With "fully self-contained", prioritize Background / Goal / Scope / Non-goals / Acceptance criteria, and add References / Notes as needed. Both forms share the same `<ISSUE-KEY>`; the gate system is unchanged.
+- **An Issue is a requirement contract, not an implementation blueprint**: the person filing it is usually a PM (one Issue = one requirement). The template keeps only requirement elements (why / what / affected ends / non-goals / testable AC); technical context, constraints, traceability matrix, verification, and Git branch are produced by the Squad during the run, not front-loaded onto the PM.
 
 ## Common failure
 

@@ -24,7 +24,7 @@ Default CI URL configured in `config.yaml` → `cicd.base_url` (placeholder: `ht
 ## Agent standard flow (required)
 
 ```text
-1. Resolve service (jobs-catalog / issue_service_map) + **deploy branch** (Issue "Git Branch" block, not feature)
+1. Resolve service (jobs-catalog / issue_service_map) + **deploy branch** (from the Issue source + affected ends, not feature; for linked Issues use the branch in the external system)
 2. discover (required) — default copy from lastSuccessfulBuild, only override deploy branch
 3. ready=false → fill missing params or BLOCKED ask human
 4. trigger: multica-artifact-cicd-sync → trigger script

@@ -11,7 +11,7 @@
 - 监控构建状态，回传 build URL 与日志摘要
 
 【标准步骤】（必须按 multica-artifact-cicd-sync 的 SKILL.md 执行）
-1. 从 Issue 得 env（如 dev→开发验证，sit→G2.5）、service（如后端服务名）、**deploy branch**（Issue「Git 分支」区块，禁止用 feature 分支）
+1. 从 Issue 得 env（如 dev→开发验证，sit→G2.5）、service（如后端服务名，由涉及端/范围确定）、**deploy branch**（由 Issue 来源与涉及端确定，禁止用 feature 分支；链接型 Issue 以外部系统里的分支为准）
 2. discover-only：连 CI 系统读取该 Job 的必填参数（默认从上次成功构建复制，仅覆盖 deploy branch）
 3. ready=false → 补 missing 参数或 BLOCKED 问人类
 4. 触发：multica-artifact-cicd-sync → 触发构建

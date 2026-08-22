@@ -24,7 +24,7 @@ CI/CD 系统 **读 + 写** 能力：触发 Job、轮询构建、取 `consoleText
 ## Agent 标准流程（必读）
 
 ```text
-1. 解析 service（jobs-catalog / issue_service_map）+ **deploy branch**（Issue「Git 分支」区块，非 feature）
+1. 解析 service（jobs-catalog / issue_service_map）+ **deploy branch**（由 Issue 来源与涉及端确定，非 feature；链接型 Issue 以外部系统里的分支为准）
 2. discover（必做）— 默认从 lastSuccessfulBuild 复制参数，仅覆盖 deploy branch
 3. ready=false → 补 missing 参数或 BLOCKED 问人类
 4. 触发：multica-artifact-cicd-sync → trigger 脚本
