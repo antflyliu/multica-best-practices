@@ -6,15 +6,6 @@
 > 面向 [Multica](https://github.com/multica-ai/multica) 的 Agent · Squad · Skill · Issue 实战模板。
 > **Copy. Paste. Run.**
 
-Multica 很强大，但第一次上手可能意外地难：
-
-- Instructions 里该写什么？
-- 这条规则放 Agent Instructions 还是 Squad Instructions？
-- Leader 该干什么？成员之间怎么交接？
-- Issue 里该有什么？
-- 怎么防止 Agent 跳过步骤？
-- 检查和测试怎么分工？
-
 本仓库给出可直接复用、并持续通过真实任务验证的实践答案。
 
 ![Multica Best Practices 介绍](./display.png)
@@ -26,7 +17,7 @@ Multica 很强大，但第一次上手可能意外地难：
 ```text
 你创建：Agent（角色） + Squad（编排） + Skill（做法） + Issue（任务）
                   ↓
-       Leader 带队：需求收敛(G0) → 设计 → 实现 → 测试
+       Leader 带队：需求收敛(G0) → 设计 → 实现 → 测试 → 部署(G2.5, DevOps)
                   ↓
    每步门禁（multica-verification skill 复跑）→ Human 最终验收
 ```

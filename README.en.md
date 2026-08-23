@@ -6,15 +6,6 @@
 > Practical Agent · Squad · Skill · Issue templates for [Multica](https://github.com/multica-ai/multica).
 > **Copy. Paste. Run.**
 
-Multica is powerful, but the first run can be surprisingly hard:
-
-- What should go into Instructions?
-- Does this rule belong in Agent Instructions or Squad Instructions?
-- What does the Leader do? How do members hand off work?
-- What should an Issue contain?
-- How do you stop agents from skipping steps?
-- How do verification and testing divide the work?
-
 This repo gives you ready-to-reuse practices that continue to be validated on real tasks.
 
 ![Multica Best Practices intro](./display.png)
@@ -26,7 +17,7 @@ In one sentence: **a set of Multica squad configurations continuously refined th
 ```text
 You create: Agents (roles) + Squad (orchestration) + Skills (practices) + Issue (task)
                   ↓
-       Leader runs the squad: converge (G0) → design → implement → test
+       Leader runs the squad: converge (G0) → design → implement → test → deploy (G2.5, DevOps)
                   ↓
    Gate each step (rerun via the multica-verification skill) → Human final acceptance
 ```
