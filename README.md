@@ -304,6 +304,7 @@ CI / PR = 什么必须真的通过？
 | Starter | 用途 | 状态 |
 | --- | --- | --- |
 | [Software Development](./templates/zh_CN/squad/software-development) | 常规功能开发（前后端按范围路由，任意角色可缺失） | 推荐 |
+| [Software Development (Reviewed)](./templates/zh_CN/squad/software-development-reviewed) | 在 Software Development 基础上，每个常规角色配专属 Reviewer，两层门禁（通用门禁 + 专业产出物评审） | 实验性 |
 | [Bug Fix](./templates/zh_CN/squad/bug-fix) | 根因 / 修复 / 回归（按影响面路由，跳过 Architect） | 实验性 |
 
 更多 Starter（Technical Research 等）将基于真实任务验证后补充。**不要假装最佳实践已经完成。**
@@ -314,11 +315,12 @@ CI / PR = 什么必须真的通过？
 AGENTS.md     ⭐ Agent 入口：项目约定与改动规范
 templates/  ⭐ 从这里开始：可直接复制的全部配置
 ├── zh_CN/              中文模板（默认；复制整个子目录即用）
-│   ├── agents/           共享 Agent Instructions（9 个角色定义）
-│   ├── skills/           共享 Skill（16 个，统一 multica- 前缀：门禁 / 集成 CI / 测试设计 / 需求分析 / 技术设计 / 实现 / 产物编排 / 平台壳）
+│   ├── agents/           共享 Agent Instructions（15 个角色定义：9 常规 + 6 专属 Reviewer）
+│   ├── skills/           共享 Skill（22 个，统一 multica- 前缀：门禁 / 集成 CI / 测试设计 / 需求分析 / 技术设计 / 实现 / 产物编排 / 平台壳 / 6 个专属评审）
 │   │   └── multica-gate-setup/  CI 硬门禁模板随 Skill 自包含（delivery-gate.yml 等）
 │   └── squad/            小队 Starter
 │       ├── software-development/ 常规开发（squad / issue / README 含工作流）
+│       ├── software-development-reviewed/ 加强版：每角色专属 Reviewer + 两层门禁
 │       └── bug-fix/             最小修复组合（只换编排）
 └── en_US/              英文模板（与 zh_CN/ 结构一致）
 docs/          ⭐ 先读这一页：指令放哪 / 门禁证据 / 常见错误 / 裁剪扩展

@@ -306,6 +306,7 @@ CI / PR = What must actually pass?
 | Starter | Use | Status |
 | --- | --- | --- |
 | [Software Development](./templates/en_US/squad/software-development/README.md) | Regular feature development (frontend/backend routed by scope; any role can be missing) | Recommended |
+| [Software Development (Reviewed)](./templates/en_US/squad/software-development-reviewed/README.md) | Extends Software Development with a dedicated Reviewer per regular role and a two-layer gate (generic gate + professional artifact review) | Experimental |
 | [Bug Fix](./templates/en_US/squad/bug-fix/README.md) | Root cause / fix / regression (routed by impact, skips Architect) | Experimental |
 
 More starters (Technical Research, etc.) will be added after being validated on real tasks. **Don't pretend best practices are finished.**
@@ -316,11 +317,12 @@ More starters (Technical Research, etc.) will be added after being validated on 
 AGENTS.md     ⭐ Agent entry: project conventions and change rules
 templates/  ⭐ Start here: all copy-paste-ready configs
 ├── zh_CN/                Chinese templates (default; copy the whole subdirectory and run)
-│   ├── agents/            Shared Agent Instructions (9 role definitions)
-│   ├── skills/            Shared Skills (16, unified multica- prefix: gatekeeping / CI integration / test design / requirement analysis / technical design / implementation / artifact-orchestration / platform-shell)
+│   ├── agents/            Shared Agent Instructions (15 role definitions: 9 regular + 6 dedicated Reviewers)
+│   ├── skills/            Shared Skills (22, unified multica- prefix: gatekeeping / CI integration / test design / requirement analysis / technical design / implementation / artifact-orchestration / platform-shell / 6 dedicated reviews)
 │   │   └── multica-gate-setup/  CI hard-gate templates ship inside this Skill (delivery-gate.yml, etc.)
 │   └── squad/             Squad starters
 │       ├── software-development/  Regular development (squad / issue / README incl. workflow)
+│       ├── software-development-reviewed/  Strengthened: dedicated Reviewer per role + two-layer gate
 │       └── bug-fix/              Minimal fix combination (only the orchestration changes)
 └── en_US/                English templates (same structure as zh_CN/)
 docs/          ⭐ Read first: where instructions go / gates & evidence / common mistakes / adapt & scale
