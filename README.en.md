@@ -17,6 +17,8 @@ Multica is powerful, but the first run can be surprisingly hard:
 
 This repo gives you ready-to-reuse practices that continue to be validated on real tasks.
 
+![Multica Best Practices intro](./display.png)
+
 ## What this is
 
 In one sentence: **a set of Multica squad configurations continuously refined through real tasks** — each agent owns one thing, the Leader owns orchestration and gatekeeping, and every step must produce evidence.
