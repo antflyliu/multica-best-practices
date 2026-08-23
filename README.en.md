@@ -376,3 +376,7 @@ Read [SECURITY.md](SECURITY.md) before sharing configs: never upload tokens, abs
 ## License
 
 [MIT](LICENSE)
+
+## Friends
+
+- [LinuxDo](https://linux.do)

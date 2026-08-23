@@ -374,3 +374,7 @@ docs/          ⭐ 先读这一页：指令放哪 / 门禁证据 / 常见错误 
 ## License
 
 [MIT](LICENSE)
+
+## 友链
+
+- [LinuxDo](https://linux.do)
