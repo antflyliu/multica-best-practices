@@ -17,12 +17,55 @@ In one sentence: **a set of Multica squad configurations continuously refined th
 ```text
 You create: Agents (roles) + Squad (orchestration) + Skills (practices) + Issue (task)
                   ↓
-       Leader runs the squad: converge (G0) → design → implement → test → deploy (G2.5, DevOps)
+       Leader runs the squad: converge (G0) → design → implement → test → deploy
                   ↓
    Gate each step (rerun via the multica-verification skill) → Human final acceptance
-```
+   ```
 
-## Full flow at a glance
+   ## Roles & responsibilities (Agent Matrix)
+
+   | Agent | Should do | Should NOT do |
+   | --- | --- | --- |
+   | Architect | Design the solution | Write lots of code |
+   | FrontendDev | Frontend implementation (works with the UI design) | Change requirements / self-approve / invent APIs |
+   | BackendDev | Backend implementation + API contract | Change requirements / self-approve / touch UI |
+   | Tester | T1/T2 cases & coverage / T3 post-deploy automation | Change requirements / run automation before G2.5 |
+   | DevOps | Trigger CI/CD after G2, return deploy URL | Write business code / self-claim deploy success |
+   | Reviewer | Business review (design / critical changes) | Replace objective verification / replace human acceptance |
+   | Leader | Orchestration and gatekeeping (multica-verification skill) | Implement personally / rubber-stamp itself |
+
+   > Note: the `software-development-reviewed` Starter adds dedicated Reviewers (ArchReviewer / DesignReviewer / ProductReviewer / FrontendReviewer / BackendReviewer / TestReviewer) for every regular producing role except Leader and DevOps; see Starters and [gates-and-evidence](docs/en_US/gates-and-evidence.md#two-layer-gate-generic-gate--professional-artifact-review).
+
+   ## Starters
+
+   | Starter | Use | Status |
+   | --- | --- | --- |
+   | [Software Development](./templates/en_US/squad/software-development/README.md) | Regular feature development (frontend/backend routed by scope; any role can be missing) | Recommended |
+   | [Software Development (Reviewed)](./templates/en_US/squad/software-development-reviewed/README.md) | Extends Software Development with a dedicated Reviewer per regular role and a two-layer gate (generic gate + professional artifact review) | Experimental |
+   | [Bug Fix](./templates/en_US/squad/bug-fix/README.md) | Root cause / fix / regression (routed by impact, skips Architect) | Experimental |
+
+   More starters (Technical Research, etc.) will be added after being validated on real tasks. **Don't pretend best practices are finished.**
+
+   ## Repository structure
+
+   ```text
+   AGENTS.md     ⭐ Agent entry: project conventions & change rules
+   templates/  ⭐ Start here: all copy-ready config
+   ├── zh_CN/              Chinese templates (default; copy the whole subdir)
+   │   ├── agents/           Shared Agent Instructions (15 role defs: 9 regular + 6 dedicated Reviewers)
+   │   ├── skills/           Shared Skills (22, unified multica- prefix: gatekeeping / CI integration / test design / requirement analysis / technical design / implementation / artifact-orchestration / platform-shell / 6 dedicated reviews)
+   │   │   └── multica-gate-setup/  CI hard-gate templates ship inside this Skill (delivery-gate.yml, etc.)
+   │   └── squad/            Squad starters
+   │       ├── software-development/  Regular development (squad / issue / README incl. workflow)
+   │       ├── software-development-reviewed/  Strengthened: dedicated Reviewer per role + two-layer gate
+   │       └── bug-fix/              Minimal fix combination (only the orchestration changes)
+   └── en_US/              English templates (mirrors zh_CN/)
+   docs/          ⭐ Read this first: where instructions go / gates & evidence / common mistakes / adapt & scale
+   ├── zh_CN/              Chinese methodology
+   └── en_US/              English methodology
+   ```
+
+   ## Full flow at a glance
 
 The complete chain from a requirement coming in as an Issue to tests passing (based on `templates/en_US/squad/software-development`):
 
@@ -244,18 +287,6 @@ Issue → [Design] → [API contract ∥ feature cases] → [Frontend ∥ Backen
 The Leader gatekeeps every artifact with the multica-verification skill; only PASS moves to the next stage. Roles outside the scope are skipped; design and critical changes get a business review from the Reviewer; after G2, DevOps triggers CI/CD (G2.5), and the Tester runs automation in that deploy env (T3).
 That's it. Run one real requirement, then tune it to your team.
 
-## Agent Matrix
-
-| Agent | Should do | Should NOT do |
-| --- | --- | --- |
-| Architect | Design the solution | Write lots of code |
-| FrontendDev | Frontend implementation (works with the UI design) | Change requirements / self-approve / invent APIs |
-| BackendDev | Backend implementation + API contract | Change requirements / self-approve / touch UI |
-| Tester | T1/T2 cases & coverage / T3 post-deploy automation | Change requirements / run automation before G2.5 |
-| DevOps | Trigger CI/CD after G2, return deploy URL | Write business code / self-claim deploy success |
-| Reviewer | Business review (design / critical changes) | Replace objective verification / replace human acceptance |
-| Leader | Orchestration and gatekeeping (multica-verification skill) | Implement personally / rubber-stamp itself |
-
 ## Where does an instruction go?
 
 | I want to tell the agent… | Put it in |
@@ -292,16 +323,6 @@ CI / PR = What must actually pass?
 
 > **Instructions are guidance, not a safety boundary.** Rules that must be obeyed live outside the LLM: tests, lint, build, CI, branch protection, PR approval. Don't rely on "the agent was asked not to do this."
 
-## Starters
-
-| Starter | Use | Status |
-| --- | --- | --- |
-| [Software Development](./templates/en_US/squad/software-development/README.md) | Regular feature development (frontend/backend routed by scope; any role can be missing) | Recommended |
-| [Software Development (Reviewed)](./templates/en_US/squad/software-development-reviewed/README.md) | Extends Software Development with a dedicated Reviewer per regular role and a two-layer gate (generic gate + professional artifact review) | Experimental |
-| [Bug Fix](./templates/en_US/squad/bug-fix/README.md) | Root cause / fix / regression (routed by impact, skips Architect) | Experimental |
-
-More starters (Technical Research, etc.) will be added after being validated on real tasks. **Don't pretend best practices are finished.**
-
 ## Two gate modes
 
 Every Squad workflow in this repo uses the "stage gate + evidence" framework, but gate depth comes in two modes, chosen by how much assurance you need:
@@ -314,25 +335,6 @@ Every Squad workflow in this repo uses the "stage gate + evidence" framework, bu
 **How the two layers run** (strengthened mode): producing role finishes → Leader reruns multica-verification on acceptance/process ("correct?") → after PASS, dispatch the dedicated Reviewer with multica-review-* for professional analysis ("professional?") → release only on review PASS; on FAIL the dedicated Reviewer reports to Leader, who dispatches the author to fix, then re-reviews — max 3 rounds, still FAIL → escalate to human. Either layer FAIL returns; rounds counted independently but share the "3-strike cap".
 
 Dedicated Reviewers map one-to-one to producing roles (architecture / UI / requirements / frontend / backend / testing), don't modify on the author's behalf, and report to the Leader; Leader and DevOps get no dedicated Reviewer. See [gates-and-evidence](docs/en_US/gates-and-evidence.md#two-layer-gate-generic-gate--professional-artifact-review).
-
-## Repository structure
-
-```text
-AGENTS.md     ⭐ Agent entry: project conventions and change rules
-templates/  ⭐ Start here: all copy-paste-ready configs
-├── zh_CN/                Chinese templates (default; copy the whole subdirectory and run)
-│   ├── agents/            Shared Agent Instructions (15 role definitions: 9 regular + 6 dedicated Reviewers)
-│   ├── skills/            Shared Skills (22, unified multica- prefix: gatekeeping / CI integration / test design / requirement analysis / technical design / implementation / artifact-orchestration / platform-shell / 6 dedicated reviews)
-│   │   └── multica-gate-setup/  CI hard-gate templates ship inside this Skill (delivery-gate.yml, etc.)
-│   └── squad/             Squad starters
-│       ├── software-development/  Regular development (squad / issue / README incl. workflow)
-│       ├── software-development-reviewed/  Strengthened: dedicated Reviewer per role + two-layer gate
-│       └── bug-fix/              Minimal fix combination (only the orchestration changes)
-└── en_US/                English templates (same structure as zh_CN/)
-docs/          ⭐ Read first: where instructions go / gates & evidence / common mistakes / adapt & scale
-├── zh_CN/                Chinese methodology
-└── en_US/                English methodology
-```
 
 Details:
 

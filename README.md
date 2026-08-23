@@ -17,9 +17,52 @@
 ```text
 你创建：Agent（角色） + Squad（编排） + Skill（做法） + Issue（任务）
                   ↓
-       Leader 带队：需求收敛(G0) → 设计 → 实现 → 测试 → 部署(G2.5, DevOps)
+       Leader 带队：需求收敛(G0) → 设计 → 实现 → 测试 → 部署
                   ↓
    每步门禁（multica-verification skill 复跑）→ Human 最终验收
+```
+
+## 角色与职责（Agent Matrix）
+
+| Agent | 该做 | 不该做 |
+| --- | --- | --- |
+| Architect | 设计方案 | 大量写代码 |
+| FrontendDev | 前端实现（对接 UI 设计） | 修改需求 / 自审自放行 / 发明 API |
+| BackendDev | 后端实现 + API 契约 | 修改需求 / 自审自放行 / 处理 UI |
+| Tester | T1/T2 用例与覆盖率 / T3 部署后自动化验证 | 修改需求 / 在 G2.5 前跑自动化 |
+| DevOps | G2 后触发 CI/CD、回传部署 URL | 写业务代码 / 自宣部署成功 |
+| Reviewer | 业务评审（设计 / 关键改动） | 替代客观验证 / 替代人类验收 |
+| Leader | 编排与门禁（用 multica-verification skill） | 亲自实现 / 给自己盖章 |
+
+> 注：`software-development-reviewed` Starter 在上述角色之外，为除 Leader、DevOps 外的每个常规产出角色配备了专属 Reviewer（ArchReviewer / DesignReviewer / ProductReviewer / FrontendReviewer / BackendReviewer / TestReviewer），见 Starters 与 [gates-and-evidence](docs/zh_CN/gates-and-evidence.md#两层门禁通用门禁--专业产出物评审)。
+
+## Starters
+
+| Starter | 用途 | 状态 |
+| --- | --- | --- |
+| [Software Development](./templates/zh_CN/squad/software-development) | 常规功能开发（前后端按范围路由，任意角色可缺失） | 推荐 |
+| [Software Development (Reviewed)](./templates/zh_CN/squad/software-development-reviewed) | 在 Software Development 基础上，每个常规角色配专属 Reviewer，两层门禁（通用门禁 + 专业产出物评审） | 实验性 |
+| [Bug Fix](./templates/zh_CN/squad/bug-fix) | 根因 / 修复 / 回归（按影响面路由，跳过 Architect） | 实验性 |
+
+更多 Starter（Technical Research 等）将基于真实任务验证后补充。**不要假装最佳实践已经完成。**
+
+## 仓库结构
+
+```text
+AGENTS.md     ⭐ Agent 入口：项目约定与改动规范
+templates/  ⭐ 从这里开始：可直接复制的全部配置
+├── zh_CN/              中文模板（默认；复制整个子目录即用）
+│   ├── agents/           共享 Agent Instructions（15 个角色定义：9 常规 + 6 专属 Reviewer）
+│   ├── skills/           共享 Skill（22 个，统一 multica- 前缀：门禁 / 集成 CI / 测试设计 / 需求分析 / 技术设计 / 实现 / 产物编排 / 平台壳 / 6 个专属评审）
+│   │   └── multica-gate-setup/  CI 硬门禁模板随 Skill 自包含（delivery-gate.yml 等）
+│   └── squad/            小队 Starter
+│       ├── software-development/ 常规开发（squad / issue / README 含工作流）
+│       ├── software-development-reviewed/ 加强版：每角色专属 Reviewer + 两层门禁
+│       └── bug-fix/             最小修复组合（只换编排）
+└── en_US/              英文模板（与 zh_CN/ 结构一致）
+docs/          ⭐ 先读这一页：指令放哪 / 门禁证据 / 常见错误 / 裁剪扩展
+├── zh_CN/              中文方法论
+└── en_US/              英文方法论
 ```
 
 ## 完整流程一览
@@ -242,18 +285,6 @@ Issue → [设计] → [API 契约 ∥ 功能用例] → [前端 ∥ 后端实�
 每个产物的门禁由 Leader 用 multica-verification skill 执行，PASS 才进入下一阶段；范围里没有的角色直接跳过；设计与关键改动由 Reviewer 做业务评审；G2 后由 DevOps 触发 CI/CD（G2.5），Tester 在其部署环境跑自动化（T3）。
 就这些。先跑一个真实需求，再按你的团队调整。
 
-## Agent Matrix
-
-| Agent | 该做 | 不该做 |
-| --- | --- | --- |
-| Architect | 设计方案 | 大量写代码 |
-| FrontendDev | 前端实现（对接 UI 设计） | 修改需求 / 自审自放行 / 发明 API |
-| BackendDev | 后端实现 + API 契约 | 修改需求 / 自审自放行 / 处理 UI |
-| Tester | T1/T2 用例与覆盖率 / T3 部署后自动化验证 | 修改需求 / 在 G2.5 前跑自动化 |
-| DevOps | G2 后触发 CI/CD、回传部署 URL | 写业务代码 / 自宣部署成功 |
-| Reviewer | 业务评审（设计 / 关键改动） | 替代客观验证 / 替代人类验收 |
-| Leader | 编排与门禁（用 multica-verification skill） | 亲自实现 / 给自己盖章 |
-
 ## 一条指令该放哪？
 
 | 我想告诉 Agent…… | 放这里 |
@@ -290,16 +321,6 @@ CI / PR = 什么必须真的通过？
 
 > **Instructions 是引导，不是安全边界。** 必须被遵守的规则请放到 LLM 之外：测试、Lint、构建、CI、分支保护、PR 审批。不要依赖「Agent 被要求不要这样做」。
 
-## Starters
-
-| Starter | 用途 | 状态 |
-| --- | --- | --- |
-| [Software Development](./templates/zh_CN/squad/software-development) | 常规功能开发（前后端按范围路由，任意角色可缺失） | 推荐 |
-| [Software Development (Reviewed)](./templates/zh_CN/squad/software-development-reviewed) | 在 Software Development 基础上，每个常规角色配专属 Reviewer，两层门禁（通用门禁 + 专业产出物评审） | 实验性 |
-| [Bug Fix](./templates/zh_CN/squad/bug-fix) | 根因 / 修复 / 回归（按影响面路由，跳过 Architect） | 实验性 |
-
-更多 Starter（Technical Research 等）将基于真实任务验证后补充。**不要假装最佳实践已经完成。**
-
 ## 两种门禁模式
 
 本仓库的 Squad 工作流统一采用「阶段门禁 + 证据」的框架，但门禁层数有两种模式，按把关强度选择：
@@ -312,25 +333,6 @@ CI / PR = 什么必须真的通过？
 **两层门禁怎么走**（加强模式）：产出角色完成产物 → Leader 用 multica-verification 复跑验收/流程（管「对不对」）→ PASS 后派专属 Reviewer 用 multica-review-* 做专业分析（管「专不专业」）→ 评审 PASS 才放行；FAIL 则专属 Reviewer 汇报 Leader、指派作者修改、再复审，最多 3 轮，仍不通过升级人类。两层任一 FAIL 均退回，轮次独立计数但共用「3 次上限」。
 
 专属 Reviewer 与产出角色一一对应（架构/UI/需求/前端/后端/测试各一名），不代替作者修改、结论汇报 Leader；Leader 与 DevOps 不配专属 Reviewer。详见 [gates-and-evidence](docs/zh_CN/gates-and-evidence.md#两层门禁通用门禁--专业产出物评审)。
-
-## 仓库结构
-
-```text
-AGENTS.md     ⭐ Agent 入口：项目约定与改动规范
-templates/  ⭐ 从这里开始：可直接复制的全部配置
-├── zh_CN/              中文模板（默认；复制整个子目录即用）
-│   ├── agents/           共享 Agent Instructions（15 个角色定义：9 常规 + 6 专属 Reviewer）
-│   ├── skills/           共享 Skill（22 个，统一 multica- 前缀：门禁 / 集成 CI / 测试设计 / 需求分析 / 技术设计 / 实现 / 产物编排 / 平台壳 / 6 个专属评审）
-│   │   └── multica-gate-setup/  CI 硬门禁模板随 Skill 自包含（delivery-gate.yml 等）
-│   └── squad/            小队 Starter
-│       ├── software-development/ 常规开发（squad / issue / README 含工作流）
-│       ├── software-development-reviewed/ 加强版：每角色专属 Reviewer + 两层门禁
-│       └── bug-fix/             最小修复组合（只换编排）
-└── en_US/              英文模板（与 zh_CN/ 结构一致）
-docs/          ⭐ 先读这一页：指令放哪 / 门禁证据 / 常见错误 / 裁剪扩展
-├── zh_CN/              中文方法论
-└── en_US/              英文方法论
-```
 
 详细说明见：
 
