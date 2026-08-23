@@ -11,7 +11,7 @@
 | 门禁 | 内容 | 谁来判 |
 | --- | --- | --- |
 | G0 | 需求就绪：有目标 + 可测试的验收标准 | Leader / Human |
-| G1 | 设计通过：设计与验收标准对齐 + 业务上可接受 | Leader（multica-verification skill）+ Reviewer |
+| G1 | 设计通过：设计与验收标准对齐 + 业务上可接受 | Leader（multica-verification skill）+ Reviewer（仅 software-development 默认在 G1 做业务评审；reviewed 版为每产物配专属 Reviewer） |
 | G2 | 实现验收：优先引用 CI 结论；CI 缺失才复跑验证 | Leader（multica-verification / multica-gate-setup） |
 | G2.5 | CI/CD 部署：G2 PASS 且代码已 push 后，构建部署到测试环境并回传环境 URL | Leader（核对 CI 证据，由 @DevOps 触发） |
 | G3 | 测试通过：T3 自动化报告逐条对照验收标准（依赖 G2.5 部署环境） | Leader（复核报告） |
@@ -36,6 +36,60 @@
 | 执行者 | Leader（multica-verification skill）/ CI | Reviewer（独立角色）/ Human |
 
 验证能标准化成 Skill、能机器化；评审必须由独立的人带着业务视角做。
+
+## 两层门禁：通用门禁 + 专业产出物评审
+
+`software-development` 只有**一层通用门禁**（Leader 用 multica-verification skill 在 G1/G2/G3 复跑）。`software-development-reviewed` 在此基础上叠加**第二层：专业产出物评审**，形成「通用门禁 + 专业评审」两层，且两者标准不同、触发方不同、互不可替代。
+
+### 为什么需要两层
+
+通用门禁回答「**对不对**」：产物是否满足验收标准、流程是否走完——这是流程层保证，不评价专业深度。但光靠它不够：一个「满足了 AC」的前端实现，单测可能全是无效的；一个「通过了验收」的测试报告，覆盖率可能覆盖了低风险路径却漏了关键分支。这些**专业质量问题**需要对应领域的独立评审者来判断。
+
+专业产出物评审回答「**专不专业**」：结合需求、上游产物与资料，对产物本身做专业分析（设计是否合理、单测是否充分、用例/覆盖率是否到位）。
+
+### 两层怎么走（固定顺序）
+
+```text
+产出角色完成产物
+  → 第 1 层 通用门禁（Leader 触发）：multica-verification skill 复跑验收标准/流程（只管对不对）
+  → 若 PASS：
+      第 2 层 专业评审（专属 Reviewer 触发）：用 multica-review-* skill 做专业分析（只管专不专业）
+        → 若 PASS：产物放行，推进下一阶段
+        → 若 FAIL：专属 Reviewer 输出结论 + 修改清单，汇报 Leader
+             → Leader 指派对应产出角色修改
+             → 修改完再派同一专属 Reviewer 复审（同一人，保证口径一致）
+             → 最多 3 轮；第 3 轮仍不通过 → 升级人类判定
+  → 若 FAIL：退回作者，按通用门禁 FAIL 计数（连续 3 次升级人类）
+```
+
+两层**任一 FAIL 都退回**；专业评审轮次与通用门禁 FAIL 轮次**独立计数，但共用「3 次上限」阈值**——任一层达到 3 次未过即升级人类。
+
+### 角色与专属 Reviewer 映射（reviewed 版）
+
+| 产出角色 | 专属 Reviewer | 评审 Skill | 评审关注点 |
+| --- | --- | --- | --- |
+| @ProductManager（PRD） | @ProductReviewer | multica-review-product | 范围/目标/验收标准是否清晰可测、是否遗漏关键约束 |
+| @Architect（设计） | @ArchReviewer | multica-review-architect | 架构合理性、扩展性、与验收对齐、技术风险 |
+| @Designer（UI） | @DesignReviewer | multica-review-designer | 交互合理性、可访问性、与设计系统/验收一致 |
+| @FrontendDev（前端实现） | @FrontendReviewer | multica-review-frontend | 与 UI/API 契约吻合度、组件质量、单测是否合理充分 |
+| @BackendDev（后端实现 + API 契约） | @BackendReviewer | multica-review-backend | 契约质量、与设计吻合度、错误处理、单测是否合理充分 |
+| @Tester（用例 / 测试报告） | @TestReviewer | multica-review-test | 用例覆盖深度、覆盖率文档合理性、与验收逐条对应 |
+
+> Leader 与 DevOps **不配**专属 Reviewer：Leader 是编排者（既判门又评审会同源）；DevOps 产出是部署 URL，已由 CI 硬门禁覆盖。其余常规产出角色全覆盖。
+
+### 三条硬约束（与单层门禁一致，且更严格）
+
+1. **专属 Reviewer 不代替作者修改**：只输出结论 + 修改清单，并汇报给 Leader；由 Leader 指派对应产出角色修问题。这把「评审权」与「修改权」分离，且推进权始终在 Leader。
+2. **Leader 不得用评审结论替代通用门禁**：两层各管各的——通用门禁永远由 Leader 亲自跑 multica-verification skill，不得因为专属 Reviewer 说 PASS 就跳过复跑。
+3. **专属 Reviewer 与产出者不同源**：同一产物复审必须由同一专属 Reviewer 执行，保证评审口径连续；不得让产出者评审自己，也不得让 Leader 既判门又做专业评审。
+
+### 什么时候用 reviewed 版
+
+- 你需要的不只是「流程走完了」，还要「产物本身专业、经得起推敲」。
+- 团队对架构设计、UI、需求、前后端实现、测试产物有较高专业把关要求。
+- 希望专业评审意见**独立于实现者**，并由 Leader 统一收敛、指派修改、循环复审。
+
+若只想要轻量流程，用默认 `software-development`（仅 Leader 触发 multica-verification 通用门禁即可）。两种 Starter 除多一层评审外，路由 / 阶段门禁 / 证据 / 失败处理 / 升级人类规则完全一致，迁移成本为零。
 
 ## 证据是什么
 
