@@ -1,96 +1,113 @@
 ---
 name: multica-platform-confluence
-description: 平台层 skill（占位壳）：Confluence / Wiki 类系统的读写能力——拉取已有页面供 Agent 消费，把 PRD / 设计等产物落地并回传稳定页面链接。与 JIRA 类系统解耦；由产物编排 skill 调用。具体平台地址、空间、父页面在 config.yaml 配置，不写进角色提示词。
+description: Confluence 读写：页面拉取、PRD HTML 创建、Markdown 设计发布。平台 skill，与 JIRA 解耦；由产物编排 skill 调用。
 metadata:
-  layer: platform
-  replaces: 任何 Wiki / 知识库平台（Confluence / 语雀 / 飞书文档 / 蓝湖文档 等）
+  credentials:
+    priority:
+      - ATLASSIAN_USER / ATLASSIAN_PASS
+      - ATLASSIAN_USER / ATLASSIAN_PASS
+      - CONFLUENCE_USER / CONFLUENCE_PASS
+  landing:
+    prd_parent_page_id: config confluence.default_parent_page_id
+    design_parent_page_id: "<CONFLUENCE_DESIGN_PAGE_ID>"
+    design_local_draft: docs/design/<ISSUE-KEY>/design.md
 ---
 
-# Platform · Confluence（占位壳）
-
-> 这是一个**平台层占位壳**。公开的 multica-best-practices 不绑定任何具体公司的内网地址与凭据。
-> 团队接入自己的 Wiki 时，只改本 skill 的 `config.yaml` 与 `scripts/`，所有上层角色与编排 skill 无需改动。
+# Platform · Confluence
 
 ## Purpose
 
-提供「知识库 / Wiki」类平台的 **读 + 写** 能力：
+Confluence **读 + 写**能力：拉取已有页面供 Agent 消费，把 PRD / 设计等产物落地并回传**稳定页面链接**。与 `multica-platform-jira` 解耦——只负责 Confluence，不负责 JIRA 字段写入。
 
-- **读**：按 pageId / 标题拉取已有页面为 Markdown，供下游 Agent 消费。
-- **写**：把 PRD / 技术设计等产物落地到团队 Wiki，并回传**稳定页面链接**。
+> 角色提示词不写 Confluence URL / pageId；换 Wiki / 语雀 / 飞书只换本 skill。
 
-与 `multica-platform-jira`（Issue 系统）解耦——本 skill 只负责 Wiki，不负责 Issue 字段写入。角色提示词不写 Wiki URL / pageId；换平台只换本 skill。
+## 默认落点
 
-## 默认落点（团队自配）
-
-| 产物类型 | Wiki 父页面（config.yaml 配置） | 本地草稿（Agent 先写） |
+| 产物类型 | Confluence 父页面 | 本地草稿（Agent 先写） |
 | --- | --- | --- |
-| PRD | `config.yaml` → `wiki.default_parent_page_id` | 由 `multica-requirement-analysis` 结构化后交 req-sync 编排 |
-| 技术设计 | `config.yaml` → `wiki.design_parent_page_id` | `docs/design/<ISSUE-KEY>/design.md` |
+| PRD | `config.yaml` → `confluence.default_parent_page_id` | 由 `multica-requirement-analysis` 结构化后交 req-sync 编排 |
+| 技术设计 | **`<CONFLUENCE_DESIGN_PAGE_ID>`**（`confluence.design_parent_page_id`） | `docs/design/<ISSUE-KEY>/design.md` |
 
-## Files（建议结构）
+设计文档父页面：[pageId=<CONFLUENCE_DESIGN_PAGE_ID>](http://<CONFLUENCE_URL>/pages/viewpage.action?pageId=<CONFLUENCE_DESIGN_PAGE_ID>)
+
+## Files
 
 ```text
 multica-platform-confluence/
 ├── SKILL.md
 ├── config.yaml
+├── spaces.json
 ├── .env.example
 └── scripts/
     ├── credentials.sh
-    ├── wiki.sh            # Read/Write CLI
-    ├── fetch_page.py      # Wiki → local Markdown
-    ├── publish_design.py  # Markdown 设计 upsert
-    └── lib/
+    ├── confluence.sh        # Read/Write CLI
+    ├── fetch_page.py        # Confluence → local Markdown
+    ├── publish_design.py    # Markdown 设计 upsert
+    ├── lib/md_to_confluence.py
+    ├── lib/html_to_md.py
+    ├── lib/resolve_skills.sh
+    ├── requirements.txt
+    └── templates/
+        ├── prd-template.md
+        └── design-template.md
 ```
 
 ## Read（下游 / Leader 拉取上游产物）
 
 ```bash
-# 按 pageId 拉取为 Markdown
-bash scripts/wiki.sh fetch-page <page_id> [output_dir] [issue_key]
+# 按 pageId 拉取为 Markdown（可选写入 docs/design/<ISSUE-KEY>/ 或自定义目录）
+bash scripts/confluence.sh fetch-page <page_id> [output_dir] [jira_key]
 
 # 获取页面元数据 / 原始 storage（调试）
-bash scripts/wiki.sh get-page <page_id>
+bash scripts/confluence.sh get-page <page_id>
 
 # 按标题搜索
-bash scripts/wiki.sh find-page "<title>" [space_key]
+bash scripts/confluence.sh find-page "<title>" [space_key]
 ```
+
+**典型链路**：JIRA Issue 描述含 Confluence 链接 → 用 `multica-platform-jira` 的 `get-confluence-url` 解析 pageId → 本 skill `fetch-page` 拉取 PRD / 设计正文。
 
 ## Write（产物落地）
 
-### PRD 页面
+### PRD 页面（HTML）
 
 ```bash
-bash scripts/wiki.sh create-page "<title>" "<parent_page_id>" "<html_or_md>" "<space_key>"
+bash scripts/confluence.sh create-page "<title>" "<parent_page_id>" "<html>" "<space_key>"
 ```
 
-由 `multica-artifact-req-sync` 编排调用。
+由 `multica-artifact-req-sync` 编排调用；Confluence 不可用时见 req-sync Workflow E（全文降级到 JIRA 描述）。
 
-### 技术设计（Markdown → Wiki）
+### 技术设计（Markdown → Confluence）
 
-1. @Architect 用 `multica-technical-design` 写本地：`docs/design/<ISSUE-KEY>/design.md`。
+1. @Architect 用 `multica-technical-design` 写本地：`docs/design/<ISSUE-KEY>/design.md`（基线见 `scripts/templates/design-template.md`）。
 2. 发布到设计父页面下：
 
 ```bash
+pip install -r scripts/requirements.txt   # 首次；可选 pip install markdownify 提升 HTML→MD 质量
 python scripts/publish_design.py <ISSUE-KEY> docs/design/<ISSUE-KEY>/design.md \
   [--space SPACE] [--parent PAGE_ID] [--title "标题"] [--json]
 ```
 
-3. 回传 JSON 中的 `url` / `page_id`；`multica-artifact-design-sync` 再调用 Issue 平台 skill 把链接写回 Issue。
+3. 回传 JSON 中的 `url` / `page_id`；`multica-artifact-design-sync` 再调用 `multica-platform-jira` 把链接写入 JIRA。
 
-**Upsert 规则**：同 space + 同 title 则更新版本；title 自动加 `[AI]` 后缀（可选，团队自定）。
+**Upsert 规则**：同 space + 同 title 则更新版本；title 自动加 `[AI]` 后缀。
 
 ## Agent Compatibility
 
-- 凭据由运行时环境变量注入（`.env.example` 给出变量名模板），禁止打印密码，不写进角色提示词。
+- 凭据优先级见 frontmatter `metadata.credentials`；禁止打印密码。
 - 外部写入前确认：space、parent pageId、标题。
 - 优先用 `scripts/`，不要裸调 REST。
+- 编排脚本通过 `MULTICA_SKILLS_ROOT` 或同级 `templates/skills/` 定位本 skill（见 `scripts/lib/resolve_skills.sh`）。
 
 ## Adapting To A New Team
 
-1. 改 `config.yaml`：`wiki.url`、`default_space`、`*_parent_page_id`。
-2. 设计文档父页面 ID 改为团队 Wiki 目录页。
-3. 空间 / 目录列表维护在 `spaces.json`（如适用）。
+1. 改 `config.yaml`：`confluence.url`、`default_space`、`*_parent_page_id`。
+2. 设计文档父页面 ID 改为团队 Confluence 目录页。
+3. 新项目追加 `projects.<JIRA-PREFIX>.confluence_space` / `design_parent_page_id`。
+4. 空间列表维护在 `spaces.json`。
 
 ## 为什么有效
 
-Wiki 认证、space、父页面各团队不同；独立 platform skill 后，Issue 系统 / 通知 / Git 变更不影响 Wiki 脚本，PRD 与设计共用同一套读写能力。平台层可替换是「复制即用」的核心：角色提示词永远只写 `multica-artifact-*-sync`，真正的内网细节收敛在本层。
+Confluence 认证、space、父页面各团队不同；独立 platform skill 后，JIRA / 钉钉 / Git 变更不影响 Confluence 脚本，PRD 与设计共用同一套读写能力。
+
+

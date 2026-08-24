@@ -1,51 +1,51 @@
 ---
 name: multica-test-automation
-description: 测试自动化 skill（占位壳）：Tester T3 自动化阶段——G2.5 部署环境就绪后，用团队的自动化测试工具执行场景用例并产出 G3 输入。具体工具（Apifox / Postman / Playwright / pytest 等）由团队接入，凭据由运行时 env 注入，不写进角色提示词。
+description: Tester T3 自动化：G2.5 部署环境就绪后，用 Apifox CLI 执行场景用例。Python 封装，Windows / Linux 通用。
 metadata:
-  layer: automation
+  credentials:
+    priority:
+      - APIFOX_ACCESS_TOKEN
   runtime:
     python: ">=3.10"
     external:
-      - <team-test-cli>  # 团队自动化测试 CLI
+      - apifox-cli  # npm install -g apifox-cli
 ---
 
-# Test Automation（占位壳 · T3）
-
-> 这是一个**占位壳**。公开的 multica-best-practices 不绑定任何具体公司的内网地址与测试工具。
-> 团队接入自己的自动化测试工具时，只改本 skill 的 `scripts/` 与 `config.yaml`，上层 Tester 角色无需改动。
+# Test Automation（Apifox CLI · T3）
 
 ## Purpose
 
-Tester **T3**：G2.5 拿到 `deploy_base_url` 后，用团队自动化测试工具跑用例并产出 G3 输入（测试报告）。
+Tester **T3**：G2.5 拿到 `deploy_base_url` 后，用 Apifox CLI 跑自动化并产出 G3 输入。
 
-> 跨平台：推荐用 Python 封装配置与 subprocess 调用底层 CLI，Windows / Linux 一致。
+> **跨平台**：`python scripts/run_apifox.py`；Apifox 本体为 Node CLI（`npm install -g apifox-cli`），Windows / Linux 相同。
 
 ## 安装
 
 ```bash
 pip install -r scripts/requirements.txt
-# 安装团队自动化测试 CLI（由团队自定，如 apifox-cli / newman / playwright）
+npm install -g apifox-cli
 ```
 
 ## Workflow
 
 ```bash
-set TEST_TOOL_TOKEN=<token>   # 运行时 env，不写进角色提示词
+set APIFOX_ACCESS_TOKEN=<token>
 
-python scripts/run_tests.py \
-  --issue <ISSUE-KEY> \
-  --base-url "<deploy_base_url>" \
-  --scenario-id <scenario> \
-  --environment-id <env> \
+python scripts/run_apifox.py \
+  --issue <JIRA_ISSUE_KEY> \
+  --base-url "https://sit-projectmanagement.example.com" \
+  --scenario-id <APIFOX_SCENARIO_ID> \
+  --environment-id <APIFOX_ENV_ID> \
   --json
 ```
 
 或仅指定 Issue（从 `config.yaml` 读 scenario / environment）：
 
 ```bash
-python scripts/run_tests.py --issue <ISSUE-KEY> --base-url "<deploy_base_url>" --json
+python scripts/run_apifox.py --issue <JIRA_ISSUE_KEY> --base-url "%DEPLOY_URL%" --json
 ```
 
 ## 为什么有效
 
-Python 负责配置与 subprocess 调用底层测试 CLI，隔离了「Tester 角色」与「具体测试工具」——换工具只改本 skill，Tester 提示词保持「用 multica-test-automation skill 执行 T3」不变。
+Python 负责配置与 subprocess 调用 Apifox；不依赖 bash，与 Tester T3 在 Windows 开发机上可直接跑通。
+

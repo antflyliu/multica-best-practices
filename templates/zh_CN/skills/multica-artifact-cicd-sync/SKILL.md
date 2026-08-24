@@ -1,8 +1,7 @@
 ---
 name: multica-artifact-cicd-sync
-description: CI/CD 产物编排 skill（占位壳）：G2 PASS 且代码已 push 后调用底层 CI/CD 平台 skill 触发 dev/sit 构建，回写 Issue 并回传部署 URL。参数由 CI 系统 API 自动发现，编排层不硬编码参数名。具体平台在 multica-platform-* 层配置。
+description: CI/CD 产物编排：G2 PASS 且代码已 push 后调用 multica-platform-jenkins 触发 dev/sit 构建，回写 JIRA 并回传部署 URL。Python 实现，Windows / Linux 通用。
 metadata:
-  layer: orchestration
   orchestrates:
     - multica-platform-jenkins
     - multica-platform-jira
@@ -10,20 +9,20 @@ metadata:
     python: ">=3.10"
 ---
 
-# Artifact · CI/CD Sync（编排，占位壳）
+# Artifact · CI/CD Sync（编排）
 
 ## Purpose
 
-G2 PASS + push 后，调用底层 CI/CD 平台 skill 触发构建部署。**参数由 CI 系统 API 自动发现**，编排层不硬编码参数名。
+G2 PASS + push 后，调用 `multica-platform-jenkins` 触发 dev/sit Job。**参数由 Jenkins API 自动发现**，编排层不硬编码参数名。
 
 ## Agent 流程
 
 ```text
 1. discover-only（推荐先跑，检查 missing）：
-   python scripts/trigger_cicd.py --issue <ISSUE-KEY> --env sit --branch release/<ISSUE-KEY>-<slug> --discover-only --json
+   python scripts/trigger_cicd.py --issue <ISSUE_KEY> --env sit --branch release/<ISSUE_KEY>-slug --discover-only --json
 2. 触发（**只用 Issue deploy branch，不用 feature 分支**）：
-   python scripts/trigger_cicd.py --issue <ISSUE-KEY> --env sit --branch release/<ISSUE-KEY>-<slug> --json
-3. missing 参数：追加 --param name=value
+   python scripts/trigger_cicd.py --issue <ISSUE_KEY> --env sit --branch release/<ISSUE_KEY>-slug --json
+3. missing 参数：追加 --param name=value（trigger_cicd 需扩展传参时走 trigger_env --param）
 ```
 
 ## 参数解析策略
@@ -40,10 +39,10 @@ G2 PASS + push 后，调用底层 CI/CD 平台 skill 触发构建部署。**参�
 
 ```bash
 python scripts/trigger_cicd.py \
-  --issue <ISSUE-KEY> \
+  --issue <ISSUE_KEY> \
   --env dev \
   --service <service> \
-  --branch release/<ISSUE-KEY>-<slug> \
+  --branch release/<ISSUE_KEY>-slug \
   --json
 ```
 
@@ -51,26 +50,29 @@ python scripts/trigger_cicd.py \
 
 ```bash
 python scripts/trigger_cicd.py \
-  --issue <ISSUE-KEY> \
+  --issue <ISSUE_KEY> \
   --env sit \
-  --branch release/<ISSUE-KEY>-<slug> \
+  --branch release/<ISSUE_KEY>-slug \
   --json
 ```
 
-Issue 前缀 → logical service 的映射在 `config.yaml` → `issue_service_map` 配置，可省略 `--service`。
+`<ISSUE_PREFIX_A>` / `<ISSUE_PREFIX_B>` / `<ISSUE_PREFIX_C>` / `<ISSUE_PREFIX_D>` 等前缀已在 `config.yaml` → `issue_service_map` 配置，可省略 `--service`。
 
 ## Workflow C：多服务
 
 ```bash
-python scripts/trigger_cicd.py --env sit --service svc-a,svc-b --branch release/<ISSUE-KEY>-<slug> --json
+python scripts/trigger_cicd.py --env sit --service <service1>,<service2> --branch release/<ISSUE_KEY>-xxx --json
 ```
 
 ## 用法（角色侧）
 
 ```text
-G2 PASS 且代码已 push 后，用 multica-artifact-cicd-sync 触发 CI/CD 并回传部署链接。
+G2 PASS 且代码已 push 后，用 multica-artifact-cicd-sync 触发 Jenkins 并回传部署链接。
 ```
 
 ## 为什么有效
 
-编排层只依赖脚本；Issue 前缀自动映射到 `jobs-catalog.yaml` 中的 logical service。底层 CI 系统（Jenkins / GitLab CI / GitHub Actions 等）由 `multica-platform-*` 层封装，本 skill 不感知具体平台。
+编排层只依赖 Python；Issue 前缀自动映射到 `jobs-catalog.yaml` 中的 logical service。
+
+
+

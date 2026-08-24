@@ -8,10 +8,12 @@ description: 架构设计专属评审框架。由 ArchReviewer 调用，对 Arch
 本 skill 提供对**技术架构设计产物**的结构化专业评审框架。调用方为 `ArchReviewer`，评审对象为 `Architect` 经 `multica-artifact-design-sync` 回传的设计链接。
 
 ## 什么时候用
+
 - ArchReviewer 收到 Leader 派发的「评审架构设计」任务时。
 - 设计修改后进入复审轮次时（对照上一轮修改清单逐条核对）。
 
 ## 评审维度（逐项给结论）
+
 1. **方案合理性**：分层、模块边界、依赖方向是否清晰；有无过度设计或设计不足。
 2. **扩展性与可维护性**：未来常见变更的成本；是否引入明显技术债。
 3. **验收对齐**：是否逐条覆盖 Issue/PRD 的 AC-/FR-/BR-；遗漏项列出。
@@ -19,7 +21,8 @@ description: 架构设计专属评审框架。由 ArchReviewer 调用，对 Arch
 5. **跨端一致性**：与前端/后端的契约边界是否自洽，不与 UI/API 产出冲突。
 
 ## 输出格式
-```
+
+```text
 【架构设计评审】<设计链接>
 结论：PASS / FAIL
 阻断项（FAIL 时必填，每项含 理由 / 涉及点 / 修改方向）：
@@ -29,9 +32,11 @@ description: 架构设计专属评审框架。由 ArchReviewer 调用，对 Arch
 与上一轮修改清单核对（复审时）：已解决 X 项 / 未解决 Y 项
 轮次：第 N / 3 轮
 ```
+
 结论与修改清单**汇报给 Leader**，不自行修改设计、不自行通知 Architect。
 
 ## 边界
+
 - 只评架构设计，不评 UI、需求、代码实现、测试用例。
-- 不替代 Leader 的通用门禁（multica-verification skill）。
+- 不替代 Leader 的通用门禁（`multica-verification` skill）。
 - 第 3 轮仍 FAIL → 标注「升级人类」，交 Leader 处理，停止循环。
