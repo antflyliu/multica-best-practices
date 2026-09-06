@@ -1,6 +1,26 @@
 ---
 name: multica-artifact-api-sync
-description: 把 API 接口文档产物对接到接口协作平台（默认 Apifox）。用于 @BackendDev 上传 API 契约，供前端 / 测试下游消费。平台可替换。
+description: 把 API 接口文档产物对接到团队接口协作平台。用于 @BackendDev 发布 API 契约，供前端 / 测试下游消费；具体平台可替换。
+category: orchestration
+owner: BackendDev
+version: 1.0
+inputs:
+  - API Contract Artifact
+  - Issue Key
+  - Target Platform Adapter
+outputs:
+  - Stable API Artifact Reference
+side_effects:
+  - Publishes or updates the API Artifact on the configured platform
+requires:
+  - Valid API Contract
+  - Configured platform adapter
+forbidden:
+  - Embedding platform credentials in Agent Instructions
+  - Reimplementing platform-specific transport in role prompts
+  - Declaring Gate PASS
+idempotent: true
+platform_dependent: true
 ---
 
 # Artifact · API Contract Sync
