@@ -74,6 +74,14 @@ python scripts/publish_design.py <ISSUE-KEY> docs/design/<ISSUE-KEY>/design.md \
 
 **Upsert rule**: same space + same title → update version; title may get an `[AI]` suffix (team-configurable).
 
+## Success criteria
+
+- Read operations return the requested page content or metadata in a form downstream skills can consume.
+- Create/update operations return a stable page URL and/or page identifier.
+- A published page can be fetched again and verified to contain the intended artifact content.
+- Upsert operations update the intended page/version without silently creating an unrelated page.
+- On failure, the script exits non-zero with diagnosable error output; never fabricate a page URL or page ID.
+
 ## Agent Compatibility
 
 - Credentials injected via runtime env vars (`.env.example` gives the variable-name template); never print passwords, never write into role prompts.
