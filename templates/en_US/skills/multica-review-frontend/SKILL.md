@@ -15,7 +15,7 @@ Structured professional review framework for **frontend implementation artifacts
 1. **UI fit**: layout, interaction, states, edge states aligned with Designer output.
 2. **API-contract fit**: call params, response handling, error branches aligned with BackendDev contract.
 3. **Component quality**: reusability, single responsibility, no obvious smells.
-4. **Unit-test sufficiency**: key paths, boundaries, async/error branches covered; no无效的 tests padded for coverage (mark & block).
+4. **Unit-test sufficiency**: key paths, boundaries, async/error branches covered; no invalid tests padded for coverage (mark & block).
 5. **Acceptance mapping**: implementation truly satisfies every AC-.
 
 ## Output format
