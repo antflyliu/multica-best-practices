@@ -1,6 +1,31 @@
 ---
 name: multica-verification
 description: Independent gate verification: Leader reruns acceptance criteria at G1/G2/G3 and outputs PASS, FAIL, or BLOCKED. It judges delivery conditions and does not produce business, technical, or test artifacts.
+category: gate
+owner: Leader
+version: 1.0
+inputs:
+  - Gate ID
+  - Issue
+  - Artifact
+  - Artifact Version
+  - Upstream Gates
+  - Acceptance Criteria
+  - Evidence
+outputs:
+  - Gate Result
+  - Criterion-level evidence mapping
+side_effects:
+  - Records Gate status for the specified Artifact Version
+requires:
+  - Valid Issue and Acceptance Criteria
+  - Valid upstream Gate results
+forbidden:
+  - Producing or modifying the Artifact under verification
+  - Self-approving a producer's Artifact
+  - Treating BLOCKED as PASS
+idempotent: true
+platform_dependent: false
 ---
 
 # Verification (Independent Gate)
