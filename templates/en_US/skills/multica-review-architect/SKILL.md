@@ -1,6 +1,25 @@
 ---
 name: multica-review-architect
-description: Architecture-design dedicated review framework. Called by ArchReviewer to professionally analyze Architect's technical design (soundness/extensibility/acceptance alignment/tech risk), output PASS/FAIL + fix list, report to Leader.
+description: Architecture design professional review framework that reports quality findings to the Leader.
+category: methodology
+owner: ArchReviewer
+version: 1.0
+inputs:
+  - Technical Design Artifact
+  - Issue / Acceptance Criteria
+  - Previous review findings when applicable
+outputs:
+  - Professional review result
+  - Blocking and non-blocking findings
+side_effects:
+  - None; review only
+requires:
+  - multica-artifact-design-sync
+forbidden:
+  - Modifying the reviewed Artifact
+  - Declaring Leader Gate PASS
+idempotent: true
+platform_dependent: false
 ---
 
 # Architecture Design Professional Review (ArchReviewer)
