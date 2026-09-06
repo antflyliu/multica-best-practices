@@ -1,6 +1,6 @@
 ---
 name: multica-platform-jira
-description: Platform-layer skill (placeholder shell): read/write capability for Issue-tracking systems (JIRA-class) — Issue query, upstream-Wiki-link parsing, Story creation, transition, scheduling, description write-back, notification. Decoupled from the Wiki platform; called by artifact-orchestration skills. Concrete URLs / projects / fields live in config.yaml, never in role prompts.
+description: "Platform-layer skill (placeholder shell): read/write capability for Issue-tracking systems (JIRA-class) — Issue query, upstream-Wiki-link parsing, Story creation, transition, scheduling, description write-back, notification. Decoupled from the Wiki platform; called by artifact-orchestration skills. Concrete URLs / projects / fields live in config.yaml, never in role prompts."
 metadata:
   layer: platform
   replaces: any Issue-tracking system (JIRA / ZenTao / TAPD / GitHub Issues / etc.)
