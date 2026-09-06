@@ -11,16 +11,26 @@ metadata:
 # Platform · Jenkins (placeholder shell)
 
 > This is a **platform-layer placeholder shell**. The public multica-best-practices binds to no specific company's internal URLs or credentials.
-> To onboard your own CI/CD platform, only edit this skill's `config.yaml` and `scripts/`; all upstream roles and orchestration skills stay untouched.
+> To onboard your own CI/CD system, only edit this skill's `config.yaml` and `scripts/`; all upstream orchestration skills stay untouched.
 
 ## Purpose
 
-Provide **read + write** capability for CI/CD systems:
+CI/CD system **read + write**: trigger Jobs, poll builds, fetch `consoleText`, return build URLs.
 
-- **Read**: discover jobs, parameters, build status, console output and artifacts.
-- **Write**: trigger parameterized builds and return a stable build identifier / URL.
+> **Parameter auto-discovery**: connect to the CI system API to read each Job's required parameters; Agents must not hardcode parameter names.
 
-Concrete CI endpoints and job mappings belong in `config.yaml`; credentials are injected at runtime and never embedded in role prompts.
+Default CI URL configured in `config.yaml` → `cicd.base_url` (placeholder: `http://<your-cicd-host>`).
+
+## Agent standard flow (required)
+
+```text
+1. Resolve service (jobs-catalog / issue_service_map) + **deploy branch** (from the Issue source + affected ends, not feature; for linked Issues use the branch in the external system)
+2. discover (required) — default copy from lastSuccessfulBuild, only override deploy branch
+3. ready=false → fill missing params or BLOCKED ask human
+4. trigger: multica-artifact-cicd-sync → trigger script
+```
+
+**Parameter priority**: `--param` > **branch hint** (branchName etc.) > **last SUCCESS build params** > CI default
 
 ## Files (suggested structure)
 
@@ -28,44 +38,60 @@ Concrete CI endpoints and job mappings belong in `config.yaml`; credentials are 
 multica-platform-jenkins/
 ├── SKILL.md
 ├── config.yaml
+├── jobs-catalog.yaml     # per-env Job list (service → Job name)
 ├── .env.example
 └── scripts/
-    ├── credentials.py
-    ├── discover_jobs.py
-    ├── trigger_env.py
-    ├── poll_build.py
-    ├── promote_prod.py
-    └── validate.py
+    ├── trigger_env.py    # trigger by env + service
+    ├── list_jobs.py      # list / query Jobs
+    ├── cicd_cli.py       # low-level API
+    └── lib/
 ```
 
-## Read
+## Install deps (once)
 
-Use the supplied scripts to discover the target job, inspect parameters, poll build state and fetch console evidence. Do not hardcode job names or parameters in Agent Instructions.
+```bash
+pip install -r scripts/requirements.txt
+```
 
-## Write
+## List Jobs
 
-Trigger only the job and parameters resolved from the team configuration. Return the build identifier and stable URL when the platform provides one.
+```bash
+python scripts/list_jobs.py --env dev
+python scripts/list_jobs.py --env sit --service <service>
+```
+
+## Discover parameters (live from CI, per Job)
+
+```bash
+python scripts/cicd_cli.py discover-params --env sit --service <service> --branch release/<ISSUE>-<slug> --json
+```
+
+## Trigger build (auto-params by default)
+
+```bash
+python scripts/trigger_env.py --env sit --service <service> --branch release/<ISSUE>-<slug> --json
+python scripts/trigger_env.py --env sit --service <service> --branch release/<ISSUE>-<slug> --param deployVersion=1.0.0_795 --json
+```
+
+## Credentials
+
+| Variable | Description |
+| --- | --- |
+| `CICD_USER` / `CICD_PASSWORD` | CI account (runtime env, never in role prompts) |
+| `CICD_TOKEN` | optional token |
 
 ## Success criteria
 
-- Discovery returns the intended job and supported parameters.
-- Trigger operations return a build identifier and/or stable build URL.
-- Polling confirms the final build result from the target CI system.
-- Console/log evidence can be retrieved and tied to the same build.
-- On failure, scripts exit non-zero with diagnosable output; never fabricate build IDs, URLs, or PASS results.
+- script exit code `0`
+- every build `result=SUCCESS`
+- return build URL list
 
-## Agent Compatibility
+## Relationship to orchestration skill
 
-- Credentials are injected through runtime environment variables; never print secrets or place them in role prompts.
-- Platform-specific URLs, job names, parameters and tokens belong in `config.yaml` / runtime environment only.
-- Prefer the supplied `scripts/`; do not call REST APIs directly from role prompts.
-
-## Adapting To A New Team
-
-1. Edit `config.yaml` with the team's placeholder-safe CI settings.
-2. Provide runtime credentials through the environment.
-3. Run `scripts/validate.py` before using the shell in a real environment.
+| Orchestration skill | Calls |
+| --- | --- |
+| `multica-artifact-cicd-sync` | `trigger_cicd.py` → internally calls this skill's Python scripts |
 
 ## Why it works
 
-CI/CD details vary by team; isolating them in a platform skill keeps Agent Instructions stable while allowing Jenkins or another CI provider to be swapped behind the same artifact-orchestration contract.
+Parameter discovery: different projects have different parameter names, so the Agent discovers then triggers, avoiding hardcoding branchName. Job names live in `jobs-catalog.yaml`. A swappable platform layer is the core of "copy-paste-run".
