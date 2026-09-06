@@ -76,6 +76,10 @@ The Leader only has the Skill + MCP, no shell. So branch by the runtime environm
 
 **BLOCKED** — missing MCP / CI / information, cannot verify. Report honestly; never turn it into PASS.
 
+## Known failure case
+
+A CI check once passed, but the Leader used an old PR comment rather than the check-run for the latest commit and incorrectly marked G2 PASS while the newest build was still pending. The rule is now explicit: bind CI evidence to the current commit SHA and a valid completed check-run; if that evidence cannot be read, return BLOCKED rather than substituting an old comment or build.
+
 ## Relationship to the multica-verification skill
 
 Two execution environments of the same verification function:
