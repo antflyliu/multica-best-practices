@@ -30,6 +30,14 @@ Per `multica-technical-design` skill: current architecture, minimal viable chang
 
 Replace this skill's "default platform" section with your tool (internal Wiki / Notion / Feishu), keeping the "upload + return stable reference" interface unchanged.
 
+## Degradation when the platform is unavailable
+
+1. Attempt the normal publish/update operation once; when the platform is confirmed unavailable, stop repeated writes.
+2. Mark the affected artifact or sync step `BLOCKED` and record the platform, attempted operation, time/error, and the missing stable URL/page ID/Issue reference.
+3. If downstream only needs the design draft and the current gate does not require a stable platform reference, the Leader may explicitly accept `docs/design/<issue-id>.md` as a **temporary reference**; never present it as a published page.
+4. If G1 or downstream requires a stable reference, keep it `BLOCKED`; never fabricate a URL, page ID, or use an old page as evidence for the current version.
+5. When the platform recovers, publish/update and return the stable reference. If design content or its stable reference changes, all downstream gates are immediately invalid and must be rerun.
+
 ## Why it works
 
 Design-doc locations vary by team (some in repo, some in Wiki). Sinking it into the skill keeps the role's "what to produce" description stable while the location swaps with the skill.
