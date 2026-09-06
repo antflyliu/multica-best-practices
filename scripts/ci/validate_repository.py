@@ -1,0 +1,127 @@
+#!/usr/bin/env python3
+"""Repository-level validation for the Copy. Paste. Run. template library."""
+from __future__ import annotations
+
+import re
+import sys
+from pathlib import Path
+
+import yaml
+
+ROOT = Path(__file__).resolve().parents[2]
+TEMPLATES = ROOT / "templates"
+
+MIXED_LANGUAGE_FRAGMENTS = (
+    "no无效的",
+    "only无效",
+    "data口径",
+    "cross-scope口径",
+    "cross-cutting口径",
+    "field口径",
+)
+FORBIDDEN_AGENT_PLATFORM_PATTERNS = (
+    r"https?://[^\s<>]+",
+    r"(?:JENKINS_TOKEN|ATLASSIAN_TOKEN|API_KEY)\s*[:=]",
+)
+
+
+def fail(message: str) -> None:
+    print(f"ERROR: {message}", file=sys.stderr)
+    raise SystemExit(1)
+
+
+def read_text(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as exc:
+        fail(f"non-UTF-8 file: {path}: {exc}")
+
+
+def validate_skill_frontmatter() -> None:
+    for skill_file in sorted(TEMPLATES.glob("*/skills/*/SKILL.md")):
+        text = read_text(skill_file)
+        if not text.startswith("---"):
+            fail(f"missing YAML frontmatter: {skill_file}")
+        parts = text.split("---", 2)
+        if len(parts) < 3:
+            fail(f"invalid YAML frontmatter: {skill_file}")
+        try:
+            meta = yaml.safe_load(parts[1]) or {}
+        except yaml.YAMLError as exc:
+            fail(f"invalid frontmatter YAML in {skill_file}: {exc}")
+        expected = skill_file.parent.name
+        if meta.get("name") != expected:
+            fail(f"skill name mismatch: {skill_file}: {meta.get('name')!r} != {expected!r}")
+
+
+def validate_yaml_files() -> None:
+    for path in sorted(TEMPLATES.rglob("*.yaml")) + sorted(TEMPLATES.rglob("*.yml")):
+        try:
+            yaml.safe_load(read_text(path))
+        except yaml.YAMLError as exc:
+            fail(f"invalid YAML: {path}: {exc}")
+
+
+def validate_python_syntax() -> None:
+    import ast
+
+    for path in sorted(TEMPLATES.rglob("*.py")):
+        try:
+            ast.parse(read_text(path), filename=str(path))
+        except SyntaxError as exc:
+            fail(f"invalid Python syntax: {path}: {exc}")
+
+
+def validate_mixed_language_fragments() -> None:
+    for path in sorted(ROOT.rglob("*.md")):
+        if ".git" in path.parts or path.name == "CHANGELOG.md":
+            continue
+        text = read_text(path)
+        for fragment in MIXED_LANGUAGE_FRAGMENTS:
+            if fragment in text:
+                fail(f"audited mixed-language fragment {fragment!r} found in {path}")
+
+
+def validate_agent_platform_separation() -> None:
+    agents_root = TEMPLATES / "zh_CN" / "agents"
+    agents_root_en = TEMPLATES / "en_US" / "agents"
+    for root in (agents_root, agents_root_en):
+        if not root.is_dir():
+            fail(f"missing agent directory: {root}")
+        for path in sorted(root.glob("*.md")):
+            text = read_text(path)
+            for pattern in FORBIDDEN_AGENT_PLATFORM_PATTERNS:
+                if re.search(pattern, text, flags=re.IGNORECASE):
+                    fail(f"platform-specific URL/credential pattern in Agent Instructions: {path}")
+
+
+def validate_gate_contracts() -> None:
+    for lang in ("zh_CN", "en_US"):
+        gate = read_text(TEMPLATES.parent / "docs" / lang / "gates-and-evidence.md")
+        required = (
+            "G2.5",
+            "G2.5 PASS",
+            "T3",
+            "APPROVED_NA",
+            "BLOCKED",
+        )
+        for marker in required:
+            if marker not in gate:
+                fail(f"missing gate contract {marker!r}: docs/{lang}/gates-and-evidence.md")
+        if "any artifact is modified" not in gate.lower() and "任何产物" not in gate:
+            fail(f"missing downstream invalidation rule: docs/{lang}/gates-and-evidence.md")
+
+
+def main() -> int:
+    validate_skill_frontmatter()
+    validate_yaml_files()
+    validate_python_syntax()
+    validate_mixed_language_fragments()
+    validate_agent_platform_separation()
+    validate_gate_contracts()
+    print("repository validation ok")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
