@@ -83,9 +83,7 @@ def validate_mixed_language_fragments() -> None:
 
 
 def validate_agent_platform_separation() -> None:
-    agents_root = TEMPLATES / "zh_CN" / "agents"
-    agents_root_en = TEMPLATES / "en_US" / "agents"
-    for root in (agents_root, agents_root_en):
+    for root in (TEMPLATES / "zh_CN" / "agents", TEMPLATES / "en_US" / "agents"):
         if not root.is_dir():
             fail(f"missing agent directory: {root}")
         for path in sorted(root.glob("*.md")):
@@ -97,19 +95,27 @@ def validate_agent_platform_separation() -> None:
 
 def validate_gate_contracts() -> None:
     for lang in ("zh_CN", "en_US"):
-        gate = read_text(TEMPLATES.parent / "docs" / lang / "gates-and-evidence.md")
-        required = (
-            "G2.5",
-            "G2.5 PASS",
-            "T3",
-            "APPROVED_NA",
-            "BLOCKED",
-        )
-        for marker in required:
+        gate = read_text(ROOT / "docs" / lang / "gates-and-evidence.md")
+        for marker in ("G2.5", "G2.5 PASS", "T3", "APPROVED_NA", "BLOCKED"):
             if marker not in gate:
                 fail(f"missing gate contract {marker!r}: docs/{lang}/gates-and-evidence.md")
         if "any artifact is modified" not in gate.lower() and "任何产物" not in gate:
             fail(f"missing downstream invalidation rule: docs/{lang}/gates-and-evidence.md")
+
+
+def validate_t3_dependencies() -> None:
+    for lang in ("zh_CN", "en_US"):
+        squad = read_text(TEMPLATES / lang / "squad" / "software-development" / "squad.md")
+        if "@DevOps" not in squad:
+            fail(f"software-development squad missing @DevOps: templates/{lang}/squad/software-development/squad.md")
+        if "multica-test-automation" not in squad:
+            fail(f"software-development squad missing multica-test-automation: templates/{lang}/squad/software-development/squad.md")
+        if "G2.5 PASS" not in squad:
+            fail(f"software-development squad missing G2.5→T3 dependency: templates/{lang}/squad/software-development/squad.md")
+
+        automation = TEMPLATES / lang / "skills" / "multica-test-automation"
+        if not (automation / "SKILL.md").is_file():
+            fail(f"missing multica-test-automation Skill: {automation}")
 
 
 def main() -> int:
@@ -119,6 +125,7 @@ def main() -> int:
     validate_mixed_language_fragments()
     validate_agent_platform_separation()
     validate_gate_contracts()
+    validate_t3_dependencies()
     print("repository validation ok")
     return 0
 
