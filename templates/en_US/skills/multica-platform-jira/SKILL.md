@@ -62,6 +62,14 @@ The markup syntax for the appended block depends on the target system (Jira Wiki
 
 When Wiki creation fails, `multica-artifact-req-sync` may write the full PRD into the Issue description (this skill's `create-story` / `append-description`), flagged "Wiki degraded"; after recovery, create the Wiki page and update the description link.
 
+## Success criteria
+
+- Read operations return a successful, consumable Issue/query result.
+- Create/update operations return a stable Issue key or equivalent identifier.
+- State transitions and scheduling return the target Issue key and confirm the requested operation succeeded.
+- Description write-back can be read again and verified to contain the intended artifact link.
+- On failure, the script exits non-zero with diagnosable error output; failures must never be reported as success.
+
 ## Relationship to artifact skills
 
 | Orchestration skill | Calls this skill |
