@@ -2,7 +2,7 @@
 name: multica-implementation
 description: 以最小不必要的改动实现已批准的技术方案。用于编码、补测试、跑验证。
 category: methodology
-owner: BackendDeveloper / FrontendDeveloper
+owner: BackendDev / FrontendDev
 version: 1.0
 inputs:
   - Approved Technical Design
