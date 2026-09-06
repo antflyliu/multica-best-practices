@@ -1,6 +1,28 @@
 ---
 name: multica-technical-design
 description: 基于 PRD / Issue 与现有代码产出最小技术方案。只负责设计内容，不负责平台发布、JIRA/Confluence 操作或凭据管理。
+category: methodology
+owner: Architect
+version: 1.0
+inputs:
+  - Issue / PRD
+  - Acceptance Criteria
+  - Existing Code
+outputs:
+  - Technical Design Artifact
+  - Verification Plan
+side_effects:
+  - Creates or updates the technical-design artifact
+requires:
+  - Stable Issue scope and Acceptance Criteria
+  - Access to relevant source code
+forbidden:
+  - Platform publishing
+  - JIRA / Confluence operations
+  - Credential management
+  - Declaring Gate PASS
+idempotent: true
+platform_dependent: false
 ---
 
 # Technical Design
