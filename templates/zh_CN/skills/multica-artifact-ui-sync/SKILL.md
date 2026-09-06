@@ -1,6 +1,24 @@
 ---
 name: multica-artifact-ui-sync
-description: 把 UI / 交互设计产物对接到设计协作平台（默认 Figma）。用于 @Designer 上传视觉稿、取回链接与标注，供前端下游消费。平台可替换。
+description: UI / 交互设计产物编排：发布设计 Artifact 并回传稳定引用，具体设计平台可替换。
+category: orchestration
+owner: Designer
+version: 1.0
+inputs:
+  - UI design Artifact
+  - Issue key
+  - Target design platform adapter
+outputs:
+  - Stable UI Artifact reference
+side_effects:
+  - Publishes or updates UI design artifacts
+requires:
+  - Configured design platform adapter
+forbidden:
+  - Embedding platform credentials in Agent Instructions
+  - Declaring Gate PASS
+idempotent: true
+platform_dependent: true
 ---
 
 # Artifact · UI Design Sync
