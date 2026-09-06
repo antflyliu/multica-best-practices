@@ -41,6 +41,10 @@ description: 测试设计功能：基于需求 / 设计 / API 契约产出功能
 
 **BLOCKED** —— 缺环境 / 数据 / 依赖，无法验证。如实报告，绝不转成 PASS。
 
+## 已知失败案例
+
+曾出现过 Tester 在 G2.5 未 PASS 时提前执行 T3，并用本地 mock 环境的结果作为部署环境测试报告；报告虽然全绿，但无法证明真实部署环境满足验收标准。以后 T3 必须等待 G2.5 PASS，并明确记录实际测试环境；无法在部署环境执行时只能标记 BLOCKED 或按流程允许的降级方式说明。
+
 ## 与 verification skill 的关系
 
 - `multica-verification`：判门（Leader 在门禁点复跑 / 核对 CI 结论）
