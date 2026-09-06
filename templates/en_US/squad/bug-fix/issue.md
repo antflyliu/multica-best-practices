@@ -38,9 +38,9 @@
 - [ ] Regression test (or explain why it can't be automated)
 
 ## Acceptance criteria
-- [ ] The issue no longer reproduces with the repro steps
-- [ ] Existing behavior doesn't regress
-- [ ]
+- [ ] AC-1: The issue no longer reproduces with the repro steps
+- [ ] AC-2: Existing behavior doesn't regress
+- [ ] AC-3:
 
 ## References
 <!-- Logs, screenshots, error messages, relevant code locations -->
