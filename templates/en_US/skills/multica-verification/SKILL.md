@@ -37,6 +37,10 @@ It doesn't rely on anyone's character — it relies on the evidence itself. Whoe
 
 **BLOCKED** — missing information / environment, cannot verify. Report honestly; never turn it into PASS.
 
+## Known failure case
+
+A producer once treated "the local command passed" as gate evidence, and the Leader accepted that output without independently rerunning or checking the diff. A later review found uncovered files in the change, invalidating downstream verification. Since then, the Leader must rerun independently and check the diff; producer self-check output is never sufficient gate evidence.
+
 ## Relationship to CI hard gates
 
 This Skill is the verification function's form in the agent world (soft gate), suitable for getting started, no CI, or an exploration phase.
