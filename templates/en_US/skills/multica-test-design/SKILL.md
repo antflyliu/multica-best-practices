@@ -1,6 +1,30 @@
 ---
 name: multica-test-design
 description: Produce test cases and a coverage matrix from requirements, design, and API contracts. Owns T1/T2 test design and gap analysis; it does not gate G3 or execute post-deployment T3 automation.
+category: methodology
+owner: Tester
+version: 1.0
+inputs:
+  - Issue / PRD
+  - Acceptance Criteria
+  - Technical Design
+  - API Contract
+  - Implemented Code for T2
+outputs:
+  - T1 test cases
+  - T2 coverage matrix
+  - Test gaps
+side_effects:
+  - Creates or updates test-design artifacts
+requires:
+  - Stable Acceptance Criteria
+  - Design available for T1
+forbidden:
+  - Executing T3 runtime automation
+  - Declaring G3 PASS
+  - Replacing Leader Verification
+idempotent: true
+platform_dependent: false
 ---
 
 # Test Design
