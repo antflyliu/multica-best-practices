@@ -1,6 +1,25 @@
 ---
 name: multica-artifact-test-sync
-description: 把测试用例 / 测试报告产物对接到用例管理平台（默认本地 XMind 转 Jira）。用于 @Tester 上传用例、回传链接，供验收下游消费。平台可替换。
+description: 测试 Artifact 编排：发布测试用例 / 报告并回传稳定引用，具体用例平台可替换。
+category: orchestration
+owner: Tester
+version: 1.0
+inputs:
+  - Test Artifact
+  - Issue key
+  - Target platform adapter
+outputs:
+  - Stable test Artifact reference
+side_effects:
+  - Publishes or updates test artifacts
+requires:
+  - multica-test-design
+  - Configured case-management adapter
+forbidden:
+  - Embedding platform credentials in Agent Instructions
+  - Declaring G3 PASS
+idempotent: true
+platform_dependent: true
 ---
 
 # Artifact · Test Case Sync
@@ -9,7 +28,7 @@ description: 把测试用例 / 测试报告产物对接到用例管理平台（�
 
 把测试用例 / 测试报告落地到团队统一的用例管理平台，并让下游（验收 / Reviewer）用稳定方式取回。
 
-> 本 skill 把「平台对接」与「角色提示词」解耦：角色提示词只说"产出测试用例"，不关心平台。换公司（用 TestRail / Zephyr / 禅道 / 内部用例库）只改本 skill，不动 @Tester 提示词。
+> 本 skill 把「平台对接」与「角色提示词」解耦：角色提示词只说"产出测试用例"，不关心平台。换公司（TestRail / Zephyr / 禅道 / 内部用例库）只改本 skill，不动 @Tester 提示词。
 
 ## 默认平台：本地 XMind 转 Jira
 
