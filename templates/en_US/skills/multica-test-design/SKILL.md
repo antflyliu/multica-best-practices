@@ -1,53 +1,72 @@
 ---
 name: multica-test-design
-description: Test design function: produce feature cases and API cases from the requirement / design / API contract, execute automation-first, and deliver a test report mapped item by item to the acceptance criteria. Used for feature cases / API test cases / test execution / test reports.
+description: Produce test cases and a coverage matrix from requirements, design, and API contracts. Owns T1/T2 test design and gap analysis; it does not gate G3 or execute post-deployment T3 automation.
 ---
 
 # Test Design
 
-## What this is
+## Positioning
 
-Test design is a **function**, not a role. It answers one question:
+Test design is a **production function**, not a gatekeeping role. It makes Acceptance Criteria testable before implementation and identifies coverage gaps after implementation.
 
-> Have the acceptance criteria actually been verified? What is the evidence?
+## Execution
 
-The key: testing shifts left — cases are prepared during the **design / coding stage**, not after the code is done. When implementation finishes, cases are ready and testing can run immediately.
+- **Tester**: runs this Skill and produces T1/T2 test design and coverage analysis.
+- **Leader + `multica-verification`**: owns independent G3 gatekeeping. Tester must not stamp Gate PASS on its own result.
+- **`multica-test-automation`**: owns only T3 runtime automation after G2.5 PASS.
 
-## Who executes it
+## Workflow
 
-- **Production and execution**: the **Tester** triggers this Skill — feature cases at the design stage, API cases at the contract stage, then execution and a test report after implementation.
-- **Gatekeeping**: the test report is reviewed by the **Leader** at G3 (mapped item by item to the acceptance criteria); the Tester doesn't self-certify.
+### T1 — Test Design (before G1)
 
-## Process
+Input: PRD / Issue + technical design.
 
-1. **Feature cases** (design stage; inputs: requirement + design):
-   - Cover every acceptance criterion (each criterion → at least one case)
-   - Add edge / exception / regression scenarios
-2. **API test cases** (coding stage; input: API contract):
-   - Positive / negative / boundary / auth / idempotency
-   - Each marked with: method, path, parameters, expected status code and response
-3. **Execution** (after implementation):
-   - **Automation first**: scriptable cases become automated tests (merged into the repo's test suite, runnable by CI)
-   - Only cases that can't be automated run manually, and manual cases must give reproducible steps
-4. **Test report**:
-   - Mapped item by item to the acceptance criteria: PASS / FAIL / BLOCKED
-   - A FAIL must provide: repro steps, expected behavior, actual behavior, evidence, severity
+Output:
+
+- At least one test scenario for every `AC-*`.
+- Happy-path, boundary, negative, and regression scenarios.
+- API scenarios covering method, path, parameters, and expected response.
+- Mark which cases are automatable and which require manual verification.
+
+### T2 — Coverage & Gap Analysis (before G2)
+
+Input: implemented code, T1 test design, and Acceptance Criteria.
+
+Output:
+
+- `AC-*` → test case → implementation coverage matrix.
+- Uncovered items and reasons.
+- Automation gaps.
+- Recommended additional test cases.
+
+T2 does not execute T3 runtime automation and does not claim G3 PASS.
+
+## Test Case Contract
+
+Each key case should contain at least:
+
+```yaml
+id: TC-001
+acceptance_criteria: [AC-001]
+scenario: <scenario>
+type: positive | negative | boundary | regression
+preconditions: []
+steps: []
+expected: <expected_behavior>
+automatable: true | false
+```
 
 ## Result
 
-**PASS** — every acceptance criterion met with sufficient evidence.
+- `READY`: test design is complete for the current stage.
+- `GAP`: coverage is incomplete; resolve the gap or explicitly accept the risk.
+- `BLOCKED`: required requirements, design, data, or environment information is missing.
 
-**FAIL** — at least one criterion unmet. Must provide: repro steps, expected behavior, actual behavior, evidence, severity.
+## Boundaries
 
-**BLOCKED** — missing environment / data / dependency, cannot verify. Report honestly; never turn it into PASS.
+- `multica-test-design`: T1/T2 design, coverage, and gap analysis.
+- `multica-test-automation`: **only after G2.5 PASS**, execute T3 runtime automation.
+- `multica-verification`: Leader independently gates G3.
+- `multica-artifact-test-sync`: publishes/synchronizes the test Artifact.
 
-## Relationship to the verification skill
-
-- `multica-verification`: gatekeeping (the Leader reruns at gate points / checks the CI verdict)
-- `multica-test-design`: produces cases + executes + reports (the Tester)
-
-The test report is the **input** to the G3 gate; the automated versions of the cases are part of the CI hard gate. They complement each other: this Skill defines how cases are produced and run; the Leader defines the gate.
-
-## Why this works
-
-Testing is easiest to treat as "homework after the fact": only think about how to test once the code is written, and "ran it" equals "tested it." The three rules — shift left, item-by-item mapping, automation first — turn testing from "proof after the fact" into "part of the design," and give the gate rerunnable machine evidence.
+If a test-design Artifact is modified, all downstream Gates immediately become invalid and must be re-verified.
