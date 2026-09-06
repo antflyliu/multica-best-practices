@@ -41,6 +41,10 @@ The key: testing shifts left — cases are prepared during the **design / coding
 
 **BLOCKED** — missing environment / data / dependency, cannot verify. Report honestly; never turn it into PASS.
 
+## Known failure case
+
+A Tester once started T3 before G2.5 had passed and used a local mock environment as the deployment-environment test report. The report was green, but it did not prove that the actual deployed environment met the acceptance criteria. The rule is now explicit: T3 must wait for G2.5 PASS and record the actual test environment; if deployment-environment execution is impossible, report BLOCKED or use only an explicitly permitted fallback.
+
 ## Relationship to the verification skill
 
 - `multica-verification`: gatekeeping (the Leader reruns at gate points / checks the CI verdict)
