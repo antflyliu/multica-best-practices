@@ -1,14 +1,35 @@
 ---
 name: multica-review-test
-description: Test-artifact dedicated review framework. Called by TestReviewer to professionally analyze Tester's cases/report/coverage doc (coverage depth/acceptance mapping/coverage reasonableness/conclusion truth/contract consistency), output PASS/FAIL + fix list, report to Leader.
+description: Test-artifact professional review framework that reports coverage and evidence findings to the Leader.
+category: methodology
+owner: TestReviewer
+version: 1.0
+inputs:
+  - Test Artifact
+  - Acceptance Criteria
+  - Relevant implementation changes
+  - Previous review findings when applicable
+outputs:
+  - Professional review result
+  - Blocking and non-blocking findings
+side_effects:
+  - None; review only
+requires:
+  - multica-test-design
+  - multica-artifact-test-sync
+forbidden:
+  - Modifying reviewed test artifacts
+  - Declaring G3 PASS
+idempotent: true
+platform_dependent: false
 ---
 
 # Test Artifact Professional Review (TestReviewer)
 
-Structured professional review framework for **test artifacts (functional/API cases, test report, coverage doc)**. Called by `TestReviewer`; reviews the links `Tester` returns via `multica-artifact-test-sync` (case set / report), plus acceptance + related implementation change links Leader passes.
+Structured professional review framework for **test artifacts (functional/API cases, test report, coverage doc)**. Called by `TestReviewer`; reviews the links `Tester` returns via `multica-artifact-test-sync`, plus acceptance and related implementation change links Leader passes.
 
 ## When to use
-- TestReviewer receives a "review test artifact" dispatch from Leader (case review / report review both apply).
+- TestReviewer receives a "review test artifact" dispatch from Leader.
 - Entering a re-review round after test-artifact changes (check previous round's fix list item by item).
 
 ## Review dimensions (conclusion per item)
