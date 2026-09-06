@@ -1,6 +1,28 @@
 ---
 name: multica-technical-design
 description: Produce a minimal technical plan from the PRD / Issue and existing code. Owns design content only; platform publishing, JIRA/Confluence operations, and credentials belong elsewhere.
+category: methodology
+owner: Architect
+version: 1.0
+inputs:
+  - Issue / PRD
+  - Acceptance Criteria
+  - Existing Code
+outputs:
+  - Technical Design Artifact
+  - Verification Plan
+side_effects:
+  - Creates or updates the technical-design artifact
+requires:
+  - Stable Issue scope and Acceptance Criteria
+  - Access to relevant source code
+forbidden:
+  - Platform publishing
+  - JIRA / Confluence operations
+  - Credential management
+  - Declaring Gate PASS
+idempotent: true
+platform_dependent: false
 ---
 
 # Technical Design
