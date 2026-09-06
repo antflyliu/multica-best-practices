@@ -1,6 +1,24 @@
 ---
 name: multica-artifact-req-sync
-description: Land product requirement / PRD artifacts to the requirement knowledge platform (default Confluence). Used by @ProductManager to upload PRD and return a link for downstream design / dev / test consumption. Swappable platform.
+description: Orchestrate PRD artifact landing through requirement-platform adapters and return a stable reference.
+category: orchestration
+owner: ProductManager
+version: 1.0
+inputs:
+  - Structured PRD
+  - Issue key
+outputs:
+  - Published PRD reference
+side_effects:
+  - Creates or updates requirement artifacts
+requires:
+  - multica-requirement-analysis
+  - multica-platform-* requirement adapter
+forbidden:
+  - Embedding platform credentials in Agent Instructions
+  - Redefining PRD content rules owned by multica-requirement-analysis
+idempotent: true
+platform_dependent: true
 ---
 
 # Artifact · Requirement Sync
@@ -9,26 +27,28 @@ description: Land product requirement / PRD artifacts to the requirement knowled
 
 Land product requirement artifacts to the team's unified requirement platform and let downstream retrieve them via a stable reference.
 
-> This skill decouples "platform integration" from "role prompt": the role prompt only says "produce PRD", not which platform. Changing companies (Wiki / Yuque / Feishu / internal KB) means editing only this skill, not the @ProductManager prompt.
+> This skill decouples "platform integration" from "role prompt": the role prompt only says "produce PRD", not which platform. Changing companies means editing only this skill, not the @ProductManager prompt.
+
+## Workflow
+
+1. `multica-requirement-analysis` structures the PRD.
+2. This skill orchestrates the configured requirement platform adapter(s).
+3. Return the stable artifact reference and version to the Leader.
+4. If the artifact version changes, downstream Gates must be re-verified.
 
 ## Default platform: Confluence
 
-- Output: PRD (or MRD / dashboard spec / cross-system spec / acceptance checklist, by type).
-- Upload: create / update a page in Confluence, keeping G-/FR-/BR-/AC-/KPI-/OP-/RISK- ids and stable headings (see `docs/en_US/gates-and-evidence.md` AI-readable discipline).
-- Retrieve: downstream @Architect / @Designer / @FrontendDev / @BackendDev / @Tester read via the **page link** — the link is the stable reference.
+- Output: PRD artifact with stable G-/FR-/BR-/AC-/KPI-/OP-/RISK- ids.
+- Upload: create or update the configured requirement page.
+- Retrieve: downstream roles consume the stable page reference.
 
-## Content spec (platform-independent part)
+## Usage
 
-PRD at least contains (see @ProductManager role instruction): one-line definition, background, goals G- + KPI-, users & permissions, scope, FR-/BR-/AC-, field definitions, empty/error/no-permission states, RISK-/OP-, revision log.
+> @ProductManager: "Produce PRD, land it via `multica-artifact-req-sync`, and return the stable reference."
 
-## Usage (role side writes only this line)
+## Boundaries
 
-> @ProductManager: "Produce PRD, land it via `multica-artifact-req-sync` skill to the team requirement platform, and return the page link."
-
-## Swap platform (no role-prompt change)
-
-Replace this skill's "default platform" section with your tool (Yuque / Feishu / Notion / internal Wiki), keeping the "upload + return stable link" interface unchanged.
-
-## Why it works
-
-Platforms differ greatly across teams; hard-coding the platform name into the role prompt freezes it. Sinking it into the skill keeps the role's "what to produce" description stable while the platform swaps with the skill.
+- `multica-requirement-analysis`: requirement content.
+- This skill: artifact publication orchestration.
+- `multica-platform-*`: concrete platform integration.
+- `multica-verification`: Leader-owned Gate decisions.
