@@ -1,6 +1,6 @@
 ---
 name: multica-verification
-description: Gatekeeping function: objectively check whether an artifact satisfies the acceptance criteria. Triggered by the Leader to rerun at gate points (G1/G2/G3); members can also use it for self-check. Used for design review / implementation acceptance / test-report review.
+description: Gatekeeping function: objectively check whether an artifact satisfies the acceptance criteria. Triggered by the Leader to rerun at gate points (G1/G2/G3); producers may self-check but cannot issue the gate verdict. Used for design review / implementation acceptance / test-report review.
 ---
 
 # Verification (gatekeeping)
@@ -17,7 +17,7 @@ It doesn't rely on anyone's character — it relies on the evidence itself. Whoe
 ## Who executes it
 
 - **Gatekeeping**: the **Leader** triggers this Skill at the gate points (G1 / G2 / G3) and reruns independently. The Leader produces no artifacts, so it's naturally a third party.
-- **Self-check**: after finishing, a producer may first run this Skill to self-verify (pasting the command output), but self-check is not gatekeeping — gatekeeping must be rerun by a non-producer.
+- **Self-check**: after finishing, a producer may first run this Skill to self-check (pasting the command output), but cannot issue the gate verdict; formal gatekeeping must be rerun by a non-producer.
 
 > The gate issuer must be a different party from the gated. Authors cannot stamp "PASS" on themselves.
 
@@ -27,19 +27,26 @@ It doesn't rely on anyone's character — it relies on the evidence itself. Whoe
 2. Map every criterion to evidence (which test / which command / which output).
 3. **Rerun** the verification commands; don't cite someone else's described output.
 4. Check the change scope: does the diff only touch this requirement?
-5. Give PASS / FAIL for each criterion.
+5. Give PASS / FAIL for each criterion (individual check result).
+6. Normalize the gate outcome to APPROVED / APPROVED_NA / REJECTED / BLOCKED.
 
 ## Result
 
-**PASS** — every criterion has sufficient evidence.
+Use these four values for the formal gate verdict:
 
-**FAIL** — at least one criterion unmet. Must provide: the problem, why it matters, where, and the fix direction.
+**APPROVED** — every applicable criterion has sufficient evidence; downstream may open.
 
-**BLOCKED** — missing information / environment, cannot verify. Report honestly; never turn it into PASS.
+**APPROVED_NA** — the artifact / branch is explicitly confirmed by the Leader to be not applicable; record the N/A reason and do not silently skip it.
+
+**REJECTED** — at least one applicable criterion is unmet. Must provide: the problem, why it matters, where, the fix direction, and a verifiable pass condition.
+
+**BLOCKED** — missing information / environment / dependency prevents verification. Report honestly; it is not a pass.
+
+> Individual evidence may still use PASS / FAIL, but the final gate verdict must use the four values above so it stays consistent with `gates-and-evidence`.
 
 ## Known failure case
 
-A producer once treated "the local command passed" as gate evidence, and the Leader accepted that output without independently rerunning or checking the diff. A later review found uncovered files in the change, invalidating downstream verification. Since then, the Leader must rerun independently and check the diff; producer self-check output is never sufficient gate evidence.
+A typical failure mode is a producer treating "the local command passed" as gate evidence, with the Leader accepting that output without independently rerunning or checking the diff. A later review can reveal uncovered files and invalidate downstream verification. The rule is explicit: the Leader must rerun independently and check the diff; producer self-check output is never sufficient gate evidence.
 
 ## Relationship to CI hard gates
 
