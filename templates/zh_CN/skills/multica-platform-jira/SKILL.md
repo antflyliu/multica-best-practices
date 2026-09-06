@@ -1,10 +1,30 @@
 ---
 name: multica-platform-jira
-description: JIRA 读写：Issue 查询、Confluence 链接解析、Story 创建、流转、排期、描述回写、钉钉。平台 skill，与 Confluence 解耦。
+description: JIRA 读写适配：Issue 查询、链接解析、Story 创建、流转、排期、描述回写与通知。平台 Skill，与 Confluence 解耦。
+category: platform
+owner: Platform Adapter
+version: 1.0
+inputs:
+  - JIRA operation
+  - Issue / payload parameters
+  - Platform credentials from environment
+outputs:
+  - JIRA response or stable artifact reference
+side_effects:
+  - Reads or mutates JIRA state
+requires:
+  - Configured JIRA URL
+  - Valid credentials
+  - Team-specific config.yaml
+forbidden:
+  - Storing real credentials in source
+  - Hiding platform-specific behavior in Agent Instructions
+  - Making Gate decisions
+idempotent: false
+platform_dependent: true
 metadata:
   credentials:
     priority:
-      - ATLASSIAN_USER / ATLASSIAN_PASS
       - ATLASSIAN_USER / ATLASSIAN_PASS
       - JIRA_USER / JIRA_PASS
 ---
@@ -85,6 +105,3 @@ Confluence 创建失败时，`multica-artifact-req-sync` 可将 PRD 全文写入
 ## 为什么有效
 
 JIRA 自定义字段各团队差异大，独立 platform skill 后 Confluence / 设计发布变更不影响 JIRA 脚本；读写分离后 Leader / Architect 可稳定从 Issue 定位上游 Confluence 产物。
-
-
-
