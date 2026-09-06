@@ -1,8 +1,31 @@
 ---
 name: multica-test-automation
 description: Tester T3 runtime automation：仅在 G2.5 CI/CD PASS 且部署环境就绪后执行自动化测试，并产出 G3 输入。具体测试工具由团队 adapter 配置，本 Skill 不绑定具体厂商。
+category: methodology
+owner: Tester
+version: 1.0
+inputs:
+  - Issue
+  - Deployed Artifact Version
+  - Deploy Base URL
+  - Test Suite
+  - G2.5 PASS evidence
+outputs:
+  - Machine-readable T3 test result
+  - Runtime test evidence
+side_effects:
+  - Executes runtime tests against the deployed environment
+requires:
+  - G2.5 PASS
+  - Deployment environment ready
+  - Team test adapter / runner
+forbidden:
+  - Running T3 before G2.5 PASS
+  - Declaring G3 PASS
+  - Hard-coding vendor-specific credentials in this Skill
+idempotent: true
+platform_dependent: false
 metadata:
-  category: automation
   runtime:
     python: ">=3.10"
 ---
