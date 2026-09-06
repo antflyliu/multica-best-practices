@@ -70,6 +70,14 @@ python scripts/trigger_cicd.py --env sit --service <service1>,<service2> --branc
 G2 PASS 且代码已 push 后，用 multica-artifact-cicd-sync 触发 Jenkins 并回传部署链接。
 ```
 
+## 平台不可用时的降级路径
+
+1. 先执行一次 discover / trigger；确认 CI/CD 平台不可用后停止重复触发。
+2. 将 G2.5 标记为 `BLOCKED`，记录平台、Job / 环境、尝试的操作、时间 / 错误信息，以及缺失的 build URL / deploy URL / build ID。
+3. 不得伪造构建、部署或环境 URL；旧构建、旧部署或本地命令输出不能冒充当前 commit 的 G2.5 证据。
+4. CI/CD 不可用时，**不得放行 T3**。只有真实测试环境部署证据使 G2.5 PASS 后，Tester 才能执行部署环境 T3；否则流程停在 G2.5 `BLOCKED`。
+5. 平台恢复并产生当前 deploy branch / commit 对应的构建部署证据后，Leader 重新判 G2.5。若代码、部署产物或关联引用发生修改，其下游门禁立即失效，必须重新验证。
+
 ## 为什么有效
 
 编排层只依赖 Python；Issue 前缀自动映射到 `jobs-catalog.yaml` 中的 logical service。
