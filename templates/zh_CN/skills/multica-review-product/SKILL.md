@@ -1,6 +1,25 @@
 ---
 name: multica-review-product
-description: 需求/PRD 专属评审框架。由 ProductReviewer 调用，对 ProductManager 产出的 PRD 做专业分析（范围清晰/目标明确/验收可测/约束完备/待确认项），输出 PASS/FAIL 与修改清单，汇报 Leader。
+description: 需求 / PRD 专业评审框架：评估范围、目标、验收、约束与待确认项，并向 Leader 输出评审结论。
+category: methodology
+owner: ProductReviewer
+version: 1.0
+inputs:
+  - PRD Artifact
+  - Issue / Acceptance Criteria
+  - Previous review findings when applicable
+outputs:
+  - Professional review result
+  - Blocking and non-blocking findings
+side_effects:
+  - None; review only
+requires:
+  - multica-artifact-req-sync
+forbidden:
+  - Modifying reviewed PRD
+  - Declaring Leader Gate PASS
+idempotent: true
+platform_dependent: false
 ---
 
 # 需求（PRD）专业评审（ProductReviewer）
