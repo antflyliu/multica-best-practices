@@ -6,17 +6,27 @@
 ## 团队
 
 ```text
-                Leader
-                  │
-    ┌─────────────┼─────────────┐
-    ↓             ↓             ↓
-Architect  FrontendDev  BackendDev
-    │             │             │
-    └──────┬──────┴──────┬──────┘
-           ↓             ↓
-        Tester（用例左移）   ↓
-        Reviewer（业务评审）
+                         Leader
+                           │
+        ┌──────────────────┼──────────────────┐
+        ↓                  ↓                  ↓
+ ProductManager        Architect           Designer
+        │                  │                  │
+        └────────────┬─────┴─────┬────────────┘
+                     ↓           ↓
+               FrontendDev   BackendDev
+                     │           │
+                     └─────┬─────┘
+                           ↓
+                        Tester
+                           │
+                        Reviewer
+                           │
+                         DevOps
+                    （G2.5，按需）
 ```
+
+> `ProductManager / Designer / DevOps` 均按 Issue 范围启用；缺失角色直接跳过对应产物，门禁链不断。
 
 ## 工作流
 
@@ -24,7 +34,7 @@ Architect  FrontendDev  BackendDev
 
 ```text
 Issue
-  ↓ G0 确定范围（设计? 前端? 后端?）── 范围含糊 → 回写 Issue / 问人类
+  ↓ G0 确定范围（设计? 前端? 后端? CI/CD?）── 范围含糊 → 回写 Issue / 问人类
   ↓
 [设计] Architect ── G1：Leader(multica-verification skill) 对齐验收标准 + Reviewer 业务评审 ── FAIL → 回 Architect
   ↓ PASS
