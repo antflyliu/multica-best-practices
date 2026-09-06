@@ -1,6 +1,30 @@
 ---
 name: multica-test-design
 description: 基于需求、设计与 API 契约产出测试用例与覆盖矩阵。负责 T1/T2 的测试设计与测试缺口分析，不负责 G3 判门，也不负责部署后 T3 自动化执行。
+category: methodology
+owner: Tester
+version: 1.0
+inputs:
+  - Issue / PRD
+  - Acceptance Criteria
+  - Technical Design
+  - API Contract
+  - Implemented Code for T2
+outputs:
+  - T1 test cases
+  - T2 coverage matrix
+  - Test gaps
+side_effects:
+  - Creates or updates test-design artifacts
+requires:
+  - Stable Acceptance Criteria
+  - Design available for T1
+forbidden:
+  - Executing T3 runtime automation
+  - Declaring G3 PASS
+  - Replacing Leader Verification
+idempotent: true
+platform_dependent: false
 ---
 
 # Test Design（测试设计）
