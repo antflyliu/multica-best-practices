@@ -29,6 +29,14 @@ Per the stage convention, the API contract at least contains: endpoint list, req
 
 Replace this skill's "default platform" section with your tool (Swagger / YApi / Postman / internal gateway), keeping the "upload + return stable link" interface unchanged.
 
+## Degradation when the platform is unavailable
+
+1. Attempt the normal publish/sync operation once; when the API platform is confirmed unavailable, stop repeated writes.
+2. Mark the sync step `BLOCKED` and record the platform, attempted operation, time/error, and the missing stable project/group link or reference ID.
+3. If downstream only needs the contract draft and the current gate does not require a stable platform reference, the Leader may explicitly accept the local contract as a **temporary reference**; never fabricate an Apifox or other platform link.
+4. If G2 or downstream requires a stable API reference, keep it `BLOCKED`; never use an old-version link or guessed ID as evidence for the current contract.
+5. When the platform recovers, publish/sync and return the stable reference. If API contract content or its reference changes, all downstream gates are immediately invalid and must be rerun.
+
 ## Why it works
 
 API platforms differ by team; hard-coding the platform name into the role prompt freezes it. Sinking it into the skill keeps the role's "what to produce" description stable while the platform swaps with the skill.
