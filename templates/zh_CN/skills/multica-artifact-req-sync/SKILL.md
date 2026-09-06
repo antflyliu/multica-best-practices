@@ -1,14 +1,25 @@
 ---
 name: multica-artifact-req-sync
-description: PRD 产物编排：调用 multica-platform-confluence + multica-platform-jira 落地需求。用于 @ProductManager 上传 PRD、回传链接。
-metadata:
-  orchestrates:
-    - multica-platform-confluence
-    - multica-platform-jira
-  credentials:
-    priority:
-      - ATLASSIAN_USER / ATLASSIAN_PASS
-      - ATLASSIAN_USER / ATLASSIAN_PASS
+description: PRD 产物编排：调用需求平台适配 Skill 落地 PRD 并回传稳定引用。
+category: orchestration
+owner: ProductManager
+version: 1.0
+inputs:
+  - structured PRD
+  - Issue key
+outputs:
+  - published PRD reference
+side_effects:
+  - creates or updates requirement artifacts
+requires:
+  - multica-requirement-analysis
+  - multica-platform-confluence
+  - multica-platform-jira
+forbidden:
+  - embedding platform credentials in role instructions
+  - redefining PRD content rules owned by multica-requirement-analysis
+idempotent: true
+platform_dependent: true
 ---
 
 # Artifact · Requirement Sync（编排）
@@ -39,7 +50,6 @@ metadata:
 ```bash
 bash scripts/confluence.sh create-page \
   "<title>" "<parent_id>" "<html>" "<space>"
-# ↑ 脚本位于 multica-platform-confluence；路径由 MULTICA_SKILLS_ROOT 解析
 ```
 
 2. 创建 JIRA Story（描述含 Confluence 链接）：
@@ -47,7 +57,6 @@ bash scripts/confluence.sh create-page \
 ```bash
 bash scripts/jira.sh create-story \
   --project <KEY> --summary "<title>" --description "..." ...
-# ↑ 脚本位于 multica-platform-jira
 ```
 
 3. 可选钉钉：`multica-platform-jira` → `notify-story`
@@ -55,14 +64,14 @@ bash scripts/jira.sh create-story \
 或使用本目录编排脚本（需 platform skills 可解析）：
 
 ```bash
-export MULTICA_SKILLS_ROOT="/path/to/templates/skills"   # Multica 按名挂载时建议设置
+export MULTICA_SKILLS_ROOT="/path/to/templates/skills"
 bash scripts/publish-prd.sh --project AAI --summary "..." --html-file prd.html \
   -- --need-user <user> --background "..." ...
 ```
 
 ## Workflow B–E
 
-状态流转、排期、Confluence 阻塞降级（Workflow E：PRD 全文写入 JIRA）等——**直接使用 `multica-platform-jira` / `multica-platform-confluence` 的 SKILL.md**，本 skill 不再重复维护。
+状态流转、排期、Confluence 阻塞降级等——直接使用对应 platform Skill；本 skill 不重复维护平台实现。
 
 ## 配置
 
@@ -80,4 +89,3 @@ bash scripts/publish-prd.sh --project AAI --summary "..." --html-file prd.html \
 ## 为什么有效
 
 JIRA 与 Confluence 拆成独立 platform skill 后，Architect 的设计发布与 PM 的 PRD 落地共用同一套能力；编排脚本通过 skill 名称 + `MULTICA_SKILLS_ROOT` 定位，不依赖固定相对路径。
-
