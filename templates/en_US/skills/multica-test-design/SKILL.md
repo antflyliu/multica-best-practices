@@ -1,6 +1,6 @@
 ---
 name: multica-test-design
-description: Test design function: produce feature cases and API cases from the requirement / design / API contract, execute automation-first, and deliver a test report mapped item by item to the acceptance criteria. Used for feature cases / API test cases / test execution / test reports.
+description: "Test design function: produce feature cases and API cases from the requirement / design / API contract, execute automation-first, and deliver a test report mapped item by item to the acceptance criteria. Used for feature cases / API test cases / test execution / test reports."
 ---
 
 # Test Design
