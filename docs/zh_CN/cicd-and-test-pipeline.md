@@ -26,9 +26,9 @@ G3 测试验收（@Tester T3，multica-test-automation + multica-artifact-test-s
 | **T1** 功能用例 | 设计定稿后，与 API 契约并行 | 功能用例 + 设计研读（落到团队用例平台） | Leader 判门 |
 | **并行** 接口用例 | API 契约就绪后，与前后端实现并行 | 接口测试用例（供 T3 使用） | Leader 判门 |
 | **T2** 补充 + 覆盖率 | G2 PASS 后、T3 前 | 用例补充清单 + 覆盖率评估（非测试报告） | Leader 判门 |
-| **T3** 自动化执行 | **G2.5 PASS 后** | 自动化执行日志 + 测试报告（G3 输入） | G3（Leader 复核） |
+| **T3** 自动化执行 | **仅 G2.5 PASS 后** | 自动化执行日志 + 测试报告（G3 输入） | G3（Leader 复核） |
 
-T1 / T2 只写用例与评估，**不执行**；T3 是唯一执行阶段，且绑定真实部署环境。
+T1 / T2 只写用例与评估，**不执行 T3 自动化**；T3 是唯一自动化执行阶段，且绑定真实部署环境。任何没有 G2.5 PASS 的尝试都必须标记为 `BLOCKED`，不能用本地 / 手动结果冒充 T3。
 
 ## 三、deploy branch 模型
 
@@ -42,13 +42,15 @@ T1 / T2 只写用例与评估，**不执行**；T3 是唯一执行阶段，且�
 | --- | --- |
 | @Leader | 声明 deploy branch；G2 后确认各端已 merge 并 push；判 G2.5 与 G3 |
 | @DevOps | G2 PASS + push 后，用 `multica-artifact-cicd-sync` 触发构建部署，回传环境 URL（不写业务代码） |
-| @Tester | T1/T2 写用例与评估；G2.5 后 T3 在部署环境跑自动化 |
+| @Tester | T1/T2 写用例与评估；**仅在 G2.5 PASS 后** T3 在部署环境跑自动化 |
 | @FrontendDev / @BackendDev | 实现并 merge 到 deploy branch，提供变更文件列表供 T2 评估 |
 
-## 五、无 @DevOps / 无 CI 系统的退化路径
+## 五、无 @DevOps / 无 CI 系统时的处理
 
-- 没有可触发的 CI/CD 时，**跳过 G2.5**，T3 退化为：本地 / 手动验证 + 显式标注「未走 CI/CD 部署」。证据要求不变——仍需给出环境 / 执行方式与输出。
-- 这与门禁体系不冲突：G2.5 是「有 CI 时的硬门禁」，不是必走步骤。见 `gates-and-evidence.md`。
+- 没有可触发的 CI/CD 时，**G2.5 不能 PASS**。
+- 因此 **T3 自动化必须保持 `BLOCKED`，不得退化为本地 / 手动 T3**；这条约束不可绕过。
+- 如果业务仍需要人工检查，可以单独进行 **manual verification**，但它不是 T3、不能作为 T3 evidence，也不能伪装成 G2.5 PASS 或 G3 自动化证据。
+- 待 CI/CD 可用并取得 G2.5 PASS 后，才能重新触发 T3；此前的 manual verification 不自动继承为 T3 PASS。
 
 ## 六、为什么有效
 
