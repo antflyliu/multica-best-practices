@@ -1,6 +1,31 @@
 ---
 name: multica-verification
 description: 独立门禁验证：由 Leader 在 G1/G2/G3 复跑验收标准并输出 PASS、FAIL 或 BLOCKED。用于客观判定交付条件，不负责产出业务/技术/测试产物。
+category: gate
+owner: Leader
+version: 1.0
+inputs:
+  - Gate ID
+  - Issue
+  - Artifact
+  - Artifact Version
+  - Upstream Gates
+  - Acceptance Criteria
+  - Evidence
+outputs:
+  - Gate Result
+  - Criterion-level evidence mapping
+side_effects:
+  - Records Gate status for the specified Artifact Version
+requires:
+  - Valid Issue and Acceptance Criteria
+  - Valid upstream Gate results
+forbidden:
+  - Producing or modifying the Artifact under verification
+  - Self-approving a producer's Artifact
+  - Treating BLOCKED as PASS
+idempotent: true
+platform_dependent: false
 ---
 
 # Verification（独立门禁）
