@@ -1,41 +1,72 @@
 ---
 name: multica-artifact-cicd-sync
-description: CI/CD 产物编排：G2 PASS 且代码已 push 后调用 multica-platform-jenkins 触发 dev/sit 构建，回写 JIRA 并回传部署 URL。Python 实现，Windows / Linux 通用。
-metadata:
-  orchestrates:
-    - multica-platform-jenkins
-    - multica-platform-jira
-  runtime:
-    python: ">=3.10"
+description: CI/CD 产物编排：在 G2 PASS 且代码已 push 后调用平台适配层执行部署，回传 deployment version 与证据。编排层不拥有 G2.5/G3 Gate。
+category: orchestration
+owner: Leader
+version: 1.0
+inputs:
+  - issue
+  - g2_result
+  - commit_or_artifact_version
+  - environment
+  - deploy_branch
+outputs:
+  - deployment_version
+  - deployment_evidence
+  - deployment_url
+side_effects:
+  - triggers deployment through platform adapter
+requires:
+  - multica-verification
+  - multica-platform-jenkins
+forbidden:
+  - trigger T3 before G2.5 PASS
+  - make G2.5 or G3 PASS decisions
+  - hardcode platform credentials or URLs
+idempotent: false
+platform_dependent: true
 ---
 
 # Artifact · CI/CD Sync（编排）
 
 ## Purpose
 
-G2 PASS + push 后，调用 `multica-platform-jenkins` 触发 dev/sit Job。**参数由 Jenkins API 自动发现**，编排层不硬编码参数名。
+在 **G2 PASS + code push** 后编排 CI/CD 部署，调用 `multica-platform-*` 适配层，并回传部署产物版本与证据。
 
-## Agent 流程
+> 本 skill 负责“怎么编排部署”，不负责“判 G2.5”。G2.5 必须由 Leader 使用 `multica-verification` 独立判定。
+
+## Preconditions
+
+必须同时满足：
+
+- G2 = `PASS`
+- G2 PASS 绑定的 Artifact Version / commit 未发生变化
+- deploy branch 已由 Issue 明确
+- 所需 platform adapter 可用
+
+任一条件不满足 → `BLOCKED`，不得触发后续 T3。
+
+## Workflow
 
 ```text
-1. discover-only（推荐先跑，检查 missing）：
-   python scripts/trigger_cicd.py --issue <ISSUE_KEY> --env sit --branch release/<ISSUE_KEY>-slug --discover-only --json
-2. 触发（**只用 Issue deploy branch，不用 feature 分支**）：
-   python scripts/trigger_cicd.py --issue <ISSUE_KEY> --env sit --branch release/<ISSUE_KEY>-slug --json
-3. missing 参数：追加 --param name=value（trigger_cicd 需扩展传参时走 trigger_env --param）
+G2 PASS
+  ↓
+code push / artifact version fixed
+  ↓
+multica-artifact-cicd-sync
+  ↓
+multica-platform-* discover → trigger → poll
+  ↓
+deployment_version + evidence
+  ↓
+Leader / multica-verification 判定 G2.5
+  ↓
+G2.5 PASS
+  ↓
+允许 Tester 触发 T3
 ```
 
-## 参数解析策略
-
-默认（`use_last_success=true`）：
-
-1. 读取 `lastSuccessfulBuild` 的全部构建参数
-2. **仅**将分支类参数（branchName / branch / gitBranch …）替换为 `--branch`
-3. `--param` 可覆盖任意项；`--no-last-success` 关闭此行为
-
----
-
-## Workflow A：dev 部署
+## Workflow A：dev
 
 ```bash
 python scripts/trigger_cicd.py \
@@ -46,7 +77,7 @@ python scripts/trigger_cicd.py \
   --json
 ```
 
-## Workflow B：sit 部署（G2.5 → Tester T3）
+## Workflow B：sit
 
 ```bash
 python scripts/trigger_cicd.py \
@@ -56,23 +87,43 @@ python scripts/trigger_cicd.py \
   --json
 ```
 
-`<ISSUE_PREFIX_A>` / `<ISSUE_PREFIX_B>` / `<ISSUE_PREFIX_C>` / `<ISSUE_PREFIX_D>` 等前缀已在 `config.yaml` → `issue_service_map` 配置，可省略 `--service`。
-
 ## Workflow C：多服务
 
 ```bash
 python scripts/trigger_cicd.py --env sit --service <service1>,<service2> --branch release/<ISSUE_KEY>-xxx --json
 ```
 
-## 用法（角色侧）
+## Parameter policy
 
-```text
-G2 PASS 且代码已 push 后，用 multica-artifact-cicd-sync 触发 Jenkins 并回传部署链接。
+平台参数由 `multica-platform-*` 适配层 discover；编排层不硬编码 Job 参数名。
+
+- deploy branch 只能来自 Issue / 已确认的部署上下文
+- 缺少必填参数 → 补齐或 `BLOCKED`
+- platform build SUCCESS → 只是平台执行成功，不自动等价于 G2.5 PASS
+
+## Artifact Contract
+
+成功部署后至少回传：
+
+```yaml
+artifact:
+  type: deployment
+  issue_key: <ISSUE_KEY>
+  version: <DEPLOYED_VERSION>
+  location:
+    type: cicd
+    url: <DEPLOY_URL>
+  source:
+    commit: <COMMIT_SHA>
+  status: deployed
 ```
 
-## 为什么有效
+`<DEPLOYED_VERSION>` 必须能唯一对应实际部署内容。若部署后产物版本变化，下游 Gate 立即失效并重新验证。
 
-编排层只依赖 Python；Issue 前缀自动映射到 `jobs-catalog.yaml` 中的 logical service。
+## T3 Boundary
 
+本 skill **不能直接触发 T3**。只有 Leader 判定 `G2.5 = PASS` 后，Tester 才能使用 `multica-test-automation` 执行 T3。
 
+## Why it works
 
+平台差异被封装在 `multica-platform-*`；编排只处理 Issue、版本、环境和证据。这样更换 Jenkins / GitLab CI / GitHub Actions 时，不需要修改 Agent Instructions 或 Gate 逻辑。
