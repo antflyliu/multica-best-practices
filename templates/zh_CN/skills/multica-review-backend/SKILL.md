@@ -1,11 +1,31 @@
 ---
 name: multica-review-backend
-description: 后端实现专属评审框架。由 BackendReviewer 调用，对 BackendDev 产出的 API 契约与后端实现做专业分析（契约质量/设计吻合/错误处理/单测充分性/验收对照），输出 PASS/FAIL 与修改清单，汇报 Leader。
+description: 后端实现专业评审框架：评估 API 契约、设计吻合度、错误处理、单测与 Acceptance Criteria，并向 Leader 输出评审结论。
+category: methodology
+owner: BackendReviewer
+version: 1.0
+inputs:
+  - API Contract Artifact
+  - Backend implementation changes
+  - Acceptance Criteria
+  - Previous review findings when applicable
+outputs:
+  - Professional review result
+  - Blocking and non-blocking findings
+side_effects:
+  - None; review only
+requires:
+  - multica-artifact-api-sync
+forbidden:
+  - Modifying reviewed code or API artifacts
+  - Declaring Leader Gate PASS
+idempotent: true
+platform_dependent: false
 ---
 
 # 后端实现专业评审（BackendReviewer）
 
-本 skill 提供对 **后端实现产物（API 契约 + 实现）**的结构化专业评审框架。调用方为 `BackendReviewer`，评审对象为 `BackendDev` 经 `multica-artifact-api-sync` 回传的链接与变更文件列表，以及 Leader 派活时给的架构设计引用。
+本 skill 提供对 **后端实现产物（API 契约 + 后端实现）**的结构化专业评审框架。调用方为 `BackendReviewer`，评审对象为 `BackendDev` 经 `multica-artifact-api-sync` 回传的链接与变更文件列表，以及 Leader 派活时给的架构设计引用。
 
 ## 什么时候用
 
