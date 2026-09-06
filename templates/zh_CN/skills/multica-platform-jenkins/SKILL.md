@@ -5,7 +5,6 @@ metadata:
   credentials:
     priority:
       - ATLASSIAN_USER / ATLASSIAN_PASS
-      - ATLASSIAN_USER / ATLASSIAN_PASS
       - JENKINS_USER / JENKINS_PASSWORD
   runtime:
     python: ">=3.10"
@@ -120,7 +119,3 @@ python scripts/trigger_env.py --env sit --service <service> --branch feature/...
 ## 为什么有效
 
 Python + Jenkins API 参数发现：不同项目参数名不同，Agent 先 discover 再 trigger，避免写死 branchName。Job 名清单在 `jobs-catalog.yaml`。
-
-
-
-
