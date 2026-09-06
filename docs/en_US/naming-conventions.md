@@ -5,11 +5,12 @@
 ## Rules
 
 1. Agent name = `<role>-<project>-<member-id>`, where the role comes from a fixed vocabulary.
-2. Role vocabulary: `Leader / ProductManager / Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer`
+2. Role vocabulary: `Leader / ProductManager / Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer / DevOps / ArchReviewer / DesignReviewer / ProductReviewer / FrontendReviewer / BackendReviewer / TestReviewer`
 3. `<project>` = service / domain / project name (lowercase hyphenated), e.g. `user-service`, `web`, `order`.
 4. `<member-id>` = the member's unique ID within "this project + this role", using an **employee number or nickname** (e.g. `u1024`, `ajie`). Do NOT use a full real name (avoids PII and cross-project ambiguity for the same person).
 5. The name only distinguishes instances; it carries no responsibility. Responsibilities always come from Agent Instructions / Squad Instructions.
 6. `Architect` is technical architecture design (change plan / files / verification); `Designer` is UI / interaction design (design platform decided by the `multica-artifact-ui-sync` skill). Different expertise and artifacts — don't merge them.
+7. Dedicated Reviewers only perform their specialist review: `ArchReviewer / DesignReviewer / ProductReviewer / FrontendReviewer / BackendReviewer / TestReviewer`. They do not replace the Leader's gating authority.
 
 ## Examples
 
@@ -20,7 +21,9 @@
 | Tester | `Tester-order-lina` | Order-domain testing (member nickname lina) |
 | Architect | `Architect-core-u2031` | Core architecture design (member u2031) |
 | Designer | `Designer-web-mei` | Web UI / interaction design (platform decided by skill, nickname mei) |
+| DevOps | `DevOps-core-u3001` | CI/CD and deployment (member u3001) |
 | Leader | `Leader-core-u0001` | Core squad Leader (member u0001) |
+| BackendReviewer | `BackendReviewer-user-service-u4001` | Backend specialist review (member u4001) |
 
 > The three-segment form resolves the "real name vs role name" collision: the role keeps the name readable and routable; the project segment isolates services; the member-id (employee number / nickname) uniquely distinguishes "same project, same role, multiple people". Templates use the placeholder `<member>` instead of a real name, preserving Copy-Paste-Run.
 
@@ -30,7 +33,6 @@ Squad Instructions refer to members by the **role prefix** (`@Architect` / `@Fro
 
 1. Each squad declares its **instance suffix** `suffix` (e.g. `payment`, `order`) at startup, bound to all its roles; it maps to the `<project>` segment above.
 2. Wherever the Squad Instructions write `@role`, the orchestrator resolves it to `@role-<squad suffix>-<squad member>` before dispatching the precise @mention.
-   - Example: with `suffix = payment` and `member = u1024`, `@FrontendDev` → actually dispatched to `FrontendDev-payment-u1024`, `@Architect` → `Architect-payment-u1024`.
 3. If a role is out of the squad's scope (the Issue 【Scope】 doesn't include that layer), skip its artifact per the existing rule — don't resolve, don't dispatch.
 4. `suffix` and `member` are set once in the squad configuration, never written into `squad.md`; `squad.md` always shows only the role prefix, staying copy-paste-ready.
 
@@ -40,6 +42,6 @@ Squad Instructions refer to members by the **role prefix** (`@Architect` / `@Fro
 
 - In Multica, Agent names must be unique; multiple instances of the same role are the norm (multi-service / multi-domain), so names must be distinguishable.
 - The role is in the name, so `@mention` routing is readable and unambiguous — `@BackendDev-user-service` tells you who it is at a glance.
-- **Changing the name doesn't change behavior; changing behavior means editing Instructions, not the name**: switching instances only changes `<instance>`, and the template is reused as-is.
+- **Changing the name doesn't change behavior; changing behavior means editing Instructions, not the name**: switching instances only changes `<member-id>` or `<project>`, and the template is reused as-is.
 - Naming is the last piece that makes "reusable flows" work: the same `squad.md`, with a different set of instance names, is a brand-new squad.
 - **The prefix wildcard solves "coexisting instances"**: Squad instructions only write the role prefix (reusable); the squad configuration supplies the suffix (locatable). Separating the two keeps reuse intact while still letting the orchestrator dispatch precisely to this squad's members in a crowded workspace.
