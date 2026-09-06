@@ -1,65 +1,47 @@
 ---
 name: multica-artifact-design-sync
-description: 把技术设计文档落地到 Confluence（默认父页面 <CONFLUENCE_DESIGN_PAGE_ID>）并回写 JIRA 链接。用于 @Architect 发布设计，供实现与测试下游消费。
-metadata:
-  orchestrates:
-    - multica-platform-confluence
-    - multica-platform-jira
-  landing:
-    confluence_parent_page_id: "<CONFLUENCE_DESIGN_PAGE_ID>"
-    local_draft: "docs/design/<ISSUE-KEY>/design.md"
+description: 技术设计产物编排：发布设计 Artifact 并回传稳定引用，具体平台由 adapter 提供。
+category: orchestration
+owner: Architect
+version: 1.0
+inputs:
+  - Technical Design Artifact
+  - Issue key
+  - Target platform adapter
+outputs:
+  - Stable design Artifact reference
+side_effects:
+  - Publishes or updates design artifacts
+requires:
+  - multica-technical-design
+  - multica-platform-* adapter
+forbidden:
+  - Embedding credentials in Agent Instructions
+  - Owning Gate PASS decisions
+idempotent: true
+platform_dependent: true
 ---
 
 # Artifact · Technical Design Sync
 
 ## Purpose
 
-编排 **Confluence 发布 + JIRA 描述回写**，把 @Architect 的技术设计变成下游可引用的稳定链接。
+编排 **技术设计 Artifact 的发布与引用回传**。本 skill 只管产物编排，不重复实现具体平台能力。
 
-> 平台能力在 `multica-platform-confluence` 与 `multica-platform-jira`；本 skill 只管「设计产物」编排，不换平台时不动 Architect 提示词。
+> 平台能力由 `multica-platform-*` 提供；角色提示词只声明产出技术设计，不绑定平台。
 
 ## 前置
 
 - 内容已通过 `multica-technical-design` 写入本地：`docs/design/<ISSUE-KEY>/design.md`
-- 凭据：`ATLASSIAN_USER` / `ATLASSIAN_PASS`（见 SECURITY.md）
-- 可选：`export MULTICA_SKILLS_ROOT="/path/to/templates/skills"`
+- 平台凭据只由对应 adapter / runtime 提供。
 
-## 默认落点
+## Workflow
 
-| 步骤 | 平台 | 位置 |
-| --- | --- | --- |
-| 发布 | Confluence | 父页面 **`<CONFLUENCE_DESIGN_PAGE_ID>`** 下 upsert 子页面 |
-| 回写 | JIRA | Issue 描述追加「设计文档」Wiki 块 + 链接 |
-
-设计目录页：[pageId=<CONFLUENCE_DESIGN_PAGE_ID>](http://<CONFLUENCE_URL>/pages/viewpage.action?pageId=<CONFLUENCE_DESIGN_PAGE_ID>)
-
-## Workflow（来自 dev-workflow design publish）
-
-1. **发布 Markdown → Confluence**（同 title 则更新版本，title 加 `[AI]` 后缀）：
-
-```bash
-export MULTICA_SKILLS_ROOT="<path-to>/templates/skills"
-pip install -r "$MULTICA_SKILLS_ROOT/multica-platform-confluence/scripts/requirements.txt"
-python "$MULTICA_SKILLS_ROOT/multica-platform-confluence/scripts/publish_design.py" \
-  <ISSUE-KEY> docs/design/<ISSUE-KEY>/design.md --json
-```
-
-2. 从 JSON 取 `url` 与 `title`。
-
-3. **回写 JIRA 描述**：
-
-```bash
-bash "$MULTICA_SKILLS_ROOT/multica-platform-jira/scripts/jira.sh" append-description \
-  <ISSUE-KEY> $'h3. 设计文档 (Design Document)\n* [<title>|<url>]\n* _Auto-published from: design.md_\n'
-```
-
-4. 向 Leader 回传 **Confluence 链接**（稳定引用）。
-
-或使用本 skill 编排脚本：
-
-```bash
-bash scripts/publish-design.sh <ISSUE-KEY> docs/design/<ISSUE-KEY>/design.md
-```
+1. 校验本地 design Artifact 存在且对应 Issue。
+2. 调用配置的平台 adapter 发布 / upsert。
+3. 获取稳定 reference 与 Artifact Version。
+4. 向 Leader 回传 reference 和 version。
+5. Artifact 版本变化时，提醒下游 Gate 重新验证。
 
 ## 产物内容规范
 
@@ -67,14 +49,13 @@ bash scripts/publish-design.sh <ISSUE-KEY> docs/design/<ISSUE-KEY>/design.md
 
 ## 用法（角色侧只写这一句）
 
-> @Architect：「先用 `multica-technical-design` 写 `docs/design/<ISSUE-KEY>/design.md`，再用本 skill 发布到 Confluence 并回传链接。」
+> @Architect：「先用 `multica-technical-design` 写设计，再用 `multica-artifact-design-sync` 发布并回传稳定引用。」
 
-## 替换平台
+## 边界
 
-换 Wiki / 语雀时改 `multica-platform-confluence` 实现；JIRA 回写改 `multica-platform-jira`；本 skill 编排步骤不变。
+- `multica-technical-design`：设计内容。
+- 本 skill：Artifact 发布编排。
+- `multica-platform-*`：具体平台适配。
+- `multica-verification`：Leader 独立门禁。
 
-## 为什么有效
-
-dev-workflow 已验证「本地 md → Confluence upsert → JIRA 挂链接」链路；platform skill 按名挂载 + `MULTICA_SKILLS_ROOT`，PRD / 设计 / API 文档可复用 Confluence 能力而不重复脚本。
-
-
+任何设计 Artifact 修改后，其下游 Gate 立即失效，必须重新验证。
