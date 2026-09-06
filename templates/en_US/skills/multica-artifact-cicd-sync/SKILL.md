@@ -62,6 +62,14 @@ python scripts/trigger_cicd.py --env sit --service svc-a,svc-b --branch release/
 After G2 PASS and code push, use multica-artifact-cicd-sync to trigger CI/CD and return the deploy link.
 ```
 
+## Degradation when the platform is unavailable
+
+1. Attempt discovery/trigger once; when the CI/CD platform is confirmed unavailable, stop repeated triggers.
+2. Mark G2.5 `BLOCKED` and record the platform, Job/environment, attempted operation, time/error, and the missing build URL/deploy URL/build ID.
+3. Never fabricate build, deployment, or environment URLs; an old build/deployment or local command output cannot substitute for evidence tied to the current commit.
+4. **Do not release T3 when CI/CD is unavailable.** T3 may start only after G2.5 is PASS with real deployed-environment evidence; otherwise the flow remains `BLOCKED` at G2.5.
+5. When the platform recovers and evidence for the current deploy branch/commit exists, the Leader reruns G2.5. If code, deployment artifacts, or associated references change, all downstream gates are immediately invalid and must be rerun.
+
 ## Why it works
 
 The orchestration layer depends only on the script; Issue-prefix auto-maps to the logical service in `jobs-catalog.yaml`. The underlying CI system (Jenkins / GitLab CI / GitHub Actions / etc.) is wrapped by the `multica-platform-*` layer, invisible to this skill.
