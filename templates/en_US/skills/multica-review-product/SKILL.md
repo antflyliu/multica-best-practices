@@ -1,6 +1,25 @@
 ---
 name: multica-review-product
-description: Requirements/PRD dedicated review framework. Called by ProductReviewer to professionally analyze ProductManager's PRD (scope clear/goal explicit/acceptance testable/constraints complete/open items), output PASS/FAIL + fix list, report to Leader.
+description: Requirements and PRD professional review framework that reports quality findings to the Leader.
+category: methodology
+owner: ProductReviewer
+version: 1.0
+inputs:
+  - PRD Artifact
+  - Issue / Acceptance Criteria
+  - Previous review findings when applicable
+outputs:
+  - Professional review result
+  - Blocking and non-blocking findings
+side_effects:
+  - None; review only
+requires:
+  - multica-artifact-req-sync
+forbidden:
+  - Modifying the reviewed PRD
+  - Declaring Leader Gate PASS
+idempotent: true
+platform_dependent: false
 ---
 
 # Requirements (PRD) Professional Review (ProductReviewer)
@@ -15,7 +34,7 @@ Structured professional review framework for **PRD / requirement artifacts**. Ca
 1. **Scope clear**: boundaries unambiguous, splittable, no implied scope.
 2. **Goal explicit**: problem measurable, no vagueness.
 3. **Acceptance testable**: every AC- objectively verifiable, no "good experience" vagueness.
-4. **Constraints complete**: permissions, exceptions, compliance, dependencies, data口径 listed.
+4. **Constraints complete**: permissions, exceptions, compliance, dependencies, data definitions listed.
 5. **Open items**: OP- fully listed, not blocking downstream dev (blocking OP- = blocking item).
 
 ## Output format
