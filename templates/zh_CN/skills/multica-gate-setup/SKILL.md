@@ -76,6 +76,10 @@ Leader 只有 Skill + MCP，无 shell。因此按运行时环境走分支：
 
 **BLOCKED** —— 缺 MCP / 缺 CI / 缺信息，无法验证。如实报告，绝不转成 PASS。
 
+## 已知失败案例
+
+曾出现过 CI 已绿，但 Leader 只看到了 PR 上的一条旧评论就判 G2 PASS，随后发现最新 commit 的 check-run 实际尚未完成。修复后规定：CI 门禁必须绑定当前 commit SHA 的最新有效 check-run；读不到对应证据就 BLOCKED，不得用旧评论或旧构建替代。
+
 ## 与 multica-verification skill 的关系
 
 同一验证功能的两种执行环境：
