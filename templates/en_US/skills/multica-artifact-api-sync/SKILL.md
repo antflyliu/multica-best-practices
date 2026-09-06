@@ -1,6 +1,25 @@
 ---
 name: multica-artifact-api-sync
-description: Land API contract artifacts to the API collaboration platform (default Apifox). Used by @BackendDev to upload API contract for downstream frontend / test consumption. Swappable platform.
+description: Orchestrate API contract artifact landing through an API-platform adapter and return a stable reference.
+category: orchestration
+owner: BackendDev
+version: 1.0
+inputs:
+  - API contract artifact
+  - Issue key
+  - Target platform adapter
+outputs:
+  - Stable API artifact reference
+side_effects:
+  - Creates or updates API contract artifacts
+requires:
+  - Valid API contract
+  - Configured platform adapter
+forbidden:
+  - Embedding platform credentials in Agent Instructions
+  - Declaring Gate PASS
+idempotent: true
+platform_dependent: true
 ---
 
 # Artifact · API Contract Sync
@@ -9,26 +28,20 @@ description: Land API contract artifacts to the API collaboration platform (defa
 
 Land API contract artifacts to the team's unified API platform and let downstream (frontend / test) retrieve them via a stable reference.
 
-> This skill decouples "platform integration" from "role prompt": the role prompt only says "produce API contract", not which platform. Changing companies (Swagger / Postman / YApi / internal gateway) means editing only this skill, not the @BackendDev prompt.
+> This skill decouples "platform integration" from "role prompt": the role prompt only says "produce API contract", not which platform.
 
 ## Default platform: Apifox
 
 - Output: API contract (endpoints, in/out params, error codes, auth, state-machine boundaries).
-- Upload: maintain interface definitions in Apifox, export / sync, then use the **project / interface-group link** as the artifact reference.
-- Retrieve: downstream @FrontendDev / @Tester read via the link — the link is the stable reference.
+- Upload: maintain interface definitions and return the project / interface-group link as the artifact reference.
+- Retrieve: downstream roles consume the stable link.
 
-## Content spec (platform-independent part)
+## Usage
 
-Per the stage convention, the API contract at least contains: endpoint list, request/response schema, error-code table, auth method, mapping to BR- business rules.
+> @BackendDev: "Produce API contract, land it via `multica-artifact-api-sync`, and return the stable reference."
 
-## Usage (role side writes only this line)
+## Boundaries
 
-> @BackendDev: "Produce API contract, land it via `multica-artifact-api-sync` skill to the team API platform, and return the link."
-
-## Swap platform (no role-prompt change)
-
-Replace this skill's "default platform" section with your tool (Swagger / YApi / Postman / internal gateway), keeping the "upload + return stable link" interface unchanged.
-
-## Why it works
-
-API platforms differ by team; hard-coding the platform name into the role prompt freezes it. Sinking it into the skill keeps the role's "what to produce" description stable while the platform swaps with the skill.
+- This skill: artifact publication orchestration.
+- `multica-platform-*`: concrete API platform adapter.
+- `multica-verification`: Leader-owned Gate decisions.
