@@ -1,6 +1,6 @@
 ---
 name: multica-verification
-description: "Gatekeeping function: objectively check whether an artifact satisfies the acceptance criteria. Triggered by the Leader to rerun at gate points (G1/G2/G3); producers may self-check but cannot issue the gate verdict. Used for design review / implementation acceptance / test-report review."
+description: "Gatekeeping function: objectively check whether an artifact satisfies the acceptance criteria. Triggered by the Leader to rerun at gate points (G1/G2/G3); producers may provide evidence but cannot execute formal gatekeeping or issue the gate verdict. Used for design review / implementation acceptance / test-report review."
 ---
 
 # Verification (gatekeeping)
@@ -16,8 +16,8 @@ It doesn't rely on anyone's character — it relies on the evidence itself. Whoe
 
 ## Who executes it
 
-- **Gatekeeping**: the **Leader** triggers this Skill at the gate points (G1 / G2 / G3) and reruns independently. The Leader produces no artifacts, so it's naturally a third party.
-- **Self-check**: after finishing, a producer may first run this Skill to self-check (pasting the command output), but cannot issue the gate verdict; formal gatekeeping must be rerun by a non-producer.
+- **Gatekeeping**: the **Leader** triggers this Skill at the gate points (G1 / G2 / G3) and reruns independently. Leader produces no artifacts, so it's naturally a third party.
+- **Producer responsibility**: producers provide the artifact and supporting evidence; they do not execute the formal gatekeeping action and cannot issue the gate verdict.
 
 > The gate issuer must be a different party from the gated. Authors cannot stamp "PASS" on themselves.
 
@@ -46,7 +46,7 @@ Use these four values for the formal gate verdict:
 
 ## Known failure case
 
-A typical failure mode is a producer treating "the local command passed" as gate evidence, with the Leader accepting that output without independently rerunning or checking the diff. A later review can reveal uncovered files and invalidate downstream verification. The rule is explicit: the Leader must rerun independently and check the diff; producer self-check output is never sufficient gate evidence.
+A typical failure mode is a producer treating "the local command passed" as gate evidence, with the Leader accepting that output without independently rerunning or checking the diff. A later review can reveal uncovered files and invalidate downstream verification. The rule is explicit: the Leader must rerun independently and check the diff; producer-supplied evidence is never sufficient by itself for the formal gate verdict.
 
 ## Relationship to CI hard gates
 
@@ -55,4 +55,4 @@ The same function's machine form is the CI hard-gate template carried by the `mu
 
 ## Why this works
 
-"Verification" is the easiest thing to turn into a formality. Writing verification as a rerunnable action checklist and requiring a non-producer to execute it blocks two kinds of cheating at once: producers pretending they verified (the self-check loophole) and producers stamping themselves PASS (the gatekeeping loophole).
+"Verification" is the easiest thing to turn into a formality. Writing verification as a rerunnable action checklist and requiring the non-producing Leader to execute it blocks producers from turning their own evidence into a formal gate verdict.
