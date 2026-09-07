@@ -86,7 +86,7 @@ S0 需求产出 @ProductManager（PRD，用 `multica-artifact-req-sync`）→ G0
 
 【G2.5 / T3 硬约束】
 - G2 必须正式通过且代码已 push 到 deploy branch，才能触发 @DevOps CI/CD。
-- G2.5 必须有真实 CI/CD 构建与测试环境证据才能 APPROVED。
+- G2.5 必须有真实 CI/CD 构建与测试环境证据才能 PASS（正式门禁语义为 `APPROVED`）。
 - G2.5 BLOCKED / REJECTED 时，禁止启动 T3。
 - T3 自动化只能在 G2.5 APPROVED 后触发，并且证据必须绑定当前 commit。
 - CI/CD 平台不可用时，`multica-artifact-cicd-sync` 必须保持 G2.5 BLOCKED；不得用旧构建、旧 URL 或本地输出替代。
