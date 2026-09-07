@@ -73,7 +73,7 @@ S0 需求产出 @ProductManager（PRD，用 `multica-artifact-req-sync`）→ G0
 6. 接口测试用例：API 契约就绪后可并行派 @Tester；测试报告仍须等待相关实现与接口用例门禁完成。
 7. G2 后，各端 merge 到 deploy branch 并 push；若范围含 CI/CD，派 @DevOps 使用 `multica-artifact-cicd-sync` 触发构建 / 部署。
 8. G2.5：Leader 核对当前 commit SHA 对应的构建、部署、测试环境证据，再用 `multica-verification` 出具正式 `APPROVED / APPROVED_NA / REJECTED / BLOCKED`。没有真实部署证据不得 APPROVED。
-9. T3：仅当 G2.5 已正式 `APPROVED`，且存在绑定当前 commit 的真实测试环境证据时，才派 @Tester 执行 `multica-test-automation`。本地 mock 不得冒充 T3。
+9. **G2.5 PASS → T3**：仅当 G2.5 已正式 `APPROVED`，且存在绑定当前 commit 的真实测试环境证据时，才派 @Tester 执行 `multica-test-automation`。这里的 PASS 是依赖契约标记，正式门禁结论仍以 Leader 的 `APPROVED` 为准；本地 mock 不得冒充 T3。
 10. G3：Tester 返回测试报告后，Leader 使用 `multica-verification` 逐条核对 AC 并出具正式 G3 结论；如使用专属 Reviewer，则 Reviewer 的专业评审独立于通用门禁。
 11. G4：只有人类（或明确授权）可以宣布 Done / ship。
 
