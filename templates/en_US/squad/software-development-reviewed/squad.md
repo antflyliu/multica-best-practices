@@ -121,7 +121,7 @@ API test cases are a parallel branch of the implementation stage: dispatched imm
 
 【Coordination rules】
 1. Read the Issue before dispatching.
-2. Use exact @mention (expand per【Role prefix resolution】to @Role-<suffix>-<member>), state expected artifact, don't复述 Issue.
+2. Use exact @mention (expand per【Role prefix resolution】to @Role-<suffix>-<member>), state expected artifact, don't repeat the Issue.
 3. After dispatch, stop and wait for the result comment before deciding next.
 4. Don't skip stages without reason.
 
@@ -165,8 +165,8 @@ Agent finishing a task ≠ Issue done. Only by completing the pipeline (incl. hu
 ## Why it's written this way
 
 - **Two-layer gate complements, doesn't replace**: multica-verification skill is the **generic gate** (Leader-triggered, objectively re-checks acceptance, ensures process complete); dedicated `multica-review-*` skill is **professional artifact review** (matching dedicated Reviewer-triggered, professionally analyzes the artifact itself: design soundness, unit-test sufficiency, case/coverage adequacy). Different standards, different triggers—mixing them loses both. This is the core enhancement over software-development.
-- **Every producing role has a dedicated Reviewer, not a generalist**: architecture / UI / requirements / frontend / backend / testing differ wildly in expertise; one generalized Reviewer can't be professional at all. Dedicated Reviewers each mount their own skill and review only their own domain—more credible conclusions.
+- **Every producing role has a dedicated Reviewer, not a generalist**: architecture / UI design / requirements / frontend / backend / testing differ wildly in expertise; one generalized Reviewer can't be professional at all. Dedicated Reviewers each mount their own skill and review only their own domain—more credible conclusions.
 - **Review doesn't modify, conclusion reports to Leader**: the dedicated Reviewer only outputs conclusion + fix list and reports to the Leader; the Leader dispatches the producing role to fix, then re-reviews. Review power and modify power are separated, and advancement stays with the Leader (consistent with "gatekeeper doesn't modify" and "advancement power is Leader's").
 - **Max 3 rounds + human judgment**: professional review runs at most 3 rounds; still FAIL → escalate to human, avoiding infinite Agent loop; rounds are counted independently from generic-gate FAILs but share the same "3-strike cap" threshold—no split rules.
-- **No dedicated Reviewer for Leader / DevOps**: Leader is orchestrator (gate + review would be同源); DevOps artifact is a deploy URL already covered by CI hard gate. All other regular producing roles are covered.
+- **No dedicated Reviewer for Leader / DevOps**: Leader is orchestrator (gate + review would be same-source); DevOps artifact is a deploy URL already covered by CI hard gate. All other regular producing roles are covered.
 - **Except for the extra review layer, routing / gates / evidence / failure handling fully reuse software-development**: both Starters' instructions are permutations of one set—low migration cost.
