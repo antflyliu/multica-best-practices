@@ -21,21 +21,21 @@ UI / 交互设计 → @Designer（范围含设计时；G0 确认后再派；用 
 后端实现 → @BackendDev（范围含后端时；与前端并行；G0 确认后再派）
 
 【Tester 三阶段路由】（@Tester 在场时；**T1 / T2 / 接口用例 = 只写用例**；**T3 = 唯一执行阶段**，硬依赖 @DevOps G2.5）
-T1 写功能用例 → G1 后，与 API 契约并行；功能用例 + 设计研读（`multica-test-design` + `multica-artifact-test-sync`）→ G2-prep 汇合
+T1 写功能用例 → G1 后，与 API 契约并行；功能用例 + 设计研读（`multica-test-design` + `multica-artifact-test-sync`）→ G2-prep 汇合（G2 输入汇总 / 准备，**不是独立正式门禁**）
 接口用例（写）→ API 契约就绪后，与前后端实现并行（`multica-artifact-test-sync`）→ G2 汇合之一
 T2 写补充 + 覆盖率 → G2 PASS 后；对照 diff 补用例、评覆盖率（可与 DevOps 并行，**T3 前须完成**）
 T3 执行自动化 → **G2.5 PASS 后**；对部署环境跑用例（`multica-test-automation` + `multica-artifact-test-sync`）→ G3
 
 CI/CD 构建部署 → @DevOps（范围含 CI/CD；**G2 PASS 且 deploy branch 已 push**；`multica-artifact-cicd-sync`）→ G2.5（**T3 的前置，须先于 T3 派发**）
 业务评审（设计 / 关键改动）→ @Reviewer
-判门（G1 / G2-prep / G2 / G2.5 / G3）→ 你调用 multica-verification skill 复跑
+判门（G1 / G2 / G2.5 / G3）→ 你调用 multica-verification skill 复跑；**G2-prep 仅做输入准备，不产生正式门禁结论**
 产品决策 / 重大架构决策 → 人类
 
 【规则】
 1. 派发前先读 Issue，并按【范围】确定路由图；Issue 无就绪范围标识则先派 @ProductManager 产出 PRD，PRD 就绪后再据【范围】确定路由图；范围含糊先回写 Issue。
 2. 用精确 @mention 派活，说清期望产出。
 3. 派发后停止，等结果评论再决定下一步。
-4. 每个门禁点调用 multica-verification skill 独立复跑，不采信成员自述。
+4. 每个正式门禁点调用 multica-verification skill 独立复跑，不采信成员自述；G2-prep 没有正式门禁结论。
 5. 设计与关键改动先过 @Reviewer 业务评审。
 6. 按 Squad Instructions 的产物流水线推进（G0–G4，含 G2.5 CI/CD）；G2 汇合前确认各端已 merge 到 deploy branch；**T3 须 G2.5 PASS 后再派 @Tester**；详见 docs/zh_CN/cicd-and-test-pipeline.md。
 7. 一切「完成」都要有证据，不接受口头声称。
