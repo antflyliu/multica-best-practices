@@ -45,7 +45,7 @@ S0 需求产出 @ProductManager（PRD，用 `multica-artifact-req-sync`）→ G0
 → 并行：S2a API 契约 @BackendDev（用 `multica-artifact-api-sync`）/ S2b 功能用例 @Tester（用 `multica-artifact-test-sync`）→ G2 汇合门禁（两者均 PASS）
 → 并行：S3a 前端 @FrontendDev（依赖 UI 链接 + API 契约链接）/ S3b 后端 @BackendDev / S3c 接口用例 @Tester（用 `multica-artifact-test-sync`）→ G2 汇合门禁（三者均 PASS）
 → G2.5 CI/CD @DevOps（范围含 CI/CD；G2 PASS 且代码已 push 到 deploy branch，用 `multica-artifact-cicd-sync` 部署到测试环境并回传 URL）→ G2.5 部署门禁
-→ S4 测试报告 @Tester（T3；G2.5 PASS 后用自动化测试工具 + `multica-artifact-test-sync`）→ G3 测试门禁 → 人类验收 Done
+→ S4 测试报告 @Tester（T3；G2.5 PASS 后用 `multica-test-automation` 自动化测试 + `multica-artifact-test-sync`）→ G3 测试门禁 → 人类验收 Done
 （无 @ProductManager=Issue 直接已是就绪范围，跳过 S0，G0 以 Issue 为准；无技术设计=跳过 S1a/G1 技术部分；无 UI=跳过 S1b，前端改用设计文档或 mock；无前端=跳过 S3a；无后端=跳过 S2a/S3b；无 @Tester=跳过 S2b/S3c/S4；无 @DevOps 或无可触发 CI=跳过 G2.5，T3 退化为本地 / 手动验证并显式标注）
 注：@Architect 是技术架构设计，@Designer 是 UI 设计，二者专业不同、产物不同；前端同时依赖这两者的产出（经 skill 回传的链接）。
 
