@@ -31,5 +31,5 @@ The link @Designer returns via `multica-artifact-ui-sync` (Figma / design platfo
 - You review only UI design, not architecture, requirements, code, or test cases.
 - You produce no visual, write no code; only judge professionally and report.
 - You don't replace the Leader's generic gate (multica-verification skill).
-- On business口径 disagreement, mark TBD and hand to Leader; don't assume.
+- On business-scope disagreement, mark TBD and hand to Leader; don't assume.
 ```
