@@ -1,19 +1,19 @@
 ---
 name: multica-gate-setup
-description: 集成 CI 硬门禁到目标仓库，并让判门感知 CI 结论。用于部署门禁、读取 check-runs 判 G2、无 CI 时降级软门禁。
+description: 集成 CI 硬门禁到目标仓库，并让判门消费 CI 证据。用于部署门禁、读取 check-runs 判 G2、CI 不可用时降级软门禁。
 ---
 
 # Gate Setup（CI 门禁集成）
 
 ## 这是什么
 
-把「验证」从 Agent 自觉升级为 CI 机器执行的集成 Skill。
-核心思想（`multica-gatekit`）：**门禁出具方必须和被门禁方不同源**——作者无法自己盖章「测试通过」，只有 CI 的真实运行结果才算数。
+把「验证」从 Agent 自觉升级为 CI 机器产生证据的集成 Skill。
+核心思想（`multica-gatekit`）：**门禁出具方必须和被门禁方不同源**——作者无法自己盖章「测试通过」；CI 的真实运行结果是证据，正式门禁结论则只能由 Leader 出具。
 
 本 Skill 回答两个问题：
 
 1. **怎么把 gates 装进一个仓库？**（一次性部署）
-2. **判门时怎么感知 CI 结论？**（每次任务的 G2）
+2. **判门时怎么消费 CI 证据？**（每次任务的 G2）
 
 ## 携带的模板文件
 
@@ -33,9 +33,9 @@ Leader 只有 Skill + MCP，无 shell。因此按运行时环境走分支：
 
 | 能力 | 判门（G2） | 部署（一次性） |
 | --- | --- | --- |
-| 有 GitHub MCP（读） | **真集成**：查 check-runs 读 CI 结论 | — |
+| 有 GitHub MCP（读） | **真集成**：查 check-runs 并收集 CI 证据 | — |
 | 有 GitHub MCP（写） | — | **真集成**：创建 workflow + 设分支保护 |
-| 无 MCP | **弱集成**：读 PR 评论里人类搬运的 CI 结论 | 人类跑脚本，你核对输出 |
+| 无 MCP | **弱集成**：读取人类贴到 PR 评论里的 CI 证据 | 人类跑脚本，Leader 核对输出 |
 
 ## 部署流程（一次性）
 
@@ -61,34 +61,40 @@ Leader 只有 Skill + MCP，无 shell。因此按运行时环境走分支：
 ## 判门流程（G2，每次任务）
 
 1. 通过 GitHub MCP 查 PR 的 check-runs：`GET /repos/{owner}/{repo}/commits/{sha}/check-runs`。
-2. 找到名为 `delivery-gate` 的 check 结论（success → PASS，失败 → FAIL）。
-3. G2 判定：
-   - **CI 存在** → 引用结论（如 `[G2 PASS · CI #123]`），再核对 diff 范围是否只涉及本次需求 → 给 PASS / FAIL。**不重复跑** CI 已覆盖的命令。
-   - **CI 缺失** → 降级为软门禁：用 `multica-verification` skill 复跑验证命令。
-   - **读不到 CI** → BLOCKED，如实报告，绝不转 PASS。
-4. 复跑动作在 CI 存在时是「核对结论 + diff」，不是重跑命令。
+2. 找到名为 `delivery-gate` 的 check，并记录其已完成结果作为 **CI 证据**（`success` / `failure` / `cancelled` / `pending`）。不要把 CI 结果直接当成正式门禁结论。
+3. **Leader** 使用 `multica-verification` 执行正式 G2 验证，并把当前 commit 的 CI 证据与 diff 范围作为输入：
+   - **有效且已完成的 CI 证据** → 核对证据绑定当前 commit SHA，核对 diff 范围，然后由 Leader 出具正式门禁结论。
+   - **CI 缺失** → 使用 `multica-verification` 的软门禁路径完成所需验证。
+   - **CI 不可访问，或证据无法绑定当前 commit** → 正式结论为 `BLOCKED`。
+4. 已有有效 CI 证据时，不要为了制造另一个结果而重复运行 CI 已覆盖的命令；Leader 核对证据与范围，`multica-verification` 负责正式结论的词汇与出具。
 
-## Result
+## 正式结果
 
-**PASS** —— CI 绿（或复跑通过）+ diff 范围正确。
+Leader 通过 `multica-verification` 出具的正式门禁结果只能是：
 
-**FAIL** —— CI 红或 diff 越界。必须给出：问题、为什么重要、位置、修复方向。
+**APPROVED** —— 所需证据有效，且门禁条件满足。
 
-**BLOCKED** —— 缺 MCP / 缺 CI / 缺信息，无法验证。如实报告，绝不转成 PASS。
+**APPROVED_NA** —— 该门禁明确不适用，并由 Leader 记录原因。
+
+**REJECTED** —— 证据或范围不满足门禁。必须给出：问题、为什么重要、位置、修复方向、可重新验证的通过条件。
+
+**BLOCKED** —— 所需证据或验证能力不可用。如实报告，绝不能转成批准。
+
+`PASS` / `FAIL` 可以用于单项检查或 CI 证据摘要，但不是正式门禁结论。
 
 ## 已知失败案例
 
-曾出现过 CI 已绿，但 Leader 只看到了 PR 上的一条旧评论就判 G2 PASS，随后发现最新 commit 的 check-run 实际尚未完成。修复后规定：CI 门禁必须绑定当前 commit SHA 的最新有效 check-run；读不到对应证据就 BLOCKED，不得用旧评论或旧构建替代。
+曾出现过 CI 已绿，但 Leader 只看到了 PR 上的一条旧评论就判 G2 通过，随后发现最新 commit 的 check-run 实际尚未完成。修复后规定：CI 门禁必须绑定当前 commit SHA 的最新有效 check-run；读不到对应证据就返回 `BLOCKED`，不得用旧评论或旧构建替代。
 
 ## 与 multica-verification skill 的关系
 
-同一验证功能的两种执行环境：
+两个 Skill 的职责不同：
 
-- `multica-verification`：软门禁，Leader 复跑（CI 缺失时本 Skill 降级回它）
-- `multica-gate-setup`：硬门禁集成——部署 + 判门感知 CI 结论
+- `multica-verification`：由 Leader 执行正式门禁验证并出具正式结论。
+- `multica-gate-setup`：部署 CI 硬门禁，并为 Leader 的验证收集机器产生的 CI 证据。
 
-**能上 CI 就上 CI**，软门禁是过渡；两者互补，不冲突。
+**能上 CI 就上 CI**；CI 提供证据，Leader 仍然是正式门禁验证者。两者互补，CI 不绕过 `multica-verification`。
 
 ## 为什么有效
 
-门禁如果只有「Agent 被要求检查」，就存在两类作弊：作者假装验证过、作者替自己盖章。CI 让出具方变成机器（不可伪造），本 Skill 把这条衔接编进流程——部署有明确清单，判门有明确结论来源，无 CI 时有明确降级，不靠临场发挥。
+门禁如果只有「Agent 被要求检查」，就存在两类作弊：作者假装验证过、作者替自己盖章 PASS。CI 让证据变成机器产生，同时 Leader 与产出角色保持独立，并通过 `multica-verification` 出具正式结论。本 Skill 把这条衔接编进流程——部署有明确清单，证据绑定当前 commit，CI 不可用时有明确降级，不靠临场发挥。
