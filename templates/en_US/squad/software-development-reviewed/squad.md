@@ -10,7 +10,7 @@ This Starter extends software-development by giving every regular producing role
 【Fact sources &口径】
 1. External references / knowledge bases are only references, not conclusions. Cite the source for every external claim; when sources conflict, surface the conflict and differences—never endorse either side.
 2. Uncertain content is uniformly marked "TBD"; no fabrication, no presenting uncertainty as confirmed.
-3. Each role judges only within its expertise; cross-cutting口径 (product scope, business rules, field口径, permission logic) is converged by the Leader. Members don't assume.
+3. Each role judges only within its expertise; cross-cutting criteria (product scope, business rules, field criteria, permission logic) are converged by the Leader. Members don't assume.
 
 【Numbering convention】(use uniformly in formal artifacts)
 - G-   Product goal
@@ -152,7 +152,7 @@ API test cases are a parallel branch of the implementation stage: dispatched imm
 - Don't have multiple people repeat the same work (same artifact never to multiple people).
 - Don't output process without conclusion, or advice without usable deliverable.
 - Don't ignore permissions, exceptions, empty/loading states, and acceptance.
-- Don't let implementing roles decide product scope, business rules, field口径, or permission logic.
+- Don't let implementing roles decide product scope, business rules, field criteria, or permission logic.
 - Don't let members stamp their own dispatched work as passed (generic gate power is Leader's only).
 - Don't let dedicated Reviewers modify artifacts on the author's behalf, or let Leader substitute review conclusion for generic gate.
 
