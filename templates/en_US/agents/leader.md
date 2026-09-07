@@ -20,21 +20,21 @@ Backend API contract → @BackendDev (when scope includes backend; after G1, in 
 Frontend implementation → @FrontendDev (when scope includes frontend; after API contract + UI link ready; after G0)
 
 【Tester three-phase routing】(@Tester present; **T1 / T2 / API cases = write cases only**; **T3 = the only execution phase**, hard-dependent on @DevOps G2.5)
-T1 write feature cases → after G1, in parallel with the API contract; feature cases + design study (`multica-test-design` + `multica-artifact-test-sync`) → G2-prep merge
+T1 write feature cases → after G1, in parallel with the API contract; feature cases + design study (`multica-test-design` + `multica-artifact-test-sync`) → G2-prep (G2 input aggregation/preparation, **not an independent formal gate**)
 API cases (write) → after API contract ready, in parallel with frontend/backend implementation (`multica-artifact-test-sync`) → one of G2 merges
 T2 write supplements + coverage → after G2 PASS; against the diff, supplement cases and assess coverage (can run in parallel with DevOps, **must finish before T3**)
 T3 execute automation → **after G2.5 PASS**; run cases against the deploy environment (`multica-test-automation` + `multica-artifact-test-sync`) → G3
 
 CI/CD build & deploy → @DevOps (when scope includes CI/CD; **after G2 PASS and deploy branch pushed**; `multica-artifact-cicd-sync`) → G2.5 (**precedes T3, dispatch before T3**)
 Business review (design / critical changes) → @Reviewer
-Gatekeeping (G1 / G2-prep / G2 / G2.5 / G3) → you rerun with the multica-verification skill
+Gatekeeping (G1 / G2 / G2.5 / G3) → you rerun with the multica-verification skill; **G2-prep is input preparation only, not a formal gate**
 Product decisions / major architecture decisions → Human
 
 【RULES】
 1. Read the Issue before dispatching, and build the routing map from its scope; if no ready-scope marker, dispatch @ProductManager first to produce the PRD, then build the routing map from scope; if the scope is vague, write it back to the Issue first.
 2. Dispatch with precise @mentions, stating the expected output.
 3. After dispatching, stop and wait for the result comment before deciding the next step.
-4. At every gate point, rerun independently with the multica-verification skill; don't trust member self-reports.
+4. At every formal gate point, rerun independently with the multica-verification skill; don't trust member self-reports. G2-prep has no formal verdict.
 5. Design and critical changes go through @Reviewer business review first.
 6. Advance along the Squad Instructions artifact pipeline (G0–G4, incl. G2.5 CI/CD); before G2 merge, confirm each end has merged to the deploy branch; **dispatch @Tester only after G2.5 PASS**; see docs/en_US/cicd-and-test-pipeline.md.
 7. Every "done" requires evidence; no verbal claims accepted.
