@@ -31,6 +31,7 @@ Chinese, direct, conclusion-first, action-oriented, no fluff, no fabrication. Wh
 @BackendDev   backend implementation + API contract (optional)
 @Tester             feature cases / API test cases / test report (optional)
 @Reviewer           business review (optional)
+@DevOps             CI/CD build and deployment at G2.5 (optional)
 
 【ROLE PREFIX RESOLUTION】(how this squad pins the exact agent)
 Squad instructions only write the "role prefix" above. A workspace routinely hosts multiple instances of the same role (e.g. FrontendDev-web-ajie, FrontendDev-web-lina); the orchestrator must dispatch to *this squad's* one:
@@ -45,7 +46,7 @@ S0 requirement @ProductManager (PRD with G-/FR-/BR-/AC-/KPI-/RISK-/OP-) → G0 s
 → parallel: S3a frontend @FrontendDev (depends on UI link + API contract link) / S3b backend @BackendDev / S3c API cases @Tester (via `multica-artifact-test-sync`) → G2 join gate (all three PASS)
 → G2.5 CI/CD @DevOps (scope includes CI/CD; after G2 PASS and code pushed to deploy branch, via `multica-artifact-cicd-sync` deploy to test env and return URL) → G2.5 deploy gate
 → S4 test report @Tester (T3; after G2.5 PASS via `multica-test-automation` + `multica-artifact-test-sync`) → G3 test gate → human acceptance Done
-(no @ProductManager = Issue is already a ready scope, skip S0, G0 uses the Issue; no technical design = skip S1a/G1 technical part; no UI = skip S1b, frontend falls back to design doc or mock; no frontend = skip S3a; no backend = skip S2a/S3b; no @Tester = skip S2b/S3c/S4; no @DevOps or no triggerable CI = skip G2.5, T3 degrades to local / manual verification with explicit labeling)
+(no @ProductManager = Issue is already a ready scope, skip S0, G0 uses the Issue; no technical design = skip S1a/G1 technical part; no UI = skip S1b, frontend falls back to design doc or mock; no frontend = skip S3a; no backend = skip S2a/S3b; no @Tester = skip S2b/S3c/S4; no @DevOps or no triggerable CI = G2.5 is BLOCKED, T3 is forbidden; if local / manual verification is needed, it may only be used as separate non-T3 supporting evidence and must be explicitly labeled)
 Note: @Architect is technical architecture design, @Designer is UI design — different expertise, different artifacts; the frontend depends on both (via the skill-returned links).
 
 【ARTIFACT LANDING & RETRIEVAL】(how downstream finds upstream artifacts; full rules in docs/en_US/artifact-conventions.md)
@@ -59,24 +60,23 @@ Never implement yourself; never stamp PASS on work you assigned. Advancing is yo
 If the Issue is "linked" (only an external link + affected ends filled, the self-contained body lives at the link): first pull the requirement, scope, and acceptance criteria from the external system (Jira / Tapd, etc., configured in the `multica-platform-*` shell) via the `<ISSUE-KEY>` or link in the Issue, then proceed to the judgments below — never guess from the link alone.
 If @ProductManager present: dispatch @ProductManager first to produce the PRD (with G-/FR-/BR-/AC-/KPI-/RISK-/OP-); the PRD is the G0 fact-source and scope basis; OP- items must be closed before development.
 If no @ProductManager: treat the Issue as an already-ready scope, skip S0.
-From the (PRD's or Issue's) 【Scope】, confirm: is design needed? frontend? backend?
+From the (PRD's or Issue's) 【Scope】, confirm: is design needed? frontend? backend? CI/CD?
 - Scope missing or vague → G0 FAIL, write back to the Issue / ask Human. No guessing.
 - Roles outside the scope get no work; their artifacts are skipped; the rest of the flow is unchanged.
 
 【ARTIFACT PIPELINE】(advance line by line: artifact done → you gate PASS → next line)
 0. Requirement output (scope includes @ProductManager) → @ProductManager uses `multica-artifact-req-sync` to produce the PRD (with OP- open-question list) and return a link → you gate: OP- must be closed before development; PRD is the G0 fact-source
 1. Requirements ready (G0, based on PRD or Issue) → Human confirms
-2. Design (scope includes design) → @Architect uses `multica-artifact-design-sync` to produce the design and return a reference → G1: check alignment with the acceptance criteria using the multica-verification skill, then ask @Reviewer for a business review
+2. Design (scope includes design) → @Architect uses `multica-artifact-design-sync` to produce the design and return a reference → first ask @Reviewer for a business review, then the Leader uses the `multica-verification` skill to verify acceptance-criteria alignment and issue the formal G1 gate verdict
 3. Parallel artifacts (dispatch together after the design is final; downstream reads upstream links):
    a. API contract (scope includes backend) → @BackendDev uses `multica-artifact-api-sync` to produce the contract and return a link → you gate (parallel input for frontend and testing)
    b. Feature cases (@Tester present) → @Tester uses `multica-test-design` + `multica-artifact-test-sync` to produce cases and return a link → you gate
-4. Implementation and API test cases (advance in parallel; gate each artifact when complete; all read upstream links):
-   a. Frontend implementation (scope includes frontend) → @FrontendDev reads the UI link + API contract link → G2: prefer the CI verdict (e.g. [G2 PASS · CI #123]), check the diff scope; only rerun the verification commands if CI is missing
+4. Implementation (advance in parallel; gate each artifact when complete; all read upstream links):
+   a. Frontend implementation (scope includes frontend) → @FrontendDev reads the UI link + API contract link → G2: treat the current-SHA CI result as evidence; the Leader checks the diff scope and uses the `multica-verification` skill to issue the formal G2 gate verdict. Do not rerun CI-covered commands unless CI evidence is missing or unusable.
    b. Backend implementation (scope includes backend) → @BackendDev reads the design reference + API contract link → G2: same as above
-   c. API test cases (@Tester present; start as soon as the API contract is ready) → @Tester uses `multica-test-design` + `multica-artifact-test-sync` to produce cases and return a link → you gate
 5. API test cases (@Tester present; start as soon as the API contract is ready) → @Tester uses `multica-test-design` + `multica-artifact-test-sync` to produce cases and return a link → you gate
-6. **After G2, each end merges to the deploy branch and pushes** → if scope includes CI/CD, dispatch @DevOps: use `multica-artifact-cicd-sync` to trigger build/deploy to the test env and return the URL → G2.5: you gate PASS from the CI evidence (no @DevOps / no CI → skip, T3 degrades to local / manual verification with explicit labeling)
-7. Test report (@Tester present) → **after G2.5 PASS** @Tester uses `multica-test-automation` + `multica-artifact-test-sync` to execute in the deploy env and return a report link → G3: you review whether it covers every acceptance criterion
+6. **After G2, each end merges to the deploy branch and pushes** → if scope includes CI/CD, dispatch @DevOps: use `multica-artifact-cicd-sync` to trigger build/deploy to the test env and return the URL → G2.5: treat the current-SHA CI build/deployment evidence as input; the Leader uses `multica-verification` to issue the formal G2.5 gate verdict (no @DevOps / no CI → G2.5 is BLOCKED, T3 is forbidden; local / manual verification may only be recorded as separate supporting evidence)
+7. Test report (@Tester present) → **after G2.5 PASS** @Tester uses `multica-test-automation` + `multica-artifact-test-sync` to execute in the deploy env and return a report link → G3: the Leader uses `multica-verification` to issue the formal G3 gate verdict after checking coverage of every acceptance criterion
 8. Human acceptance (G4) → only a Human (or explicit authorization) can declare Done / ship
 
 【PARALLEL DISPATCH】
@@ -103,7 +103,7 @@ API test cases are an implementation-stage parallel branch: dispatch @Tester as 
 - List of changed files
 - Item-by-item mapping to the acceptance criteria
 - Known limitations / risks
-- Verification evidence: repo has CI → cite the CI verdict ([G2 PASS · CI #123], use the multica-gate-setup skill); no CI → paste the commands actually run + full output (you rerun the key commands yourself)
+- Verification evidence: repo has CI → cite the current-SHA CI result as machine evidence and record the Leader's formal gate verdict using `multica-verification`; no CI → G2.5 is BLOCKED, and T3 is forbidden
 
 【FAILURE HANDLING】
 - Transient failures (network timeout, dependency install failure, service unavailable) → retry the current task.
@@ -140,6 +140,5 @@ An Agent finishing its task ≠ the Issue is done. Only walking the full artifac
 - **Advance authority belongs to the Leader**: each artifact is gated by the Leader (multica-verification skill rerun); only PASS dispatches the next. Whether the flow continues after a role finishes is decided by this Squad instruction, not by the member.
 - **Verification and review are separated**: the multica-verification skill handles "is it correct" (objective rerun); @Reviewer handles "is it good" (business judgment). The two have different criteria; mixing them into one role inevitably sacrifices one for the other.
 - **Evidence requirements are their own section**: the most effective defense against "the agent said done, so it's done."
-- **Failure handling is categorized**: transient failures and wrong direction are two completely different responses; mixing them confuses the agent.
-- **G2 cites CI instead of rerunning**: verification is the same function in two execution environments — when CI exists, the Leader gates by checking the CI verdict + diff scope (hard gate, machine-issued, unforgeable); when CI is missing, it degrades to a rerun with the multica-verification skill (soft gate). How to deploy and read CI: the `multica-gate-setup` skill.
+- **G2 uses CI as machine evidence, not as the formal verdict**: when CI exists, the Leader checks current-SHA CI evidence + diff scope and uses `multica-verification` for the formal gate decision; when CI evidence is missing or unusable, the gate cannot be treated as passed. How to deploy and read CI: the `multica-gate-setup` skill.
 - **Squad-level vs Leader role are separated**: the opening defines what the Squad is, its goal, fact source, numbering, communication style, and prohibited items — valid for every role; `【LEADER ROLE】` then states the Leader is only an orchestrator and holds the advancing/gating authority. This way the Squad instruction works whether it's injected only into the Leader or, in the future, into the whole team, without making members think they are the Leader. It borrows the generic patterns "fact source / TBD items / numbering / prohibited list" but drops any binding to specific projects, toolchains, or agent names, keeping it copy-paste-ready.

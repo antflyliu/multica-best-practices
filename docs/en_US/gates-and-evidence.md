@@ -12,20 +12,22 @@ A gate is a checkpoint that can clearly answer "pass / fail". In the software-de
 | --- | --- | --- |
 | G0 | Requirements ready: goal + testable acceptance criteria | Leader / Human |
 | G1 | Design approved: design aligns with acceptance criteria + acceptable from a business standpoint | Leader (multica-verification skill) + Reviewer (default software-development does business review at G1 only; the reviewed variant gives every artifact a dedicated Reviewer) |
-| G2 | Implementation accepted: prefer the CI verdict; only rerun verification when CI is missing | Leader (multica-verification / multica-gate-setup) |
-| G2.5 | CI/CD deploy: after G2 PASS and code push, build & deploy to the test env and return the env URL | Leader (checks CI evidence, triggered by @DevOps) |
-| G3 | Tests pass: the T3 automation report maps every acceptance criterion (depends on the G2.5 deploy env) | Leader (reviews the report) |
+| G2 | Implementation accepted: current-SHA CI is machine evidence; Leader uses multica-verification for the formal gate verdict | Leader (multica-verification skill) |
+| G2.5 | CI/CD deploy: after G2 is formally APPROVED and code is pushed, build & deploy to the test env and return the env URL | Leader (checks CI/CD evidence and runs multica-verification; triggered by @DevOps) |
+| G3 | Tests pass: the T3 automation report maps every acceptance criterion (depends on the G2.5 deploy env) | Leader (multica-verification skill) |
 | G4 | Human acceptance: delivery decision | Human |
 
 The key property of a gate is **decidability**: every gate maps to a question that can be answered PASS / FAIL. If you can't judge it, it's not a gate — it's a wish.
 
+For template-contract wording, **`G2.5 PASS` means the G2.5 gate has been formally APPROVED by the Leader via `multica-verification`**. A CI/CD success result by itself is only machine evidence and does not equal this formal PASS/APPROVED decision.
+
 ## The gatekeeping action: the multica-verification skill
 
-Verification is a **function**, not a role. It is standardized as `templates/en_US/skills/multica-verification/` and triggered by the **Leader** at the gate points (G1 / G2 / G3):
+Verification is a **function**, not a role. It is standardized as `templates/en_US/skills/multica-verification/` and triggered by the **Leader** at the gate points (G1 / G2 / G2.5 / G3):
 
 - The Leader produces no artifacts → the gatekeeper and the gated are different parties
-- Gatekeeping = rerun the verification commands + map each acceptance criterion item by item, without citing the producer's description; when the repo has CI configured, **prefer the CI verdict** (e.g. `[G2 PASS · CI #123]`) and don't rerun (how to read CI: the `multica-gate-setup` skill)
-- Producer self-certification (running it yourself) doesn't count; key commands must be rerun
+- Gatekeeping = use current, verifiable evidence + map each acceptance criterion item by item. CI results are machine evidence, not the formal verdict; the Leader runs `multica-verification` to issue the formal gate result. When CI is absent or unusable, the affected gate is BLOCKED rather than silently downgraded.
+- Producer self-certification (running it yourself) doesn't count; key commands/evidence must be independently checked by the Leader
 
 ## Verification and review are two different kinds of checks
 
@@ -33,17 +35,17 @@ Verification is a **function**, not a role. It is standardized as `templates/en_
 | --- | --- | --- |
 | Question asked | Is the artifact acceptable? Is there evidence? | Is the design / change acceptable from a business standpoint? |
 | How it's judged | Objectively decidable: command output, item-by-item mapping | Subjective judgment: business intent, risk, maintainability |
-| Who runs it | Leader (multica-verification skill) / CI | Reviewer (independent role) / Human |
+| Who runs it | Leader (multica-verification skill) / CI as machine evidence | Reviewer (independent role) / Human |
 
 Verification can be standardized into a Skill and machine-run; review must be done by an independent person with a business perspective.
 
 ## Two-layer gate: generic gate + professional artifact review
 
-`software-development` has only **one generic gate** (the Leader reruns with the multica-verification skill at G1/G2/G3). `software-development-reviewed` stacks a **second layer: professional artifact review**, forming "generic gate + professional review". They differ in standard, trigger, and are mutually non-substitutable.
+`software-development` has only **one generic gate** (the Leader reruns with the multica-verification skill at G1/G2/G2.5/G3). `software-development-reviewed` stacks a **second layer: professional artifact review**, forming "generic gate + professional review". They differ in standard, trigger, and are mutually non-substitutable.
 
 ### Why two layers
 
-The generic gate answers "**is it correct?**" — does the artifact meet acceptance criteria, is the process complete. That's process-layer assurance; it doesn't judge professional depth. But that's not enough alone: a frontend implementation that "meets AC" may have only无效 unit tests; a test report that "passes acceptance" may cover low-risk paths while missing a critical branch. These **professional-quality issues** need an independent reviewer in the relevant domain.
+The generic gate answers "**is it correct?**" — does the artifact meet acceptance criteria, is the process complete. That's process-layer assurance; it doesn't judge professional depth. But that's not enough alone: a frontend implementation that "meets AC" may have only invalid unit tests; a test report that "passes acceptance" may cover low-risk paths while missing a critical branch. These **professional-quality issues** need an independent reviewer in the relevant domain.
 
 The professional artifact review answers "**is it professional?**" — a professional analysis of the artifact itself (is the design sound, are unit tests sufficient, are cases/coverage adequate) against requirements, upstream artifacts, and references.
 
@@ -51,15 +53,15 @@ The professional artifact review answers "**is it professional?**" — a profess
 
 ```text
 Producing role finishes artifact
-  → Layer 1 Generic gate (Leader-triggered): multica-verification skill re-checks acceptance/process (only "correct?")
-  → if PASS:
-      Layer 2 Professional review (dedicated Reviewer-triggered): multica-review-* skill for professional analysis (only "professional?")
+  → Layer 1 Generic gate (Leader-triggered): multica-verification skill re-checks acceptance/process
+  → if formally APPROVED:
+      Layer 2 Professional review (dedicated Reviewer-triggered): multica-review-* skill for professional analysis
         → if PASS: artifact released, advance to next stage
         → if FAIL: dedicated Reviewer outputs conclusion + fix list, reports to Leader
              → Leader dispatches the producing role to fix
-             → after fix, re-review by same dedicated Reviewer (same person, consistent口径)
+             → after fix, re-review by same dedicated Reviewer (same person, consistent review criteria)
              → max 3 rounds; still FAIL at round 3 → escalate to human
-  → if FAIL: return to author, counted as generic-gate FAIL (3 consecutive → escalate to human)
+  → if REJECTED/BLOCKED: return to author or wait for dependency; downstream stays closed
 ```
 
 Either layer FAIL returns; professional-review rounds and generic-gate FAIL rounds are **counted independently but share the "3-strike cap"** — either layer hitting 3 unresolved strikes escalates to human.
@@ -75,13 +77,13 @@ Either layer FAIL returns; professional-review rounds and generic-gate FAIL roun
 | @BackendDev (backend + API contract) | @BackendReviewer | multica-review-backend | contract quality, design fit, error handling, unit tests reasonable & sufficient |
 | @Tester (cases / report) | @TestReviewer | multica-review-test | coverage depth, coverage doc reasonableness, line-by-line acceptance mapping |
 
-> Leader and DevOps get **no** dedicated Reviewer: Leader is orchestrator (gate + review would be同源); DevOps artifact is a deploy URL already covered by CI hard gate. All other regular producing roles are covered.
+> Leader and DevOps get **no** dedicated Reviewer: Leader is orchestrator (gate + review would be the same source); DevOps artifact is a deploy URL already covered by the CI/CD hard gate. All other regular producing roles are covered.
 
 ### Three hard constraints (same as single-layer, stricter)
 
 1. **Dedicated Reviewer doesn't modify on the author's behalf**: only outputs conclusion + fix list and reports to the Leader; the Leader dispatches the producing role to fix. This separates "review power" from "modify power", and advancement stays with the Leader.
 2. **Leader must not substitute review conclusion for the generic gate**: each layer owns its own — the generic gate is always run by the Leader personally via multica-verification skill; never skip the rerun just because the dedicated Reviewer said PASS.
-3. **Dedicated Reviewer and producer are independent**: the same artifact's re-review must be by the same dedicated Reviewer, keeping review口径 continuous; never let the producer review themselves, nor let the Leader both gatekeep and do professional review.
+3. **Dedicated Reviewer and producer are independent**: the same artifact's re-review must be by the same dedicated Reviewer, keeping review criteria continuous; never let the producer review themselves, nor let the Leader both gatekeep and do professional review.
 
 ### When to use the reviewed variant
 
@@ -100,14 +102,17 @@ If you only want the lightweight flow, use the default `software-development` (j
 - Item-by-item mapping to acceptance criteria (each criterion → the test or check covering it)
 - Test / check results
 - Known limitations and risks
+- Current-SHA CI/CD evidence where applicable; machine success is evidence, not the formal gate verdict
+- Leader `multica-verification` formal verdict for the applicable gate: `APPROVED` / `APPROVED_NA` / `REJECTED` / `BLOCKED`
+- Dedicated Reviewer conclusion for reviewed artifacts
 
 ## How to prevent "author self-certification"
 
 The rule is simple: **don't let the person who did the work judge whether the work is acceptable.**
 
 - Implementers don't pass themselves
-- Gatekeeping is done by the Leader rerunning the multica-verification skill (or citing the CI verdict), not by citing the implementer's description
-- The gatekeeper personally reruns the automated verification output
+- CI reports are evidence only; the Leader owns the formal gate decision through `multica-verification`
+- The gatekeeper personally checks the automated verification output and current commit scope
 
 ## Soft gates (agent world) vs. hard gates (CI)
 
@@ -117,10 +122,10 @@ LLM instructions are guidance, not a safety boundary. **Rules that must be obeye
 Tests / Lint / Build / CI / branch protection / PR approval
 ```
 
-- **Soft gate**: the Leader gatekeeps inside the Squad with the multica-verification skill (G1–G3), constrained by instructions and evidence — good for getting started, no CI, or an exploration phase.
-- **Hard gate**: unforgeable checks produced by CI (deployment templates and practices live in the `multica-gate-setup` skill: `templates/en_US/skills/multica-gate-setup/`). When you need results more trustworthy than manual checks, hand the critical gates to CI — the gate issuer must be a different party from the gated.
+- **Soft gate**: the Leader gatekeeps inside the Squad with the multica-verification skill (G1/G2/G2.5/G3), constrained by instructions and evidence — good for getting started or an exploration phase.
+- **Hard gate**: unforgeable checks produced by CI (deployment templates and practices live in the `multica-gate-setup` skill: `templates/en_US/skills/multica-gate-setup/`). CI is machine evidence; the formal gate verdict remains Leader-owned. When critical CI/CD evidence is unavailable, the affected gate is BLOCKED.
 
-Soft and hard gates are **two execution environments of the same verification function**: the Skill in the agent world and CI in the engineering world. If it can run in CI, run it in CI.
+Soft and hard gates are **two execution environments of the same verification function**: the Skill in the agent world and CI in the engineering world. If it can run in CI, run it in CI — but don't confuse CI success with the formal Leader verdict.
 
 Don't rely on "the agent was asked not to do this."
 
@@ -131,9 +136,9 @@ Using "add a CSV export feature" as an example:
 1. **G0**: The Issue states acceptance criteria, e.g. "after calling the export API, the returned CSV contains all filtered results."
 2. **G1**: Architect gives a minimal-change plan (reuse the existing export middleware). The Leader uses the multica-verification skill to confirm the plan covers the acceptance criteria, and the Reviewer checks business acceptability.
 3. **Implementation**: Frontend / BackendDev (per the Issue scope) submit code + unit tests + changed-file list + verification command output (self-claimed).
-4. **G2**: The Leader prefers the CI verdict (or reruns the verification commands if there's no CI) and checks that the diff only touches this requirement. PASS.
-5. **G2.5**: @DevOps, after G2 PASS and code pushed, triggers CI/CD, builds & deploys to the test env and returns the env URL; the Leader gates G2.5 PASS from the CI evidence. (Skip when no @DevOps / no triggerable CI; T3 degrades to local/manual verification with explicit labeling.)
-6. **G3**: The Tester produces and executes feature / API cases per the multica-test-design skill; after G2.5, runs automation via multica-test-automation against the deploy env, verifies "filter → export → inspect CSV content" against the acceptance criteria, and produces a test report; the Leader reviews whether the report covers every criterion.
+4. **G2**: The Leader checks current-SHA CI evidence (if available), verifies diff scope, then runs `multica-verification` for the formal G2 verdict. CI success alone does not open the gate.
+5. **G2.5**: @DevOps, after formal G2 APPROVED and code pushed, triggers CI/CD, builds & deploys to the test env and returns the env URL; the Leader checks current-SHA build/deployment evidence and runs `multica-verification` for the formal G2.5 verdict. **If there is no @DevOps or no triggerable CI/CD, G2.5 remains BLOCKED and T3 is forbidden.**
+6. **G3**: The Tester produces and executes feature / API cases per the multica-test-design skill; **T3 automation may start only after G2.5 is formally APPROVED and real deployment evidence tied to the current commit exists.** Then multica-test-automation runs against the deploy env, verifies "filter → export → inspect CSV content" against the acceptance criteria, and produces a test report; the Leader runs the generic G3 verification and the dedicated Reviewer checks the report in the reviewed variant.
 7. **G4**: A human reviews the evidence and decides whether to merge / ship.
 
 If any G2/G3 FAILs, the task returns to the responsible implementer and **previous gate conclusions are void — they must be rerun.** "It passed last time" doesn't excuse skipping the rerun. More generally: **once any artifact is modified, its downstream gates become invalid immediately and must be re-judged.** It's not just implementation changes: once design / API contract / cases change, the downstream implementation, testing, and acceptance gates also become invalid — never carry over an old PASS. And when an in-scope artifact is judged "Not Applicable (N/A)", never skip it silently — mark N/A explicitly with the reason and the Leader's confirmation; an unconfirmed N/A counts as a missing scope and is written back to the Issue.

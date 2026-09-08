@@ -73,6 +73,14 @@ bash scripts/publish-design.sh <ISSUE-KEY> docs/design/<ISSUE-KEY>/design.md
 
 换 Wiki / 语雀时改 `multica-platform-confluence` 实现；JIRA 回写改 `multica-platform-jira`；本 skill 编排步骤不变。
 
+## 平台不可用时的降级路径
+
+1. 先执行一次发布 / 回写；确认 Confluence 或 JIRA 不可用后停止重复写入。
+2. 将受影响产物或同步步骤标记为 `BLOCKED`，记录平台、尝试的操作、时间 / 错误信息，以及缺失的稳定 URL / page ID / Issue 引用。
+3. 若下游只需要设计内容草稿且当前门禁不要求稳定平台引用，Leader 可明确接受 `docs/design/<ISSUE-KEY>/design.md` 作为**临时引用**；不得伪造 Confluence 页面或 JIRA 链接。
+4. 若 G1 或下游要求稳定引用，则保持 `BLOCKED`，不得用截图、猜测 URL 或旧页面冒充当前版本。
+5. 平台恢复后重新发布并回写；任何设计内容或稳定引用发生修改，其下游门禁立即失效，必须重新判门。
+
 ## 为什么有效
 
 dev-workflow 已验证「本地 md → Confluence upsert → JIRA 挂链接」链路；platform skill 按名挂载 + `MULTICA_SKILLS_ROOT`，PRD / 设计 / API 文档可复用 Confluence 能力而不重复脚本。

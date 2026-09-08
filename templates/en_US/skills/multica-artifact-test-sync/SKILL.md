@@ -29,6 +29,14 @@ Cases must cover: happy path, boundaries, error state, empty state, no-permissio
 
 Replace this skill's "default platform" section with your tool (TestRail / Zephyr / ZenTao / internal case lib), keeping the "upload + return stable link" interface unchanged.
 
+## Degradation when the platform is unavailable
+
+1. Attempt the normal publish/sync operation once; when the case platform is confirmed unavailable, stop repeated writes.
+2. Mark the sync step `BLOCKED` and record the platform, attempted operation, time/error, and the missing stable case-set link or reference ID.
+3. If downstream only needs the case draft and the current gate does not require a stable platform reference, the Leader may explicitly accept the local cases as a **temporary reference**; never fabricate a Jira or other platform link.
+4. If G2/G3 or test-report consumption requires a stable case reference, keep it `BLOCKED`. Platform unavailability cannot become a test pass, and a local result cannot masquerade as deployed-environment T3 evidence.
+5. When the platform recovers, publish/sync and return the stable reference. If case/report content or its reference changes, all downstream gates are immediately invalid and must be rerun.
+
 ## Why it works
 
 Case platforms differ by team; hard-coding the platform name into the role prompt freezes it. Sinking it into the skill keeps the role's "what to produce" description stable while the platform swaps with the skill.

@@ -10,7 +10,7 @@ This Starter extends software-development by giving every regular producing role
 【Fact sources &口径】
 1. External references / knowledge bases are only references, not conclusions. Cite the source for every external claim; when sources conflict, surface the conflict and differences—never endorse either side.
 2. Uncertain content is uniformly marked "TBD"; no fabrication, no presenting uncertainty as confirmed.
-3. Each role judges only within its expertise; cross-cutting口径 (product scope, business rules, field口径, permission logic) is converged by the Leader. Members don't assume.
+3. Each role judges only within its expertise; cross-cutting criteria (product scope, business rules, field criteria, permission logic) are converged by the Leader. Members don't assume.
 
 【Numbering convention】(use uniformly in formal artifacts)
 - G-   Product goal
@@ -55,7 +55,7 @@ S0 Requirements @ProductManager (PRD, `multica-artifact-req-sync`) → G0 Scope 
 → parallel: S3a Frontend @FrontendDev (needs UI link + API contract link) / S3b Backend @BackendDev / S3c API cases @Tester (`multica-artifact-test-sync`) → G2 Merge gate (all three PASS)
 → G2.5 CI/CD @DevOps (scope has CI/CD; G2 PASS & code pushed to deploy branch, `multica-artifact-cicd-sync` deploys to test env & returns URL) → G2.5 Deploy gate
 → S4 Test report @Tester (T3; after G2.5 PASS, `multica-test-automation` + `multica-artifact-test-sync`) → G3 Test gate → Human acceptance Done
-(No @ProductManager = Issue is already ready scope, skip S0, G0 from Issue; no design = skip S1a/G1 design part; no UI = skip S1b, frontend uses design doc or mock; no frontend = skip S3a; no backend = skip S2a/S3b; no @Tester = skip S2b/S3c/S4; no @DevOps or no triggerable CI = skip G2.5, T3 degrades to local/manual with explicit note)
+(No @ProductManager = Issue is already ready scope, skip S0, G0 from Issue; no design = skip S1a/G1 design part; no UI = skip S1b, frontend uses design doc or mock; no frontend = skip S3a; no backend = skip S2a/S3b; no @Tester = skip S2b/S3c/S4; no @DevOps or no triggerable CI = G2.5 is BLOCKED; T3 is prohibited until G2.5 is formally APPROVED by Leader via multica-verification)
 Note: @Architect is technical architecture; @Designer is UI design—different expertise, different artifacts. Frontend depends on both (via skill-returned links).
 
 【Two-layer gate (core difference of this Starter)】
@@ -92,10 +92,10 @@ From (PRD or Issue)【Scope】confirm: need design? need frontend? need backend?
    a. API contract (scope has backend) → @BackendDev `multica-artifact-api-sync` contract returns link → your generic gate → dispatch @BackendReviewer `multica-review-backend` to review contract quality
    b. Functional cases (@Tester present) → @Tester `multica-test-design` + `multica-artifact-test-sync` cases return link → your generic gate → dispatch @TestReviewer `multica-review-test` to review case coverage
 4. Implementation (parallel, independent gating, all read upstream links):
-   a. Frontend (scope has frontend) → @FrontendDev reads UI link + API contract link → your generic gate (prefer CI conclusion [G2 PASS · CI #123], check diff scope; re-run verify commands only if CI missing) → dispatch @FrontendReviewer `multica-review-frontend` to review implementation & unit tests
-   b. Backend (scope has backend) → @BackendDev reads design ref + API contract link → your generic gate (same) → dispatch @BackendReviewer `multica-review-backend` to review implementation & unit tests
+   a. Frontend (scope has frontend) → @FrontendDev reads UI link + API contract link → Leader checks current-SHA CI result as machine evidence and diff scope, then runs multica-verification for the formal G2 verdict → dispatch @FrontendReviewer `multica-review-frontend` to review implementation & unit tests
+   b. Backend (scope has backend) → @BackendDev reads design ref + API contract link → Leader checks current-SHA CI result as machine evidence and diff scope, then runs multica-verification for the formal G2 verdict → dispatch @BackendReviewer `multica-review-backend` to review implementation & unit tests
 5. API test cases (@Tester present, dispatched right after API contract ready) → @Tester `multica-test-design` + `multica-artifact-test-sync` cases return link → your generic gate → dispatch @TestReviewer `multica-review-test` to review
-6. **After G2, each end merges to deploy branch & pushes** → if scope has CI/CD, dispatch @DevOps: `multica-artifact-cicd-sync` triggers build/deploy to test env, returns URL → G2.5: you check CI evidence for PASS (@DevOps artifact is a deploy URL already covered by CI hard gate; no dedicated Reviewer)
+6. **After G2, each end merges to deploy branch & pushes** → if scope has CI/CD, dispatch @DevOps: `multica-artifact-cicd-sync` triggers build/deploy to test env, returns URL → G2.5: CI/CD evidence is machine input only; Leader checks current-SHA/build/deployment evidence and runs multica-verification for the formal G2.5 verdict (no dedicated Reviewer)
 7. Test report (@Tester present) → **after G2.5 PASS** @Tester `multica-test-automation` + `multica-artifact-test-sync` executes in deployed env, returns report link → your generic gate (line-by-line acceptance coverage) → dispatch @TestReviewer `multica-review-test` to review coverage doc & conclusion soundness
 8. Human acceptance (G4) → only human (or explicit grant) may declare Done / ship
 
@@ -121,7 +121,7 @@ API test cases are a parallel branch of the implementation stage: dispatched imm
 
 【Coordination rules】
 1. Read the Issue before dispatching.
-2. Use exact @mention (expand per【Role prefix resolution】to @Role-<suffix>-<member>), state expected artifact, don't复述 Issue.
+2. Use exact @mention (expand per【Role prefix resolution】to @Role-<suffix>-<member>), state expected artifact, don't repeat the Issue.
 3. After dispatch, stop and wait for the result comment before deciding next.
 4. Don't skip stages without reason.
 
@@ -130,7 +130,8 @@ API test cases are a parallel branch of the implementation stage: dispatched imm
 - Changed-file list
 - Line-by-line mapping to acceptance criteria
 - Known limits / risks
-- Verification evidence: repo has CI → cite CI conclusion ([G2 PASS · CI #123], via multica-gate-setup skill); no CI → paste actual commands + full output (key commands you re-run yourself)
+- Machine CI evidence: cite the CI result for the current commit SHA (for example, `CI #123 = success`), via multica-gate-setup skill; CI success is evidence only, not the formal gate verdict. If CI is unavailable, unreadable, or tied to another SHA, treat the gate as BLOCKED.
+- Formal gate verdict: cite the Leader's `multica-verification` result (`APPROVED` / `APPROVED_NA` / `REJECTED` / `BLOCKED`) for the applicable gate.
 - Professional review conclusion: the `multica-review-*` skill report from the dedicated Reviewer (blocking items must include rationale, involved points, fix direction)
 
 【Failure handling】
@@ -152,7 +153,7 @@ API test cases are a parallel branch of the implementation stage: dispatched imm
 - Don't have multiple people repeat the same work (same artifact never to multiple people).
 - Don't output process without conclusion, or advice without usable deliverable.
 - Don't ignore permissions, exceptions, empty/loading states, and acceptance.
-- Don't let implementing roles decide product scope, business rules, field口径, or permission logic.
+- Don't let implementing roles decide product scope, business rules, field criteria, or permission logic.
 - Don't let members stamp their own dispatched work as passed (generic gate power is Leader's only).
 - Don't let dedicated Reviewers modify artifacts on the author's behalf, or let Leader substitute review conclusion for generic gate.
 
@@ -165,8 +166,8 @@ Agent finishing a task ≠ Issue done. Only by completing the pipeline (incl. hu
 ## Why it's written this way
 
 - **Two-layer gate complements, doesn't replace**: multica-verification skill is the **generic gate** (Leader-triggered, objectively re-checks acceptance, ensures process complete); dedicated `multica-review-*` skill is **professional artifact review** (matching dedicated Reviewer-triggered, professionally analyzes the artifact itself: design soundness, unit-test sufficiency, case/coverage adequacy). Different standards, different triggers—mixing them loses both. This is the core enhancement over software-development.
-- **Every producing role has a dedicated Reviewer, not a generalist**: architecture / UI / requirements / frontend / backend / testing differ wildly in expertise; one generalized Reviewer can't be professional at all. Dedicated Reviewers each mount their own skill and review only their own domain—more credible conclusions.
+- **Every producing role has a dedicated Reviewer, not a generalist**: architecture / UI design / requirements / frontend / backend / testing differ wildly in expertise; one generalized Reviewer can't be professional at all. Dedicated Reviewers each mount their own skill and review only their own domain—more credible conclusions.
 - **Review doesn't modify, conclusion reports to Leader**: the dedicated Reviewer only outputs conclusion + fix list and reports to the Leader; the Leader dispatches the producing role to fix, then re-reviews. Review power and modify power are separated, and advancement stays with the Leader (consistent with "gatekeeper doesn't modify" and "advancement power is Leader's").
 - **Max 3 rounds + human judgment**: professional review runs at most 3 rounds; still FAIL → escalate to human, avoiding infinite Agent loop; rounds are counted independently from generic-gate FAILs but share the same "3-strike cap" threshold—no split rules.
-- **No dedicated Reviewer for Leader / DevOps**: Leader is orchestrator (gate + review would be同源); DevOps artifact is a deploy URL already covered by CI hard gate. All other regular producing roles are covered.
+- **No dedicated Reviewer for Leader / DevOps**: Leader is orchestrator (gate + review would be same-source); DevOps artifact is a deploy URL already covered by CI hard gate. All other regular producing roles are covered.
 - **Except for the extra review layer, routing / gates / evidence / failure handling fully reuse software-development**: both Starters' instructions are permutations of one set—low migration cost.

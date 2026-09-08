@@ -1,6 +1,6 @@
 ---
 name: multica-test-automation
-description: Test-automation skill (placeholder shell): Tester phase-3 automation — after G2.5 the deploy environment is ready, run the team's automation tool against the scenario cases and produce G3 input. Concrete tool (Apifox / Postman / Playwright / pytest / etc.) onboarded by the team; credentials injected via runtime env, never in role prompts.
+description: "Test-automation skill (placeholder shell): Tester phase-3 automation — after G2.5 the deploy environment is ready, run the team's automation tool against the scenario cases and produce G3 input. Concrete tool (Apifox / Postman / Playwright / pytest / etc.) onboarded by the team; credentials injected via runtime env, never in role prompts."
 metadata:
   layer: automation
   runtime:

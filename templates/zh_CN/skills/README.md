@@ -37,6 +37,8 @@
 | `multica-review-architect` | 架构评审 |
 | `multica-review-backend` | 后端评审 |
 | `multica-review-product` | 产品评审 |
+| `multica-review-designer` | 设计评审 |
+| `multica-review-frontend` | 前端评审 |
 | `multica-review-test` | 测试评审 |
 | `multica-manage-skills` | 通过 Multica API 管理 Skill |
 

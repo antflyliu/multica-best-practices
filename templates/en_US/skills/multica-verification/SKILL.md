@@ -1,6 +1,6 @@
 ---
 name: multica-verification
-description: Gatekeeping function: objectively check whether an artifact satisfies the acceptance criteria. Triggered by the Leader to rerun at gate points (G1/G2/G3); members can also use it for self-check. Used for design review / implementation acceptance / test-report review.
+description: "Gatekeeping function: objectively check whether an artifact satisfies the acceptance criteria. Triggered by the Leader to rerun at gate points (G1/G2/G2.5/G3); producers may provide evidence but cannot execute formal gatekeeping or issue the gate verdict. Used for design review / implementation acceptance / test-report review."
 ---
 
 # Verification (gatekeeping)
@@ -16,8 +16,8 @@ It doesn't rely on anyone's character — it relies on the evidence itself. Whoe
 
 ## Who executes it
 
-- **Gatekeeping**: the **Leader** triggers this Skill at the gate points (G1 / G2 / G3) and reruns independently. The Leader produces no artifacts, so it's naturally a third party.
-- **Self-check**: after finishing, a producer may first run this Skill to self-verify (pasting the command output), but self-check is not gatekeeping — gatekeeping must be rerun by a non-producer.
+- **Gatekeeping**: the **Leader** triggers this Skill at the formal gate points (G1 / G2 / G2.5 / G3) and verifies independently. Leader produces no gated artifact, so it is a separate party from the producer.
+- **Producer responsibility**: producers provide the artifact and supporting evidence; they do not execute the formal gatekeeping action and cannot issue the gate verdict.
 
 > The gate issuer must be a different party from the gated. Authors cannot stamp "PASS" on themselves.
 
@@ -25,23 +25,33 @@ It doesn't rely on anyone's character — it relies on the evidence itself. Whoe
 
 1. Read the Issue's acceptance criteria.
 2. Map every criterion to evidence (which test / which command / which output).
-3. **Rerun** the verification commands; don't cite someone else's described output.
+3. **Rerun or independently check** the required verification evidence; do not accept a producer's claim as the formal result.
 4. Check the change scope: does the diff only touch this requirement?
-5. Give PASS / FAIL for each criterion.
+5. Give PASS / FAIL for each criterion (individual check result).
+6. Normalize the gate outcome to APPROVED / APPROVED_NA / REJECTED / BLOCKED.
 
 ## Result
 
-**PASS** — every criterion has sufficient evidence.
+Use these four values for the formal gate verdict:
 
-**FAIL** — at least one criterion unmet. Must provide: the problem, why it matters, where, and the fix direction.
+**APPROVED** — every applicable criterion has sufficient evidence; downstream may open.
 
-**BLOCKED** — missing information / environment, cannot verify. Report honestly; never turn it into PASS.
+**APPROVED_NA** — the artifact / branch is explicitly confirmed by the Leader to be not applicable; record the N/A reason and do not silently skip it.
+
+**REJECTED** — at least one applicable criterion is unmet. Must provide: the problem, why it matters, where, the fix direction, and a verifiable pass condition.
+
+**BLOCKED** — missing information / environment / dependency prevents verification. Report honestly; it is not a pass.
+
+> Individual evidence may still use PASS / FAIL, but the final gate verdict must use the four values above so it stays consistent with `gates-and-evidence`.
+
+## Known failure case
+
+A typical failure mode is a producer treating "the local command passed" as gate evidence, with the Leader accepting that output without independently rerunning or checking the diff. A later review can reveal uncovered files and invalidate downstream verification. The rule is explicit: the Leader must independently verify the evidence and check the diff; producer-supplied evidence is never sufficient by itself for the formal gate verdict.
 
 ## Relationship to CI hard gates
 
-This Skill is the verification function's form in the agent world (soft gate), suitable for getting started, no CI, or an exploration phase.
-The same function's machine form is the CI hard-gate template carried by the `multica-gate-setup` skill. If it can run in CI, run it in CI; the soft gate is transitional.
+This Skill is the verification function's form in the agent world (soft gate), suitable for getting started or exploration phases. The same function's machine form is the CI hard-gate template carried by `multica-gate-setup`. CI supplies machine evidence; it does not bypass the Leader's formal `multica-verification` verdict. If it can run in CI, run it in CI, but keep the formal gate decision Leader-owned.
 
 ## Why this works
 
-"Verification" is the easiest thing to turn into a formality. Writing verification as a rerunnable action checklist and requiring a non-producer to execute it blocks two kinds of cheating at once: producers pretending they verified (the self-check loophole) and producers stamping themselves PASS (the gatekeeping loophole).
+"Verification" is the easiest thing to turn into a formality. Writing verification as an independently checkable action checklist and requiring the non-producing Leader to execute the formal gate blocks producers from turning their own evidence into a formal gate verdict.

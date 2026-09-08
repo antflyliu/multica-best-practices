@@ -24,15 +24,16 @@
   - [ ] Design (needs Architect to propose a plan)
   - [ ] Frontend (needs FrontendDev)
   - [ ] Backend (needs BackendDev + API contract)
+  - [ ] CI/CD deployment (needs DevOps)
 - What to change: <!-- What should change? -->
 
 ## Non-goals
 <!-- What explicitly won't be done? -->
 
 ## Acceptance criteria (must be testable)
-- [ ]
-- [ ]
-- [ ]
+- [ ] AC-1:
+- [ ] AC-2:
+- [ ] AC-3:
 
 ## References
 <!-- Docs, Issues, screenshots, code locations -->
@@ -47,6 +48,7 @@
 
 - **The "affected ends" in the scope is the routing input**: the Leader's G0 uses it to decide which roles to dispatch. Missing or vague scope → G0 FAIL, instead of the Leader guessing.
 - **Goal / Scope / Non-goals separated**: prevents agents from freewheeling and expanding the scope.
+- **Acceptance criteria are numbered AC-**: downstream test cases and gates can reference each criterion unambiguously.
 - **"Source: pick one" lightens link-type Issues**: when the source is Jira/Tapd, full requirements live externally; this Issue only needs "link + affected ends + one-line summary" to drive G0 routing and gating. With "fully self-contained", prioritize Background / Goal / Scope / Non-goals / Acceptance criteria, and add References / Notes as needed. Both forms share the same `<ISSUE-KEY>`; the gate system is unchanged.
 - **An Issue is a requirement contract, not an implementation blueprint**: the person filing it is usually a PM (one Issue = one requirement). The template keeps only requirement elements (why / what / affected ends / non-goals / testable AC); technical context, constraints, traceability matrix, verification, and Git branch are produced by the Squad during the run, not front-loaded onto the PM.
 

@@ -55,7 +55,7 @@ S0 需求产出 @ProductManager（PRD，用 `multica-artifact-req-sync`）→ G0
 → 并行：S3a 前端 @FrontendDev（依赖 UI 链接 + API 契约链接）/ S3b 后端 @BackendDev / S3c 接口用例 @Tester（用 `multica-artifact-test-sync`）→ G2 汇合门禁（三者均 PASS）
 → G2.5 CI/CD @DevOps（范围含 CI/CD；G2 PASS 且代码已 push 到 deploy branch，用 `multica-artifact-cicd-sync` 部署到测试环境并回传 URL）→ G2.5 部署门禁
 → S4 测试报告 @Tester（T3；G2.5 PASS 后用 `multica-test-automation` + `multica-artifact-test-sync`）→ G3 测试门禁 → 人类验收 Done
-（无 @ProductManager=Issue 直接已是就绪范围，跳过 S0，G0 以 Issue 为准；无技术设计=跳过 S1a/G1 技术部分；无 UI=跳过 S1b，前端改用设计文档或 mock；无前端=跳过 S3a；无后端=跳过 S2a/S3b；无 @Tester=跳过 S2b/S3c/S4；无 @DevOps 或无可触发 CI=跳过 G2.5，T3 退化为本地 / 手动验证并显式标注）
+（无 @ProductManager=Issue 直接已是就绪范围，跳过 S0，G0 以 Issue 为准；无技术设计=跳过 S1a/G1 技术部分；无 UI=跳过 S1b，前端改用设计文档或 mock；无前端=跳过 S3a；无后端=跳过 S2a/S3b；无 @Tester=跳过 S2b/S3c/S4；无 @DevOps 或无可触发 CI=G2.5 BLOCKED；在 G2.5 未经 Leader 用 multica-verification 正式判定 APPROVED 前，禁止启动 T3）
 注：@Architect 是技术架构设计，@Designer 是 UI 设计，二者专业不同、产物不同；前端同时依赖这两者的产出（经 skill 回传的链接）。
 
 【两层门禁（本 Starter 的核心差异）】
@@ -92,10 +92,10 @@ S0 需求产出 @ProductManager（PRD，用 `multica-artifact-req-sync`）→ G0
    a. API 契约（范围含后端）→ @BackendDev 用 `multica-artifact-api-sync` 出契约并回传链接 → 你通用门禁 → 派 @BackendReviewer 用 `multica-review-backend` skill 评审契约质量
    b. 功能用例（@Tester 在场）→ @Tester 用 `multica-test-design` + `multica-artifact-test-sync` 出用例并回传链接 → 你通用门禁 → 派 @TestReviewer 用 `multica-review-test` skill 评审用例覆盖
 4. 实现（并行互不等待，各判各的，均读上游回传链接）：
-   a. 前端实现（范围含前端）→ @FrontendDev 读 UI 链接 + API 契约链接 → 你通用门禁（优先引用 CI 结论 [G2 PASS · CI #123]，核对 diff 范围；CI 缺失才复跑验证命令）→ 派 @FrontendReviewer 用 `multica-review-frontend` skill 评审实现与单测
-   b. 后端实现（范围含后端）→ @BackendDev 读设计引用 + API 契约链接 → 你通用门禁（同上）→ 派 @BackendReviewer 用 `multica-review-backend` skill 评审实现与单测
+   a. 前端实现（范围含前端）→ @FrontendDev 读 UI 链接 + API 契约链接 → Leader 核对当前 commit SHA 的 CI 结果（machine evidence）与 diff 范围，再运行 multica-verification 给出正式 G2 判定 → 派 @FrontendReviewer 用 `multica-review-frontend` skill 评审实现与单测
+   b. 后端实现（范围含后端）→ @BackendDev 读设计引用 + API 契约链接 → Leader 核对当前 commit SHA 的 CI 结果（machine evidence）与 diff 范围，再运行 multica-verification 给出正式 G2 判定 → 派 @BackendReviewer 用 `multica-review-backend` skill 评审实现与单测
 5. 接口测试用例（@Tester 在场，API 契约就绪即派）→ @Tester 用 `multica-test-design` + `multica-artifact-test-sync` 出用例并回传链接 → 你通用门禁 → 派 @TestReviewer 用 `multica-review-test` skill 评审
-6. **G2 后、各端 merge 到 deploy branch 并 push** → 范围含 CI/CD 时派 @DevOps：用 `multica-artifact-cicd-sync` 触发构建部署到测试环境、回传环境 URL → G2.5：你核对 CI 证据判 PASS（@DevOps 产出是部署 URL，已由 CI 硬门禁覆盖，不配置专属 Reviewer）
+6. **G2 后、各端 merge 到 deploy branch 并 push** → 范围含 CI/CD 时派 @DevOps：用 `multica-artifact-cicd-sync` 触发构建部署到测试环境、回传环境 URL → G2.5：CI/CD 结果只是 machine evidence；Leader 核对当前 commit SHA、构建 / 部署证据后运行 multica-verification，给出正式 G2.5 判定（无专属 Reviewer）
 7. 测试报告（@Tester 在场）→ **G2.5 PASS 后** @Tester 用 `multica-test-automation` + `multica-artifact-test-sync` 在部署环境执行并出报告回传链接 → 你通用门禁（逐条覆盖验收标准）→ 派 @TestReviewer 用 `multica-review-test` skill 评审覆盖率文档与结论合理性
 8. 人类验收（G4）→ 只有人类（或明确授权）可宣布 Done / 上线
 
@@ -130,7 +130,8 @@ S0 需求产出 @ProductManager（PRD，用 `multica-artifact-req-sync`）→ G0
 - 变更文件列表
 - 与验收标准的逐条对照
 - 已知限制 / 风险
-- 验证证据：仓库已配 CI → 引用 CI 结论（[G2 PASS · CI #123]，用 multica-gate-setup skill）；未配 CI → 贴实际执行的命令 + 完整输出（关键命令你亲自复跑）
+- Machine CI evidence：引用**当前 commit SHA** 对应的 CI 结果（例如 `CI #123 = success`），通过 multica-gate-setup skill 获取；CI 成功只是机器证据，不等于正式门禁通过。CI 不可用、不可读或 SHA 不匹配时，该门禁必须记为 BLOCKED。
+- Formal gate verdict：引用 Leader 通过 `multica-verification` 给出的正式结果（`APPROVED` / `APPROVED_NA` / `REJECTED` / `BLOCKED`）。
 - 专业评审结论：专属 Reviewer 用 `multica-review-*` skill 给出的评审报告（阻断项须含理由、涉及点、修改方向）
 
 【失败处理】
@@ -165,7 +166,7 @@ Agent 完成任务 ≠ Issue 完成。只有按产物流水线走完（含人类
 ## 为什么这么写
 
 - **两层门禁互补，不互相替代**：multica-verification skill 是**通用门禁**（由 Leader 触发，客观复跑验收标准、保证流程走完）；专属 `multica-review-*` skill 是**专业产出物评审**（由对应专属 Reviewer 触发，针对产物本身做专业分析：设计合理性、单测是否充分、用例/覆盖率是否到位）。两者标准不同、触发方不同，混在一起必然顾此失彼——这正是本 Starter 相对 software-development 的核心增强。
-- **每个产出角色有专属 Reviewer，不用多面手**：架构 / UI / 需求 / 前端 / 后端 / 测试的专业口径差异极大，一个泛化 Reviewer 无法同时专业。专属 Reviewer 各自挂载专属 skill，只评审自己专业内的产物，结论更可信。
+- **每个产出角色有专属 Reviewer，不用多面手**：架构 / UI 设计 / 需求 / 前端 / 后端 / 测试的专业口径差异极大，一个泛化 Reviewer 无法同时专业。专属 Reviewer 各自挂载专属 skill，只评审自己专业内的产物，结论更可信。
 - **评审不代替修改、结论汇报 Leader**：专属 Reviewer 只输出结论与修改清单，并汇报给 Leader；Leader 指派对应产出角色修问题、再复审。评审权与修改权分离，且推进权始终在 Leader（与「判门者不替作者改」「推进权只在 Leader」两条铁律一致）。
 - **最多 3 轮 + 人工判定**：专业评审最多 3 轮，仍不通过即升级人类，避免 Agent 内无限循环；轮次与通用门禁 FAIL 轮次独立计数，但复用同一条「3 次上限」阈值，规则不分裂。
 - **Leader / DevOps 不配专属 Reviewer**：Leader 是编排者，既判门又评审会同源，故不配；DevOps 产出是部署 URL，已由 CI 硬门禁覆盖，也不配。其余常规产出角色全覆盖。

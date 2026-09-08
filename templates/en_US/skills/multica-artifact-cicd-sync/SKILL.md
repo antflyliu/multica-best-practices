@@ -1,6 +1,6 @@
 ---
 name: multica-artifact-cicd-sync
-description: CI/CD artifact-orchestration skill (placeholder shell): after G2 PASS and code push, call the underlying CI/CD platform skill to trigger dev/sit builds, write back to the Issue, and return the deploy URL. Parameters auto-discovered from the CI API; the orchestration layer never hardcodes parameter names. Concrete platform in the multica-platform-* layer.
+description: "CI/CD artifact-orchestration skill (placeholder shell): after G2 PASS and code push, call the underlying CI/CD platform skill to trigger dev/sit builds, write back to the Issue, and return the deploy URL. Parameters auto-discovered from the CI API; the orchestration layer never hardcodes parameter names. Concrete platform in the multica-platform-* layer."
 metadata:
   layer: orchestration
   orchestrates:
@@ -61,6 +61,14 @@ python scripts/trigger_cicd.py --env sit --service svc-a,svc-b --branch release/
 ```text
 After G2 PASS and code push, use multica-artifact-cicd-sync to trigger CI/CD and return the deploy link.
 ```
+
+## Degradation when the platform is unavailable
+
+1. Attempt discovery/trigger once; when the CI/CD platform is confirmed unavailable, stop repeated triggers.
+2. Mark G2.5 `BLOCKED` and record the platform, Job/environment, attempted operation, time/error, and the missing build URL/deploy URL/build ID.
+3. Never fabricate build, deployment, or environment URLs; an old build/deployment or local command output cannot substitute for evidence tied to the current commit.
+4. **Do not release T3 when CI/CD is unavailable.** T3 may start only after G2.5 is PASS with real deployed-environment evidence; otherwise the flow remains `BLOCKED` at G2.5.
+5. When the platform recovers and evidence for the current deploy branch/commit exists, the Leader reruns G2.5. If code, deployment artifacts, or associated references change, all downstream gates are immediately invalid and must be rerun.
 
 ## Why it works
 

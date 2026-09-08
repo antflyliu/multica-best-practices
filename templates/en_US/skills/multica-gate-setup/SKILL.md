@@ -1,19 +1,19 @@
 ---
 name: multica-gate-setup
-description: Integrate CI hard gates into the target repository and make gatekeeping read the CI verdict. Used for deploying gates, reading check-runs for G2, and falling back to soft gates when there's no CI.
+description: Integrate CI hard gates into the target repository and let gatekeeping consume CI evidence. Used for deploying gates, reading check-runs for G2, and falling back to soft gates when CI is unavailable.
 ---
 
 # Gate Setup (CI gate integration)
 
 ## What this is
 
-An integration Skill that upgrades "verification" from agent self-discipline to machine-executed CI.
-Core idea (`multica-gatekit`): **the gate issuer must be a different party from the gated** — authors can't stamp "tests passed" on themselves; only CI's actual run results count.
+An integration Skill that upgrades "verification" from agent self-discipline to machine-executed CI evidence.
+Core idea (`multica-gatekit`): **the gate issuer must be a different party from the gated** — authors can't stamp "tests passed" on themselves; CI's actual run results are evidence, while the Leader is the only formal gate verifier.
 
 This Skill answers two questions:
 
 1. **How do you install gates into a repository?** (one-time deployment)
-2. **How does gatekeeping read the CI verdict?** (G2 on every task)
+2. **How does gatekeeping consume CI evidence?** (G2 on every task)
 
 ## Template files it carries
 
@@ -33,9 +33,9 @@ The Leader only has the Skill + MCP, no shell. So branch by the runtime environm
 
 | Capability | Gatekeeping (G2) | Deployment (one-time) |
 | --- | --- | --- |
-| Has GitHub MCP (read) | **Real integration**: query check-runs to read the CI verdict | — |
+| Has GitHub MCP (read) | **Real integration**: query check-runs and collect CI evidence | — |
 | Has GitHub MCP (write) | — | **Real integration**: create the workflow + set branch protection |
-| No MCP | **Weak integration**: read the CI verdict humans paste into the PR comment | Human runs the script; you verify the output |
+| No MCP | **Weak integration**: read CI evidence humans paste into the PR comment | Human runs the script; the Leader verifies the output |
 
 ## Deployment flow (one-time)
 
@@ -61,30 +61,40 @@ The Leader only has the Skill + MCP, no shell. So branch by the runtime environm
 ## Gatekeeping flow (G2, every task)
 
 1. Query the PR's check-runs via GitHub MCP: `GET /repos/{owner}/{repo}/commits/{sha}/check-runs`.
-2. Find the check named `delivery-gate` (success → PASS, failure → FAIL).
-3. G2 verdict:
-   - **CI exists** → cite the verdict (e.g. `[G2 PASS · CI #123]`), then check whether the diff only touches this requirement → give PASS / FAIL. **Don't rerun** the commands CI already covered.
-   - **CI missing** → fall back to the soft gate: rerun the verification commands with the `multica-verification` skill.
-   - **CI unreachable** → BLOCKED, report honestly, never turn it into PASS.
-4. When CI exists, the rerun action is "verify the verdict + diff", not rerunning commands.
+2. Find the check named `delivery-gate` and record its completed result as **CI evidence** (`success` / `failure` / `cancelled` / `pending`). Do not turn the CI result directly into the formal gate verdict.
+3. The **Leader** runs the formal G2 verification with `multica-verification`, using the current-commit CI evidence plus diff scope as inputs:
+   - **Valid completed CI evidence** → verify the evidence is bound to the current commit SHA and the diff is in scope; then issue the formal verdict.
+   - **CI missing** → use the soft-gate path in `multica-verification` to perform the required verification.
+   - **CI unreachable or evidence cannot be bound to the current commit** → formal verdict is `BLOCKED`.
+4. Do not rerun commands already covered by valid CI evidence merely to manufacture another result. The Leader verifies the evidence and scope; `multica-verification` owns the formal verdict vocabulary.
 
-## Result
+## Formal result
 
-**PASS** — CI green (or rerun passed) + diff scope correct.
+The formal gate result issued by the Leader via `multica-verification` is one of:
 
-**FAIL** — CI red or the diff is out of scope. Must provide: the problem, why it matters, where, and the fix direction.
+**APPROVED** — required evidence is valid and the gate criteria are satisfied.
 
-**BLOCKED** — missing MCP / CI / information, cannot verify. Report honestly; never turn it into PASS.
+**APPROVED_NA** — the gate criterion is explicitly not applicable, with the Leader recording the reason.
+
+**REJECTED** — evidence or scope does not satisfy the gate. Must provide: the problem, why it matters, where, the fix direction, and a re-verifiable pass condition.
+
+**BLOCKED** — required evidence or verification capability is unavailable. Report honestly; never turn it into an approval.
+
+`PASS` / `FAIL` may be used for individual checks or CI evidence summaries, but they are not the formal gate verdict.
+
+## Known failure case
+
+A CI check once passed, but the Leader used an old PR comment rather than the check-run for the latest commit and incorrectly marked G2 as passed while the newest build was still pending. The rule is now explicit: bind CI evidence to the current commit SHA and a valid completed check-run; if that evidence cannot be read, return `BLOCKED` rather than substituting an old comment or build.
 
 ## Relationship to the multica-verification skill
 
-Two execution environments of the same verification function:
+The two Skills have different responsibilities:
 
-- `multica-verification`: soft gate, Leader reruns (this Skill falls back to it when CI is missing)
-- `multica-gate-setup`: hard-gate integration — deploy + gatekeeping reads the CI verdict
+- `multica-verification`: the Leader-owned formal gate verification and verdict issuance.
+- `multica-gate-setup`: CI hard-gate deployment and collection of machine-generated evidence for the Leader's verification.
 
-**If it can run in CI, run it in CI**; the soft gate is transitional. They complement each other; they don't conflict.
+**If it can run in CI, run it in CI**; CI supplies evidence, while the Leader remains the formal gate verifier. They complement each other; CI does not bypass `multica-verification`.
 
 ## Why this works
 
-If the gate is only "the agent was asked to check," two kinds of cheating remain: authors pretending they verified, and authors stamping themselves PASS. CI makes the issuer a machine (unforgeable), and this Skill encodes that handoff into the flow — a clear deployment checklist, a clear verdict source for gatekeeping, and a clear fallback when there's no CI. No improvisation required.
+If the gate is only "the agent was asked to check," two kinds of cheating remain: authors pretending they verified, and authors stamping themselves PASS. CI makes the evidence machine-generated, while the Leader remains independent from the producing role and issues the formal verdict through `multica-verification`. This Skill encodes that handoff into the flow — a clear deployment checklist, a commit-bound evidence source, and a clear fallback when CI is unavailable. No improvisation required.

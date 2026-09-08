@@ -5,7 +5,6 @@ metadata:
   credentials:
     priority:
       - ATLASSIAN_USER / ATLASSIAN_PASS
-      - ATLASSIAN_USER / ATLASSIAN_PASS
       - JIRA_USER / JIRA_PASS
 ---
 
@@ -65,11 +64,19 @@ bash scripts/jira.sh notify-story <JIRA_ISSUE_KEY> <confluence_page_id> aai
 
 ## JIRA Wiki 描述格式
 
-追加块使用 Jira Wiki（非 Markdown）：`h3.` 标题、`*` 列表、`[text|url]` 链接。大括号需转义 `\{\}`。
+追加块使用 Jira Wiki（非 Markdown）：`h3.` 标题、`*` 列表、`[text|url]` 链接。大括号需转义 `\\{\\}`。
 
 ## Workflow E：Confluence 阻塞降级（PRD）
 
 Confluence 创建失败时，`multica-artifact-req-sync` 可将 PRD 全文写入 JIRA Story 描述（本 skill `create-story` / `append-description`），并标注「Confluence 降级」；恢复后再补建 Confluence 页面并更新描述链接。
+
+## 成功标准
+
+- Read 操作返回 HTTP `200`，且输出可消费的 Issue / 查询结果
+- 创建或更新操作返回 HTTP `200` / `201`，并回传 `issue key`
+- 状态流转 / 排期成功后返回目标 `issue key` 与成功状态
+- 描述回写成功后可再次读取并确认目标链接已落入 Issue
+- 失败时返回非零 exit code，并保留可诊断的错误信息；禁止把失败伪装成成功
 
 ## 与产物 skill 的关系
 
@@ -85,6 +92,3 @@ Confluence 创建失败时，`multica-artifact-req-sync` 可将 PRD 全文写入
 ## 为什么有效
 
 JIRA 自定义字段各团队差异大，独立 platform skill 后 Confluence / 设计发布变更不影响 JIRA 脚本；读写分离后 Leader / Architect 可稳定从 Issue 定位上游 Confluence 产物。
-
-
-

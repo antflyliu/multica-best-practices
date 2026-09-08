@@ -24,15 +24,16 @@ defaults:
   environment: sit
   branch: master
 
-# 旧 projectmanagement 预设（其他团队可保留；本仓库默认走 jobs-catalog + trigger_env.py）
+# 旧项目预设占位壳：不携带真实项目名、Job 名或 token。
+# 其他团队如需兼容旧流程，请在本地按实际 Jenkins 配置替换这些占位符。
 legacy_profiles:
   sit:
-    job_path: "/view/QA/job/qa-sit-projectmanagement"
+    job_path: "/view/<JENKINS_VIEW>/job/<JENKINS_JOB_SIT>"
     default_params:
       env: sit
-      token: QA
+      token: <JENKINS_PARAM_TOKEN>
     projects:
-      - projectmanagement-be
-      - projectmanagement-fe
-      - projectmanagement-scheduler
+      - <PROJECT_BACKEND>
+      - <PROJECT_FRONTEND>
+      - <PROJECT_SCHEDULER>
 

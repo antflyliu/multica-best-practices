@@ -8,7 +8,6 @@ metadata:
   credentials:
     priority:
       - ATLASSIAN_USER / ATLASSIAN_PASS
-      - ATLASSIAN_USER / ATLASSIAN_PASS
 ---
 
 # Artifact · Requirement Sync（编排）
@@ -80,4 +79,3 @@ bash scripts/publish-prd.sh --project AAI --summary "..." --html-file prd.html \
 ## 为什么有效
 
 JIRA 与 Confluence 拆成独立 platform skill 后，Architect 的设计发布与 PM 的 PRD 落地共用同一套能力；编排脚本通过 skill 名称 + `MULTICA_SKILLS_ROOT` 定位，不依赖固定相对路径。
-

@@ -15,7 +15,7 @@ Structured professional review framework for **PRD / requirement artifacts**. Ca
 1. **Scope clear**: boundaries unambiguous, splittable, no implied scope.
 2. **Goal explicit**: problem measurable, no vagueness.
 3. **Acceptance testable**: every AC- objectively verifiable, no "good experience" vagueness.
-4. **Constraints complete**: permissions, exceptions, compliance, dependencies, data口径 listed.
+4. **Constraints complete**: permissions, exceptions, compliance, dependencies, data definition listed.
 5. **Open items**: OP- fully listed, not blocking downstream dev (blocking OP- = blocking item).
 
 ## Output format

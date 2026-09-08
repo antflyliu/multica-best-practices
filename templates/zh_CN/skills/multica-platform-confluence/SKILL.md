@@ -5,7 +5,6 @@ metadata:
   credentials:
     priority:
       - ATLASSIAN_USER / ATLASSIAN_PASS
-      - ATLASSIAN_USER / ATLASSIAN_PASS
       - CONFLUENCE_USER / CONFLUENCE_PASS
   landing:
     prd_parent_page_id: config confluence.default_parent_page_id
@@ -109,5 +108,3 @@ python scripts/publish_design.py <ISSUE-KEY> docs/design/<ISSUE-KEY>/design.md \
 ## 为什么有效
 
 Confluence 认证、space、父页面各团队不同；独立 platform skill 后，JIRA / 钉钉 / Git 变更不影响 Confluence 脚本，PRD 与设计共用同一套读写能力。
-
-

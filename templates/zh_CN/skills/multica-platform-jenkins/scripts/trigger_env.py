@@ -38,7 +38,7 @@ def overrides_from_cli(extra: list[str]) -> dict[str, str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Trigger <jenkins-job-dev> / <jenkins-job-sit> Jenkins jobs")
+    parser = argparse.ArgumentParser(description="Trigger dev/sit Jenkins jobs by service name")
     parser.add_argument("--env", choices=("dev", "sit"), default="sit")
     parser.add_argument("--service", action="append", default=[], help="Logical service e.g. <service>")
     parser.add_argument("--branch", default="")
@@ -156,6 +156,3 @@ if __name__ == "__main__":
     except (JenkinsError, KeyError) as e:
         print(f"ERROR: {e}", file=sys.stderr)
         raise SystemExit(1) from e
-
-
-

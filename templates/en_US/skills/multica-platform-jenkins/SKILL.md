@@ -1,6 +1,6 @@
 ---
 name: multica-platform-jenkins
-description: Platform-layer skill (placeholder shell): read/write capability for CI/CD systems (Jenkins-class) — trigger parameterized builds, poll status, fetch console logs. Parameters are auto-discovered; never hardcode. Credentials injected via runtime env. Concrete CI URL / Job list in config.yaml, never in role prompts.
+description: "Platform-layer skill (placeholder shell): read/write capability for CI/CD systems (Jenkins-class) — trigger parameterized builds, poll status, fetch console logs. Parameters are auto-discovered; never hardcode. Credentials injected via runtime env. Concrete CI URL / Job list in config.yaml, never in role prompts."
 metadata:
   layer: platform
   replaces: any CI/CD system (Jenkins / GitLab CI / GitHub Actions / self-hosted pipeline / etc.)
