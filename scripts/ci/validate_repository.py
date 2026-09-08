@@ -71,6 +71,15 @@ def discover_skills(locale: str) -> dict[str, Path]:
     return result
 
 
+def normalize_skill_version(value: object) -> str | None:
+    """Return a semver-like version while tolerating YAML's numeric parsing of 1.0."""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return format(value, "g")
+    return None
+
+
 def validate_skill_contract(path: Path) -> dict[str, object]:
     meta = parse_frontmatter(path)
     dirname = path.parent.name
@@ -81,9 +90,10 @@ def validate_skill_contract(path: Path) -> dict[str, object]:
         fail(f"skill name mismatch: {path}: {meta.get('name')!r} != {dirname!r}")
     if meta.get("category") not in SKILL_CATEGORIES:
         fail(f"invalid skill category: {path}: {meta.get('category')!r}")
-    version = meta.get("version")
-    if not isinstance(version, str) or not SKILL_VERSION_RE.fullmatch(version):
-        fail(f"invalid skill version: {path}: {version!r}")
+    version = normalize_skill_version(meta.get("version"))
+    if version is None or not SKILL_VERSION_RE.fullmatch(version):
+        fail(f"invalid skill version: {path}: {meta.get('version')!r}")
+    meta["version"] = version
     for key in SKILL_LIST_FIELDS:
         if not isinstance(meta.get(key), list):
             fail(f"Skill Contract field '{key}' must be a YAML list: {path}")
@@ -118,7 +128,6 @@ def validate_skill_contracts_and_parity() -> None:
 
 
 def validate_skill_frontmatter() -> None:
-    # Kept as a focused repository check in addition to the full Skill Contract validation.
     validate_skill_contracts_and_parity()
 
 
