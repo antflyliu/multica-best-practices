@@ -1,6 +1,6 @@
 ---
 name: multica-artifact-cicd-sync
-description: CI/CD artifact orchestration: after G2 PASS and code push, invoke the platform adapter for deployment and return deployment version/evidence. This skill never owns G2.5/G3 Gate decisions.
+description: "CI/CD artifact orchestration: after G2 PASS and code push, invoke the platform adapter for deployment and return deployment version/evidence. This skill never owns G2.5/G3 Gate decisions."
 category: orchestration
 owner: Leader
 version: 1.0
