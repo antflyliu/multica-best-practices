@@ -1,6 +1,6 @@
 ---
 name: multica-platform-jenkins
-description: CI/CD 平台适配层：触发带参构建、轮询状态、读取构建日志并回传部署信息。具体 URL、Job、凭据只从运行时配置注入，不写入 Agent Instructions。
+description: "CI/CD 平台适配层：触发带参构建、轮询状态、读取构建日志并回传部署信息。具体 URL、Job、凭据只从运行时配置注入，不写入 Agent Instructions。"
 category: platform
 owner: Platform Adapter
 version: 1.0
