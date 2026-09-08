@@ -1,6 +1,6 @@
 ---
 name: multica-platform-jenkins
-description: CI/CD platform adapter: trigger parameterized builds, poll status, read build logs, and return deployment evidence. Concrete URLs, Jobs, and credentials are runtime configuration, never Agent Instructions.
+description: "CI/CD platform adapter: trigger parameterized builds, poll status, read build logs, and return deployment evidence. Concrete URLs, Jobs, and credentials are runtime configuration, never Agent Instructions."
 category: platform
 owner: Platform Adapter
 version: 1.0
