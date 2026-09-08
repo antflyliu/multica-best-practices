@@ -19,6 +19,8 @@ A gate is a checkpoint that can clearly answer "pass / fail". In the software-de
 
 The key property of a gate is **decidability**: every gate maps to a question that can be answered PASS / FAIL. If you can't judge it, it's not a gate — it's a wish.
 
+For template-contract wording, **`G2.5 PASS` means the G2.5 gate has been formally APPROVED by the Leader via `multica-verification`**. A CI/CD success result by itself is only machine evidence and does not equal this formal PASS/APPROVED decision.
+
 ## The gatekeeping action: the multica-verification skill
 
 Verification is a **function**, not a role. It is standardized as `templates/en_US/skills/multica-verification/` and triggered by the **Leader** at the gate points (G1 / G2 / G2.5 / G3):
