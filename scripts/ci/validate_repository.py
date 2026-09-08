@@ -75,8 +75,14 @@ def normalize_skill_version(value: object) -> str | None:
     """Return a semver-like version while tolerating YAML's numeric parsing of 1.0."""
     if isinstance(value, str):
         return value
-    if isinstance(value, (int, float)) and not isinstance(value, bool):
-        return format(value, "g")
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return f"{value}.0"
+    if isinstance(value, float):
+        if not value.is_integer():
+            return format(value, "g")
+        return f"{int(value)}.0"
     return None
 
 
