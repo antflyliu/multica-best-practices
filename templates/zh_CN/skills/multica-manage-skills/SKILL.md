@@ -1,6 +1,6 @@
 ---
 name: multica-manage-skills
-description: Multica 平台管理与统计适配层：查询 workspace / agent 及运行统计。仅用于平台数据访问，不属于业务方法论，不参与交付 Gate。
+description: "Multica 平台管理与统计适配层：查询 workspace / agent 及运行统计。仅用于平台数据访问，不属于业务方法论，不参与交付 Gate。"
 category: platform
 owner: Platform Adapter
 version: 1.0
