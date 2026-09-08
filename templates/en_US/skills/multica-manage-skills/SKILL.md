@@ -1,6 +1,6 @@
 ---
 name: multica-manage-skills
-description: Multica platform management and usage adapter: query workspaces, agents, and runtime statistics. Platform-only capability; it does not participate in delivery Gates.
+description: "Multica platform management and usage adapter: query workspaces, agents, and runtime statistics. Platform-only capability; it does not participate in delivery Gates."
 category: platform
 owner: Platform Adapter
 version: 1.0
