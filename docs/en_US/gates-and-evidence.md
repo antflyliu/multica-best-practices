@@ -122,7 +122,7 @@ LLM instructions are guidance, not a safety boundary. **Rules that must be obeye
 Tests / Lint / Build / CI / branch protection / PR approval
 ```
 
-- **Soft gate**: the Leader gatekeeps inside the Squad with the multica-verification skill (G1–G3), constrained by instructions and evidence — good for getting started or an exploration phase.
+- **Soft gate**: the Leader gatekeeps inside the Squad with the multica-verification skill (G1/G2/G2.5/G3), constrained by instructions and evidence — good for getting started or an exploration phase.
 - **Hard gate**: unforgeable checks produced by CI (deployment templates and practices live in the `multica-gate-setup` skill: `templates/en_US/skills/multica-gate-setup/`). CI is machine evidence; the formal gate verdict remains Leader-owned. When critical CI/CD evidence is unavailable, the affected gate is BLOCKED.
 
 Soft and hard gates are **two execution environments of the same verification function**: the Skill in the agent world and CI in the engineering world. If it can run in CI, run it in CI — but don't confuse CI success with the formal Leader verdict.
