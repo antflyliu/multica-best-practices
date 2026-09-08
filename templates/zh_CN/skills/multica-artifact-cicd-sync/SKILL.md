@@ -1,6 +1,6 @@
 ---
 name: multica-artifact-cicd-sync
-description: CI/CD 产物编排：在 G2 PASS 且代码已 push 后调用平台适配层执行部署，回传 deployment version 与证据。编排层不拥有 G2.5/G3 Gate。
+description: "CI/CD 产物编排：在 G2 PASS 且代码已 push 后调用平台适配层执行部署，回传 deployment version 与证据。编排层不拥有 G2.5/G3 Gate。"
 category: orchestration
 owner: Leader
 version: 1.0
