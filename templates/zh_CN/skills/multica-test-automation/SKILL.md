@@ -1,6 +1,6 @@
 ---
 name: multica-test-automation
-description: Tester T3 runtime automation：仅在 G2.5 CI/CD PASS 且部署环境就绪后执行自动化测试，并产出 G3 输入。具体测试工具由团队 adapter 配置，本 Skill 不绑定具体厂商。
+description: "Tester T3 runtime automation：仅在 G2.5 CI/CD PASS 且部署环境就绪后执行自动化测试，并产出 G3 输入。具体测试工具由团队 adapter 配置，本 Skill 不绑定具体厂商。"
 category: methodology
 owner: Tester
 version: 1.0
