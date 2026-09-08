@@ -1,9 +1,25 @@
 ---
 name: multica-platform-confluence
-description: "Platform-layer skill (placeholder shell): read/write capability for Confluence / Wiki-class systems — pull existing pages for Agents to consume, land PRD / design artifacts and return a stable page link. Decoupled from the Issue system; called by artifact-orchestration skills. Concrete platform URLs / spaces / parent pages live in config.yaml, never in role prompts."
-metadata:
-  layer: platform
-  replaces: any Wiki / knowledge-base platform (Confluence / Yuque / Feishu Docs / Lanhua Docs / etc.)
+description: Confluence platform adapter for reading and publishing knowledge-base artifacts and returning stable page references.
+category: platform
+owner: Platform Adapter
+version: 1.0
+inputs:
+  - Artifact content or page reference
+  - Team platform configuration
+outputs:
+  - Stable page reference
+  - Retrieved page content
+side_effects:
+  - Reads, creates, or updates Confluence pages
+requires:
+  - Runtime platform credentials/configuration
+forbidden:
+  - Printing credentials
+  - Putting platform credentials into Agent Instructions
+  - Making Gate decisions
+idempotent: true
+platform_dependent: true
 ---
 
 # Platform · Confluence (placeholder shell)
