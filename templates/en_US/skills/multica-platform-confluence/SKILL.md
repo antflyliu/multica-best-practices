@@ -1,6 +1,6 @@
 ---
 name: multica-platform-confluence
-description: Platform-layer skill (placeholder shell): read/write capability for Confluence / Wiki-class systems — pull existing pages for Agents to consume, land PRD / design artifacts and return a stable page link. Decoupled from the Issue system; called by artifact-orchestration skills. Concrete platform URLs / spaces / parent pages live in config.yaml, never in role prompts.
+description: "Platform-layer skill (placeholder shell): read/write capability for Confluence / Wiki-class systems — pull existing pages for Agents to consume, land PRD / design artifacts and return a stable page link. Decoupled from the Issue system; called by artifact-orchestration skills. Concrete platform URLs / spaces / parent pages live in config.yaml, never in role prompts."
 metadata:
   layer: platform
   replaces: any Wiki / knowledge-base platform (Confluence / Yuque / Feishu Docs / Lanhua Docs / etc.)
@@ -73,6 +73,14 @@ python scripts/publish_design.py <ISSUE-KEY> docs/design/<ISSUE-KEY>/design.md \
 3. Return `url` / `page_id` from the JSON; `multica-artifact-design-sync` then calls the Issue-platform skill to write the link back to the Issue.
 
 **Upsert rule**: same space + same title → update version; title may get an `[AI]` suffix (team-configurable).
+
+## Success criteria
+
+- Read operations return the requested page content or metadata in a form downstream skills can consume.
+- Create/update operations return a stable page URL and/or page identifier.
+- A published page can be fetched again and verified to contain the intended artifact content.
+- Upsert operations update the intended page/version without silently creating an unrelated page.
+- On failure, the script exits non-zero with diagnosable error output; never fabricate a page URL or page ID.
 
 ## Agent Compatibility
 

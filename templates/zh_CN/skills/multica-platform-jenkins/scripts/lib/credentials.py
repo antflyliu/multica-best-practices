@@ -22,15 +22,12 @@ def load_skill_env(skill_dir: Path) -> None:
 def resolve_jenkins_credentials() -> tuple[str, str]:
     user = (
         os.environ.get("ATLASSIAN_USER")
-        or os.environ.get("ATLASSIAN_USER")
         or os.environ.get("JENKINS_USER")
         or ""
     )
     password = (
         os.environ.get("ATLASSIAN_PASS")
-        or os.environ.get("ATLASSIAN_PASS")
         or os.environ.get("JENKINS_PASSWORD")
         or ""
     )
     return user, password
-

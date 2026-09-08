@@ -6,17 +6,27 @@
 ## Team
 
 ```text
-                Leader
-                  │
-    ┌─────────────┼─────────────┐
-    ↓             ↓             ↓
-Architect  FrontendDev  BackendDev
-    │             │             │
-    └──────┬──────┴──────┬──────┘
-           ↓             ↓
-        Tester（cases shift left）  ↓
-        Reviewer（business review）
+                         Leader
+                           │
+        ┌──────────────────┼──────────────────┐
+        ↓                  ↓                  ↓
+ ProductManager        Architect           Designer
+        │                  │                  │
+        └────────────┬─────┴─────┬────────────┘
+                     ↓           ↓
+               FrontendDev   BackendDev
+                     │           │
+                     └─────┬─────┘
+                           ↓
+                        Tester
+                           │
+                        Reviewer
+                           │
+                         DevOps
+                    (G2.5, optional)
 ```
+
+> `ProductManager / Designer / DevOps` are enabled by Issue scope; missing roles skip their artifacts and the gate chain stays intact.
 
 ## Workflow
 
@@ -24,7 +34,7 @@ Trim by the Issue's scope; any role can be missing:
 
 ```text
 Issue
-  ↓ G0 Determine scope (design? frontend? backend?) ── vague scope → write back to Issue / ask Human
+  ↓ G0 Determine scope (design? frontend? backend? CI/CD?) ── vague scope → write back to Issue / ask Human
   ↓
 [Design] Architect ── G1: Leader (multica-verification skill) aligns acceptance criteria + Reviewer business review ── FAIL → back to Architect
   ↓ PASS
@@ -155,7 +165,7 @@ The multica-verification skill is a **soft gate** in the agent world (executed b
 | `squad.md` | Squad Instructions (conditional routing + artifact gates + evidence requirements) |
 | `issue.md` | Standard Issue template (trimmed to a requirement contract: source pick-one + background/goal/scope-with-affected-ends/non-goals/acceptance criteria only) |
 | `README.md` | This file (workflow + artifact gates + setup steps) |
-| [`../../agents/`](../../agents/) | Shared Agent Instructions (architect / frontend-developer / backend-developer / tester / reviewer / leader) |
+| [`../../agents/`](../../agents/) | Shared Agent Instructions (architect / frontend-developer / backend-developer / tester / reviewer / devops / leader) |
 | [`../../skills/`](../../skills/) | Shared Skills (16, unified multica- prefix: gatekeeping / CI integration / test design / requirement analysis / technical design / implementation / artifact-orchestration / platform-shell) |
 
 ## Why this works

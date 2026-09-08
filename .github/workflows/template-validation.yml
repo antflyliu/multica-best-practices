@@ -1,0 +1,44 @@
+name: Template Validation
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, "fix/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: template-validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate templates and CI contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install validation dependency
+        run: python -m pip install --disable-pip-version-check --no-input PyYAML
+
+      - name: Validate repository structure and template contracts
+        run: python scripts/ci/validate_repository.py
+
+      - name: Validate Jenkins placeholder shell
+        run: python templates/zh_CN/skills/multica-platform-jenkins/scripts/validate.py
+
+      - name: Compile all Python scripts
+        run: python -m compileall -q templates

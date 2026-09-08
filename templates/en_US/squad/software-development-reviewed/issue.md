@@ -24,15 +24,16 @@
   - [ ] Design (needs Architect)
   - [ ] Frontend (needs FrontendDev)
   - [ ] Backend (needs BackendDev + API contract)
+  - [ ] CI/CD deployment (needs DevOps)
 - Changes: <!-- what should change? -->
 
 ## Non-goals
 <!-- Explicitly what NOT to do -->
 
 ## Acceptance Criteria (must be testable)
-- [ ]
-- [ ]
-- [ ]
+- [ ] AC-1:
+- [ ] AC-2:
+- [ ] AC-3:
 
 ## References
 <!-- docs, issues, screenshots, code locations -->
@@ -47,9 +48,9 @@
 
 - **"Involved ends" in Scope is the routing input**: Leader's G0 uses it to decide which roles to dispatch. Missing or vague scope → G0 FAIL, not a guess.
 - **Goal / Scope / Non-goals separated**: prevents Agents from freely expanding scope.
-- **Acceptance Criteria must be testable**: without testable criteria, gating can't run (multica-verification skill has nothing to check) and the whole gate system fails. This Starter adds dedicated Reviewer professional review on top, but review equally depends on clear, testable acceptance as its baseline.
+- **Acceptance Criteria must be testable and use AC- numbering**: dedicated Reviewers and multica-verification need stable references to each criterion.
 - **"Source: pick one" lightens link-type Issues**: when the source is Jira/Tapd, full requirements live externally; this Issue only needs "link + involved ends + one-line summary" to drive G0 routing and gating. Both forms share the same `<ISSUE-KEY>`; gate system unchanged.
-- **Issue is a requirements contract, not an implementation blueprint**: the Issue author is usually a PM (one Issue = one requirement). The template keeps only requirement essentials (why / what / involved ends / non-goals / testable acceptance); technical context, constraints, traceability, verification, Git branches are produced by the Squad at runtime—not pre-loaded as PM burden.
+- **Issue is a requirements contract, not an implementation blueprint**: technical context, constraints, traceability, verification, and Git branches are produced by the Squad at runtime—not pre-loaded as PM burden.
 
 ## Common failures
 

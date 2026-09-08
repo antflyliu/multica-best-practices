@@ -2,13 +2,23 @@
 
 ## v0.1（当前 / Current）
 
+当前 Starter 矩阵 / Current Starter matrix:
+
 ```text
 Software Development Starter
-├── 7 角色（Leader / Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer）
-├── 1 Squad（条件路由：任意角色可缺失）
-├── 6 Skills
-├── 1 Issue 模板（含「涉及端」范围声明）
-└── 1 Workflow
+├── 9 regular roles (Leader / ProductManager / Architect / Designer / FrontendDev / BackendDev / Tester / Reviewer / DevOps)
+├── 16 Skills
+└── 1 Squad + 1 Issue template
+
+Software Development Reviewed Starter
+├── 15 roles (9 regular + 6 dedicated Reviewers)
+├── 22 Skills
+└── 1 Squad + 1 Issue template
+
+Bug Fix Starter
+├── 5 roles (Leader / FrontendDev / BackendDev / Tester / Reviewer)
+├── 1 required Skill (multica-verification)
+└── 1 Squad + 1 Issue template
 ```
 
 ## 近期 / Near term

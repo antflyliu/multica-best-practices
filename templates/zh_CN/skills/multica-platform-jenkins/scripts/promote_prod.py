@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PROD promote — projectmanagement profile (cross-platform)."""
+"""PROD promote — legacy profile helper (cross-platform)."""
 from __future__ import annotations
 
 import argparse
@@ -40,9 +40,18 @@ def main() -> int:
 
     skill_dir = SCRIPT_DIR.parent
     cfg = load_config(skill_dir)
-    prod = cfg["profiles"]["prod"]
-    job_path = prod["job_path"]
-    sit_job_path = cfg["profiles"]["sit"]["job_path"]
+    legacy_profiles = cfg.get("legacy_profiles") or {}
+    prod = legacy_profiles.get("prod") or {}
+    sit = legacy_profiles.get("sit") or {}
+    job_path = prod.get("job_path", "")
+    sit_job_path = sit.get("job_path", "")
+
+    if not job_path or not sit_job_path:
+        print(
+            "ERROR: legacy_profiles.prod.job_path and legacy_profiles.sit.job_path must be configured",
+            file=sys.stderr,
+        )
+        return 2
 
     client = make_client(skill_dir)
     if args.timeout_seconds:
@@ -60,6 +69,9 @@ def main() -> int:
 
     env_projects = os.environ.get("BUILD_PROD_PROJECTS", "").split()
     projects = env_projects if env_projects else list(prod.get("projects", []))
+    if not projects:
+        print("ERROR: no PROD projects configured; set BUILD_PROD_PROJECTS or legacy_profiles.prod.projects", file=sys.stderr)
+        return 2
 
     for project in projects:
         build = client.last_success(sit_job_path, project)
