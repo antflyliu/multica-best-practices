@@ -1,6 +1,6 @@
 ---
 name: multica-verification
-description: 独立门禁验证：由 Leader 在 G1/G2/G3 复跑验收标准并输出 PASS、FAIL 或 BLOCKED。用于客观判定交付条件，不负责产出业务/技术/测试产物。
+description: "独立门禁验证：由 Leader 在 G1/G2/G3 复跑验收标准并输出 PASS、FAIL 或 BLOCKED。用于客观判定交付条件，不负责产出业务/技术/测试产物。"
 category: gate
 owner: Leader
 version: 1.0
@@ -81,7 +81,7 @@ Leader 执行本 Skill 时至少需要明确：
 
 ### BLOCKED
 
-缺少必要信息、环境、证据或有效的上游 Gate，无法客观判定。**BLOCKED 永远不能转换成 PASS，除非阻塞项被补齐并重新验证。**
+缺少必要信息、环境、证据或有效的上游 Gate，无法客观判定。**BLOCKED 永远不能转换为 PASS，除非阻塞项被补齐并重新验证。**
 
 ## Artifact 变更规则
 
