@@ -1,6 +1,6 @@
 ---
 name: multica-verification
-description: Independent gate verification: Leader reruns acceptance criteria at G1/G2/G3 and outputs PASS, FAIL, or BLOCKED. It judges delivery conditions and does not produce business, technical, or test artifacts.
+description: "Independent gate verification: Leader reruns acceptance criteria at G1/G2/G3 and outputs PASS, FAIL, or BLOCKED. It judges delivery conditions and does not produce business, technical, or test artifacts."
 category: gate
 owner: Leader
 version: 1.0
