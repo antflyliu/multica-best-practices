@@ -45,15 +45,15 @@ G0 scope ready
 The formal gates are only G0/G1/G2/G2.5/G3/G4. Do not introduce G2-prep or similar parallel formal gates; preparation checks belong inside the relevant Gate checklist.
 
 【T1/T2/T3】
-- T1: feature/API test design during the design phase, ready for G1/G2.
-- T2: before G2, check coverage, gaps, and implementation mapping; no runtime automation.
+- T1: feature/API test design during the design phase; it is an input to G1/G2.
+- T2: after the relevant implementation is ready and before G2, check coverage, gaps, and implementation mapping; no runtime automation.
 - T3: trigger `multica-test-automation` only after G2.5 PASS, against the deployed environment.
 - If G2.5 is not PASS, T3 is `BLOCKED`; local/manual results must not be relabeled as T3.
 
 【PIPELINE】
 1. G0: read the Issue; confirm scope, AC, risks, and deploy branch. Unclear scope → FAIL / BLOCKED; do not guess.
 2. G1: @Architect / @Designer produce design; Leader gates with `multica-verification`, with @Reviewer as needed for professional review.
-3. Before G2: @BackendDev produces the API contract; @Tester produces T1/T2 test design. Leader verifies each required artifact.
+3. After G1: @BackendDev produces the API contract; @Tester produces T1 test design earlier and T2 coverage/gap analysis after the relevant implementation is ready. Leader verifies each required artifact before G2.
 4. G2: @FrontendDev / @BackendDev implement. Leader gates each required implementation branch independently. All required branches must PASS before G2.5.
 5. G2.5: after code is merged to the deploy branch and pushed, @DevOps uses `multica-artifact-cicd-sync` to deploy to the test environment and return evidence. Leader gates G2.5.
 6. T3: only after G2.5 PASS, @Tester may run automation via `multica-test-automation` and produce evidence.
