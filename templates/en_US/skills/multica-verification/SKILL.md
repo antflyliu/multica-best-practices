@@ -1,57 +1,131 @@
 ---
 name: multica-verification
-description: "Gatekeeping function: objectively check whether an artifact satisfies the acceptance criteria. Triggered by the Leader to rerun at gate points (G1/G2/G2.5/G3); producers may provide evidence but cannot execute formal gatekeeping or issue the gate verdict. Used for design review / implementation acceptance / test-report review."
+description: "Independent gate verification: Leader reruns acceptance criteria at G1/G2/G3 and outputs PASS, FAIL, or BLOCKED. It judges delivery conditions and does not produce business, technical, or test artifacts."
+category: gate
+owner: Leader
+version: 1.0
+inputs:
+  - Gate ID
+  - Issue
+  - Artifact
+  - Artifact Version
+  - Upstream Gates
+  - Acceptance Criteria
+  - Evidence
+outputs:
+  - Gate Result
+  - Criterion-level evidence mapping
+side_effects:
+  - Records Gate status for the specified Artifact Version
+requires:
+  - Valid Issue and Acceptance Criteria
+  - Valid upstream Gate results
+forbidden:
+  - Producing or modifying the Artifact under verification
+  - Self-approving a producer's Artifact
+  - Treating BLOCKED as PASS
+idempotent: true
+platform_dependent: false
 ---
 
-# Verification (gatekeeping)
+# Verification (Independent Gate)
 
-## What this is
+## Positioning
 
-Verification is a **function**, not a role. It answers one question:
+Verification is a **gate action**, not a role and not a production Skill. It answers only:
 
-> For every acceptance criterion, is there objective evidence that it is satisfied?
+> Does the specified artifact version have objective evidence that it satisfies the current Gate's acceptance criteria?
 
-The key: verification must be an **objectively decidable action** (run commands, read output, map item by item), not "I feel it's fine."
-It doesn't rely on anyone's character — it relies on the evidence itself. Whoever runs it, the result is the same.
+**The only gate executor is the Leader.** A producer must not use this Skill to stamp PASS on their own artifact.
 
-## Who executes it
+If a producer needs an early check, use a pre-submit checklist inside the producer's Skill. That check does not create Gate status and cannot replace Leader Verification.
 
-- **Gatekeeping**: the **Leader** triggers this Skill at the formal gate points (G1 / G2 / G2.5 / G3) and verifies independently. Leader produces no gated artifact, so it is a separate party from the producer.
-- **Producer responsibility**: producers provide the artifact and supporting evidence; they do not execute the formal gatekeeping action and cannot issue the gate verdict.
+## Gate Inputs
 
-> The gate issuer must be a different party from the gated. Authors cannot stamp "PASS" on themselves.
+Before running this Skill, the Leader must identify at least:
+
+- `Gate ID`: `G1` / `G2` / `G3`
+- `Issue`
+- `Artifact`
+- `Artifact Version`
+- `Upstream Gates`
+- `Acceptance Criteria`
+- `Evidence`
+
+If a required input is missing, the result must be `BLOCKED`, never `PASS`.
 
 ## Process
 
-1. Read the Issue's acceptance criteria.
-2. Map every criterion to evidence (which test / which command / which output).
-3. **Rerun or independently check** the required verification evidence; do not accept a producer's claim as the formal result.
-4. Check the change scope: does the diff only touch this requirement?
-5. Give PASS / FAIL for each criterion (individual check result).
-6. Normalize the gate outcome to APPROVED / APPROVED_NA / REJECTED / BLOCKED.
+1. Read the Issue's Acceptance Criteria.
+2. Confirm the target Artifact and its current Version.
+3. Confirm all Upstream Gates are still valid.
+4. Map every Acceptance Criterion to rerunnable Evidence.
+5. **Leader reruns the checks independently**; producer-reported or pasted output is not a substitute for rerun evidence.
+6. Check the diff / change scope against the Issue Scope.
+7. Record each check result and aggregate the Gate Result.
 
-## Result
+## Gate Result
 
-Use these four values for the formal gate verdict:
+### PASS
 
-**APPROVED** — every applicable criterion has sufficient evidence; downstream may open.
+All current Gate Acceptance Criteria are satisfied and Upstream Gates are valid.
 
-**APPROVED_NA** — the artifact / branch is explicitly confirmed by the Leader to be not applicable; record the N/A reason and do not silently skip it.
+### FAIL
 
-**REJECTED** — at least one applicable criterion is unmet. Must provide: the problem, why it matters, where, the fix direction, and a verifiable pass condition.
+At least one Acceptance Criterion is unmet. Record:
 
-**BLOCKED** — missing information / environment / dependency prevents verification. Report honestly; it is not a pass.
+- Problem
+- Why it matters
+- Evidence / location
+- Fix direction
 
-> Individual evidence may still use PASS / FAIL, but the final gate verdict must use the four values above so it stays consistent with `gates-and-evidence`.
+### BLOCKED
 
-## Known failure case
+Required information, environment, evidence, or a valid upstream Gate is missing, so an objective decision cannot be made. **BLOCKED can never be converted to PASS until the blocking condition is resolved and verification is rerun.**
 
-A typical failure mode is a producer treating "the local command passed" as gate evidence, with the Leader accepting that output without independently rerunning or checking the diff. A later review can reveal uncovered files and invalidate downstream verification. The rule is explicit: the Leader must independently verify the evidence and check the diff; producer-supplied evidence is never sufficient by itself for the formal gate verdict.
+## Artifact Change Rule
 
-## Relationship to CI hard gates
+**Whenever an artifact is modified, every downstream Gate immediately becomes invalid.**
 
-This Skill is the verification function's form in the agent world (soft gate), suitable for getting started or exploration phases. The same function's machine form is the CI hard-gate template carried by `multica-gate-setup`. CI supplies machine evidence; it does not bypass the Leader's formal `multica-verification` verdict. If it can run in CI, run it in CI, but keep the formal gate decision Leader-owned.
+The Leader must:
 
-## Why this works
+1. Identify downstream dependencies of the modified Artifact.
+2. Mark affected downstream Gates as requiring re-verification.
+3. Never reuse a Gate PASS or evidence from the previous artifact version.
+4. Restart Verification from the earliest affected Gate.
 
-"Verification" is the easiest thing to turn into a formality. Writing verification as an independently checkable action checklist and requiring the non-producing Leader to execute the formal gate blocks producers from turning their own evidence into a formal gate verdict.
+Therefore, a Gate PASS is bound to a specific `Artifact Version`, not merely to an Issue.
+
+## Boundaries
+
+- **Reviewer**: judges professional quality and produces review findings.
+- **Leader / Verification**: judges whether delivery Gate conditions are met and produces the Gate Result.
+- **CI/PR**: provides machine-verifiable evidence; prose cannot replace it.
+- **Human Acceptance**: decides final business/product acceptance; Verification does not replace it.
+
+## Relationship to CI
+
+`multica-verification` is the Agent-side Gate execution method; CI is the machine-side hard gate. They complement rather than replace each other:
+
+- Checks that can be automated should be enforced in CI.
+- At a Gate, Leader still confirms that CI evidence belongs to the current Artifact Version.
+- T3 automated testing may trigger **only after G2.5 CI/CD PASS**.
+
+## Result Contract
+
+Leader should emit the following structure consistently:
+
+```yaml
+gate:
+  id: G2
+  issue: <ISSUE_KEY>
+  artifact: <ARTIFACT_TYPE>
+  artifact_version: <VERSION>
+  upstream_gates: [G1]
+  result: PASS | FAIL | BLOCKED
+  checks:
+    - criterion: <AC_ID>
+      result: PASS | FAIL | BLOCKED
+      evidence: <COMMAND_OR_EVIDENCE_REF>
+  failures: []
+```

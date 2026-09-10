@@ -1,6 +1,25 @@
 ---
 name: multica-review-architect
-description: 架构设计专属评审框架。由 ArchReviewer 调用，对 Architect 产出的技术架构设计做专业分析（合理性/扩展性/验收对齐/技术风险），输出 PASS/FAIL 与修改清单，汇报 Leader。
+description: 架构设计专业评审框架：评估方案合理性、扩展性、验收对齐与技术风险，并向 Leader 输出评审结论。
+category: methodology
+owner: ArchReviewer
+version: 1.0
+inputs:
+  - Technical Design Artifact
+  - Issue / Acceptance Criteria
+  - Previous review findings when applicable
+outputs:
+  - Professional review result
+  - Blocking and non-blocking findings
+side_effects:
+  - None; review only
+requires:
+  - multica-artifact-design-sync
+forbidden:
+  - Modifying the reviewed Artifact
+  - Declaring Leader Gate PASS
+idempotent: true
+platform_dependent: false
 ---
 
 # 架构设计专业评审（ArchReviewer）

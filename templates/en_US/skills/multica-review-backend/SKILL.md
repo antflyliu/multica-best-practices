@@ -1,11 +1,31 @@
 ---
 name: multica-review-backend
-description: Backend-implementation dedicated review framework. Called by BackendReviewer to professionally analyze BackendDev's API contract & implementation (contract quality/design fit/error handling/unit-test sufficiency/acceptance mapping), output PASS/FAIL + fix list, report to Leader.
+description: Backend implementation professional review framework that reports quality findings to the Leader.
+category: methodology
+owner: BackendReviewer
+version: 1.0
+inputs:
+  - API Contract Artifact
+  - Backend implementation changes
+  - Acceptance Criteria
+  - Previous review findings when applicable
+outputs:
+  - Professional review result
+  - Blocking and non-blocking findings
+side_effects:
+  - None; review only
+requires:
+  - multica-artifact-api-sync
+forbidden:
+  - Modifying reviewed code or API artifacts
+  - Declaring Leader Gate PASS
+idempotent: true
+platform_dependent: false
 ---
 
 # Backend Implementation Professional Review (BackendReviewer)
 
-Structured professional review framework for **backend implementation artifacts (API contract + implementation)**. Called by `BackendReviewer`; reviews the links `BackendDev` returns via `multica-artifact-api-sync` and code-class skill (Apifox / changed-file list), plus the architecture design ref Leader passes.
+Structured professional review framework for **backend implementation artifacts (API contract + implementation)**. Called by `BackendReviewer`; reviews the links `BackendDev` returns via `multica-artifact-api-sync` and code changes, plus the architecture design ref Leader passes.
 
 ## When to use
 - BackendReviewer receives a "review backend implementation" dispatch from Leader.
@@ -15,7 +35,7 @@ Structured professional review framework for **backend implementation artifacts 
 1. **Contract quality**: field naming, status codes, error model, versioning clear & self-consistent.
 2. **Design fit**: implementation aligned with Architect plan, deviations explained.
 3. **Error handling**: exception branches, timeouts, idempotency, boundaries covered.
-4. **Unit-test sufficiency**: key paths, boundaries, exception branches covered; do not pad coverage with invalid tests (mark & block).
+4. **Unit-test sufficiency**: key paths, boundaries, exception branches covered; invalid tests are blocking.
 5. **Acceptance mapping**: implementation truly satisfies every AC-.
 
 ## Output format

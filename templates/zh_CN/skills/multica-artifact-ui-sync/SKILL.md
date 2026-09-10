@@ -1,6 +1,24 @@
 ---
 name: multica-artifact-ui-sync
-description: 把 UI / 交互设计产物对接到设计协作平台（默认 Figma）。用于 @Designer 上传视觉稿、取回链接与标注，供前端下游消费。平台可替换。
+description: UI / 交互设计产物编排：发布设计 Artifact 并回传稳定引用，具体设计平台可替换。
+category: orchestration
+owner: Designer
+version: 1.0
+inputs:
+  - UI design Artifact
+  - Issue key
+  - Target design platform adapter
+outputs:
+  - Stable UI Artifact reference
+side_effects:
+  - Publishes or updates UI design artifacts
+requires:
+  - Configured design platform adapter
+forbidden:
+  - Embedding platform credentials in Agent Instructions
+  - Declaring Gate PASS
+idempotent: true
+platform_dependent: true
 ---
 
 # Artifact · UI Design Sync
@@ -32,14 +50,6 @@ description: 把 UI / 交互设计产物对接到设计协作平台（默认 Fig
 ## 替换平台（不改角色提示词）
 
 把本 skill 的「默认平台」段替换为你们的工具（蓝湖 / Zeplin / MasterGo / 内部设计库），保持「上传 + 回传稳定链接」接口不变即可。
-
-## 平台不可用时的降级路径
-
-1. 先执行一次正常发布 / 同步；确认平台不可用后停止重复写入。
-2. 将当前产物标记为 `BLOCKED`，记录平台、尝试的操作、时间 / 错误信息，以及缺失的稳定链接或引用 ID。
-3. 若下游只需要内容草稿且不要求平台稳定引用，Leader 可明确接受本地草稿作为**临时引用**；不得把临时引用伪装成已发布链接。
-4. 若 G1 或下游明确要求稳定设计链接，则保持 `BLOCKED`，不得用猜测的 URL、Frame ID 或截图冒充发布成功。
-5. 平台恢复并完成发布后，重新回传稳定引用；若产物内容或引用发生修改，其下游门禁立即失效，必须重新判门。
 
 ## 为什么有效
 

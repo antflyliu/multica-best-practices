@@ -1,6 +1,28 @@
 ---
 name: multica-implementation
 description: Implement an approved technical plan with minimal unnecessary changes. Used for coding, adding tests, and running verification.
+category: methodology
+owner: BackendDev / FrontendDev
+version: 1.0
+inputs:
+  - Approved Technical Design
+  - Issue / Acceptance Criteria
+  - Existing Code
+outputs:
+  - Implementation changes
+  - Test changes
+  - Execution evidence
+side_effects:
+  - Modifies source code and tests
+requires:
+  - Approved technical design
+  - Clear Issue scope
+forbidden:
+  - Silent requirement changes
+  - Declaring Gate PASS
+  - Replacing Leader Verification
+idempotent: false
+platform_dependent: false
 ---
 
 # Implementation

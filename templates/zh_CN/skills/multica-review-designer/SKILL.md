@@ -1,11 +1,29 @@
 ---
 name: multica-review-designer
-description: UI 设计专属评审框架。由 DesignReviewer 调用，对 Designer 产出的 UI/交互设计做专业分析（交互合理性/可访问性/设计系统一致/边界态），输出 PASS/FAIL 与修改清单，汇报 Leader。
+description: UI 设计专属评审框架。由 DesignReviewer 调用，对 Designer 产出的 UI/交互设计做专业分析（交互合理性/可访问性/设计系统一致/边界态），输出专业评审结论与修改清单，汇报 Leader。
+category: methodology
+owner: DesignReviewer
+version: 1.0
+inputs:
+  - ui_design_artifact
+  - acceptance_criteria
+  - previous_review_findings
+outputs:
+  - design_review
+side_effects: []
+requires:
+  - ui_design_ready
+forbidden:
+  - modify_design_artifact
+  - approve_leader_gate
+  - notify_designer_directly
+idempotent: true
+platform_dependent: false
 ---
 
 # UI 设计专业评审（DesignReviewer）
 
-本 skill 提供对 **UI / 交互设计产物**的结构化专业评审框架。调用方为 `DesignReviewer`，评审对象为 `Designer` 经 `multica-artifact-ui-sync` 回传的 Figma/设计平台链接。
+本 skill 提供对 **UI / 交互设计产物**的结构化专业评审框架。调用方为 `DesignReviewer`，评审对象为 `Designer` 经 `multica-artifact-ui-sync` 回传的设计产物。
 
 ## 什么时候用
 - DesignReviewer 收到 Leader 派发的「评审 UI 设计」任务时。
@@ -20,7 +38,7 @@ description: UI 设计专属评审框架。由 DesignReviewer 调用，对 Desig
 
 ## 输出格式
 ```
-【UI 设计评审】<设计链接>
+【UI 设计评审】<设计产物>
 结论：PASS / FAIL
 阻断项（FAIL 时必填，每项含 理由 / 涉及点 / 修改方向）：
 - ...
@@ -29,9 +47,10 @@ description: UI 设计专属评审框架。由 DesignReviewer 调用，对 Desig
 与上一轮修改清单核对（复审时）：已解决 X 项 / 未解决 Y 项
 轮次：第 N / 3 轮
 ```
-结论与修改清单**汇报给 Leader**，不自行改设计、不自行通知 Designer。
+
+结论与修改清单**汇报给 Leader**。本 skill 只负责专业评审，不执行通用交付门禁；不自行改设计、不自行通知 Designer。
 
 ## 边界
 - 只评 UI 设计，不评架构、需求、代码、测试用例。
-- 不替代 Leader 的通用门禁（multica-verification skill）。
+- 不替代 Leader 的通用门禁（`multica-verification` skill）。
 - 第 3 轮仍 FAIL → 标注「升级人类」，交 Leader 处理，停止循环。

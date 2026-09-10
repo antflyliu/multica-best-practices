@@ -1,6 +1,25 @@
 ---
 name: multica-artifact-test-sync
-description: 把测试用例 / 测试报告产物对接到用例管理平台（默认本地 XMind 转 Jira）。用于 @Tester 上传用例、回传链接，供验收下游消费。平台可替换。
+description: 测试 Artifact 编排：发布测试用例 / 报告并回传稳定引用，具体用例平台可替换。
+category: orchestration
+owner: Tester
+version: 1.0
+inputs:
+  - Test Artifact
+  - Issue key
+  - Target platform adapter
+outputs:
+  - Stable test Artifact reference
+side_effects:
+  - Publishes or updates test artifacts
+requires:
+  - multica-test-design
+  - Configured case-management adapter
+forbidden:
+  - Embedding platform credentials in Agent Instructions
+  - Declaring G3 PASS
+idempotent: true
+platform_dependent: true
 ---
 
 # Artifact · Test Case Sync
@@ -9,7 +28,7 @@ description: 把测试用例 / 测试报告产物对接到用例管理平台（�
 
 把测试用例 / 测试报告落地到团队统一的用例管理平台，并让下游（验收 / Reviewer）用稳定方式取回。
 
-> 本 skill 把「平台对接」与「角色提示词」解耦：角色提示词只说"产出测试用例"，不关心平台。换公司（用 TestRail / Zephyr / 禅道 / 内部用例库）只改本 skill，不动 @Tester 提示词。
+> 本 skill 把「平台对接」与「角色提示词」解耦：角色提示词只说"产出测试用例"，不关心平台。换公司（TestRail / Zephyr / 禅道 / 内部用例库）只改本 skill，不动 @Tester 提示词。
 
 ## 默认平台：本地 XMind 转 Jira
 
@@ -28,14 +47,6 @@ description: 把测试用例 / 测试报告产物对接到用例管理平台（�
 ## 替换平台（不改角色提示词）
 
 把本 skill 的「默认平台」段替换为你们的工具（TestRail / Zephyr / 禅道 / 内部用例库），保持「上传 + 回传稳定链接」接口不变即可。
-
-## 平台不可用时的降级路径
-
-1. 先执行一次正常发布 / 同步；确认用例平台不可用后停止重复写入。
-2. 将同步步骤标记为 `BLOCKED`，记录平台、尝试的操作、时间 / 错误信息，以及缺失的稳定用例集链接或引用 ID。
-3. 若下游只需要用例草稿且当前门禁不要求平台稳定引用，Leader 可明确接受本地用例作为**临时引用**；不得伪造 Jira / 其他平台链接。
-4. 若 G2 / G3 或测试报告消费要求稳定用例引用，则保持 `BLOCKED`。平台不可用本身不能变成测试通过，也不能以本地结果冒充部署环境 T3 证据。
-5. 平台恢复后重新同步并回传稳定引用；任何用例 / 报告内容或引用发生修改，其下游门禁立即失效，必须重新判门。
 
 ## 为什么有效
 

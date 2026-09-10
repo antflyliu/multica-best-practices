@@ -26,9 +26,9 @@ Human acceptance (G4)
 | **T1** feature cases | after design finalizes, in parallel with API contract | feature cases + design study (to team case platform) | Leader gates |
 | **Parallel** API cases | after API contract ready, in parallel with frontend/backend impl | API test cases (for T3) | Leader gates |
 | **T2** supplement + coverage | after G2 PASS, before T3 | case-supplement list + coverage assessment (not a report) | Leader gates |
-| **T3** automation exec | **after G2.5 PASS** | automation log + test report (G3 input) | G3 (Leader reviews) |
+| **T3** automation exec | **only after G2.5 PASS** | automation log + test report (G3 input) | G3 (Leader reviews) |
 
-T1 / T2 only write cases and assess; **T3 is the only execution phase** and binds to the real deploy env.
+T1 / T2 only write cases and assess; **T3 is the only automation-execution phase** and binds to the real deploy env. Any attempt to run T3 without G2.5 PASS must be `BLOCKED`; local/manual results must not be relabeled as T3.
 
 ## 3. Deploy branch model
 
@@ -42,13 +42,15 @@ T1 / T2 only write cases and assess; **T3 is the only execution phase** and bind
 | --- | --- |
 | @Leader | declare deploy branch; after G2 confirm each end merged & pushed; gate G2.5 and G3 |
 | @DevOps | after G2 PASS + push, use `multica-artifact-cicd-sync` to trigger build/deploy, return env URL (no business code) |
-| @Tester | T1/T2 write cases & assess; after G2.5, T3 runs automation in the deploy env |
+| @Tester | T1/T2 write cases & assess; **only after G2.5 PASS** T3 runs automation in the deploy env |
 | @FrontendDev / @BackendDev | implement and merge to deploy branch, provide changed-file list for T2 |
 
-## 5. Degradation path without @DevOps / no CI
+## 5. Handling no @DevOps / no CI
 
-- When no triggerable CI/CD exists, **skip G2.5**; T3 degrades to local / manual verification + explicit "no CI/CD deploy" labeling. Evidence requirements are unchanged — still give env / execution method / output.
-- This does not conflict with the gate system: G2.5 is a "hard gate when CI exists", not a mandatory step. See `gates-and-evidence.md`.
+- When no triggerable CI/CD exists, **G2.5 cannot PASS**.
+- Therefore **T3 automation must remain `BLOCKED` and must not degrade into local/manual T3**. This constraint is non-bypassable.
+- If the business still needs a human check, it may run as separate **manual verification**, but it is not T3, cannot be used as T3 evidence, and cannot be presented as G2.5 PASS or automated G3 evidence.
+- Once CI/CD is available and G2.5 PASS is obtained, T3 may be triggered. Earlier manual verification does not inherit T3 PASS.
 
 ## 6. Why it works
 

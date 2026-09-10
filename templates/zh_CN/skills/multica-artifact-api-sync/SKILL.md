@@ -1,6 +1,26 @@
 ---
 name: multica-artifact-api-sync
-description: 把 API 接口文档产物对接到接口协作平台（默认 Apifox）。用于 @BackendDev 上传 API 契约，供前端 / 测试下游消费。平台可替换。
+description: 把 API 接口文档产物对接到团队接口协作平台。用于 @BackendDev 发布 API 契约，供前端 / 测试下游消费；具体平台可替换。
+category: orchestration
+owner: BackendDev
+version: 1.0
+inputs:
+  - API Contract Artifact
+  - Issue Key
+  - Target Platform Adapter
+outputs:
+  - Stable API Artifact Reference
+side_effects:
+  - Publishes or updates the API Artifact on the configured platform
+requires:
+  - Valid API Contract
+  - Configured platform adapter
+forbidden:
+  - Embedding platform credentials in Agent Instructions
+  - Reimplementing platform-specific transport in role prompts
+  - Declaring Gate PASS
+idempotent: true
+platform_dependent: true
 ---
 
 # Artifact · API Contract Sync
@@ -28,14 +48,6 @@ description: 把 API 接口文档产物对接到接口协作平台（默认 Apif
 ## 替换平台（不改角色提示词）
 
 把本 skill 的「默认平台」段替换为你们的工具（Swagger / YApi / Postman / 内部网关），保持「上传 + 回传稳定链接」接口不变即可。
-
-## 平台不可用时的降级路径
-
-1. 先执行一次正常发布 / 同步；确认接口平台不可用后停止重复写入。
-2. 将同步步骤标记为 `BLOCKED`，记录平台、尝试的操作、时间 / 错误信息，以及缺失的稳定项目 / 分组链接或引用 ID。
-3. 若下游只需要契约草稿且当前门禁不要求平台稳定引用，Leader 可明确接受本地契约作为**临时引用**；不得伪造 Apifox / 其他平台链接。
-4. 若 G2 或下游要求稳定 API 引用，则保持 `BLOCKED`，不得用旧版本链接或猜测 ID 冒充当前契约。
-5. 平台恢复并完成同步后重新回传稳定引用；任何 API 契约内容或引用发生修改，其下游门禁立即失效，必须重新判门。
 
 ## 为什么有效
 

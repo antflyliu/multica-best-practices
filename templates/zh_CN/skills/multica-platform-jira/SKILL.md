@@ -1,6 +1,27 @@
 ---
 name: multica-platform-jira
-description: JIRA 读写：Issue 查询、Confluence 链接解析、Story 创建、流转、排期、描述回写、钉钉。平台 skill，与 Confluence 解耦。
+description: JIRA 读写适配：Issue 查询、链接解析、Story 创建、流转、排期、描述回写与通知。平台 Skill，与 Confluence 解耦。
+category: platform
+owner: Platform Adapter
+version: 1.0
+inputs:
+  - JIRA operation
+  - Issue / payload parameters
+  - Platform credentials from environment
+outputs:
+  - JIRA response or stable artifact reference
+side_effects:
+  - Reads or mutates JIRA state
+requires:
+  - Configured JIRA URL
+  - Valid credentials
+  - Team-specific config.yaml
+forbidden:
+  - Storing real credentials in source
+  - Hiding platform-specific behavior in Agent Instructions
+  - Making Gate decisions
+idempotent: false
+platform_dependent: true
 metadata:
   credentials:
     priority:
@@ -64,19 +85,11 @@ bash scripts/jira.sh notify-story <JIRA_ISSUE_KEY> <confluence_page_id> aai
 
 ## JIRA Wiki 描述格式
 
-追加块使用 Jira Wiki（非 Markdown）：`h3.` 标题、`*` 列表、`[text|url]` 链接。大括号需转义 `\\{\\}`。
+追加块使用 Jira Wiki（非 Markdown）：`h3.` 标题、`*` 列表、`[text|url]` 链接。大括号需转义 `\{\}`。
 
 ## Workflow E：Confluence 阻塞降级（PRD）
 
 Confluence 创建失败时，`multica-artifact-req-sync` 可将 PRD 全文写入 JIRA Story 描述（本 skill `create-story` / `append-description`），并标注「Confluence 降级」；恢复后再补建 Confluence 页面并更新描述链接。
-
-## 成功标准
-
-- Read 操作返回 HTTP `200`，且输出可消费的 Issue / 查询结果
-- 创建或更新操作返回 HTTP `200` / `201`，并回传 `issue key`
-- 状态流转 / 排期成功后返回目标 `issue key` 与成功状态
-- 描述回写成功后可再次读取并确认目标链接已落入 Issue
-- 失败时返回非零 exit code，并保留可诊断的错误信息；禁止把失败伪装成成功
 
 ## 与产物 skill 的关系
 

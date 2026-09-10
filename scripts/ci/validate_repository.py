@@ -10,14 +10,17 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 TEMPLATES = ROOT / "templates"
-
+SKILL_REQUIRED = (
+    "name", "description", "category", "owner", "version",
+    "inputs", "outputs", "side_effects", "requires", "forbidden",
+    "idempotent", "platform_dependent",
+)
+SKILL_LIST_FIELDS = {"inputs", "outputs", "side_effects", "requires", "forbidden"}
+SKILL_BOOL_FIELDS = {"idempotent", "platform_dependent"}
+SKILL_CATEGORIES = {"methodology", "orchestration", "platform", "gate"}
+SKILL_VERSION_RE = re.compile(r"^\d+\.\d+(?:\.\d+)?$")
 MIXED_LANGUAGE_FRAGMENTS = (
-    "no无效的",
-    "only无效",
-    "data口径",
-    "cross-scope口径",
-    "cross-cutting口径",
-    "field口径",
+    "no无效的", "only无效", "data口径", "cross-scope口径", "cross-cutting口径", "field口径",
 )
 FORBIDDEN_AGENT_PLATFORM_PATTERNS = (
     r"https?://[^\s<>]+",
@@ -37,21 +40,101 @@ def read_text(path: Path) -> str:
         fail(f"non-UTF-8 file: {path}: {exc}")
 
 
+def parse_frontmatter(path: Path) -> dict[str, object]:
+    text = read_text(path)
+    if not text.startswith("---"):
+        fail(f"missing YAML frontmatter: {path}")
+    parts = text.split("---", 2)
+    if len(parts) < 3:
+        fail(f"invalid YAML frontmatter: {path}")
+    try:
+        meta = yaml.safe_load(parts[1]) or {}
+    except yaml.YAMLError as exc:
+        fail(f"invalid frontmatter YAML in {path}: {exc}")
+    if not isinstance(meta, dict):
+        fail(f"frontmatter must be a YAML mapping: {path}")
+    return meta
+
+
+def discover_skills(locale: str) -> dict[str, Path]:
+    root = TEMPLATES / locale / "skills"
+    if not root.is_dir():
+        fail(f"missing skill directory: {root}")
+    result: dict[str, Path] = {}
+    for child in sorted(root.iterdir()):
+        if not child.is_dir():
+            continue
+        skill_file = child / "SKILL.md"
+        if not skill_file.is_file():
+            fail(f"skill directory missing SKILL.md: {child}")
+        result[child.name] = skill_file
+    return result
+
+
+def normalize_skill_version(value: object) -> str | None:
+    """Return a semver-like version while tolerating YAML's numeric parsing of 1.0."""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return f"{value}.0"
+    if isinstance(value, float):
+        if not value.is_integer():
+            return format(value, "g")
+        return f"{int(value)}.0"
+    return None
+
+
+def validate_skill_contract(path: Path) -> dict[str, object]:
+    meta = parse_frontmatter(path)
+    dirname = path.parent.name
+    for key in SKILL_REQUIRED:
+        if key not in meta:
+            fail(f"missing Skill Contract field '{key}': {path}")
+    if meta.get("name") != dirname:
+        fail(f"skill name mismatch: {path}: {meta.get('name')!r} != {dirname!r}")
+    if meta.get("category") not in SKILL_CATEGORIES:
+        fail(f"invalid skill category: {path}: {meta.get('category')!r}")
+    version = normalize_skill_version(meta.get("version"))
+    if version is None or not SKILL_VERSION_RE.fullmatch(version):
+        fail(f"invalid skill version: {path}: {meta.get('version')!r}")
+    meta["version"] = version
+    for key in SKILL_LIST_FIELDS:
+        if not isinstance(meta.get(key), list):
+            fail(f"Skill Contract field '{key}' must be a YAML list: {path}")
+    for key in SKILL_BOOL_FIELDS:
+        if not isinstance(meta.get(key), bool):
+            fail(f"Skill Contract field '{key}' must be boolean true/false: {path}")
+    for key in ("name", "description", "owner"):
+        if not isinstance(meta.get(key), str):
+            fail(f"Skill Contract field '{key}' must be a string: {path}")
+    return meta
+
+
+def validate_skill_contracts_and_parity() -> None:
+    zh = discover_skills("zh_CN")
+    en = discover_skills("en_US")
+    zh_meta = {name: validate_skill_contract(path) for name, path in zh.items()}
+    en_meta = {name: validate_skill_contract(path) for name, path in en.items()}
+    if set(zh) != set(en):
+        missing_en = sorted(set(zh) - set(en))
+        missing_zh = sorted(set(en) - set(zh))
+        if missing_en:
+            fail(f"zh_CN skill(s) missing en_US counterpart: {', '.join(missing_en)}")
+        if missing_zh:
+            fail(f"en_US skill(s) missing zh_CN counterpart: {', '.join(missing_zh)}")
+    for name in sorted(set(zh) & set(en)):
+        for key in ("name", "category", "owner", "version"):
+            if zh_meta[name].get(key) != en_meta[name].get(key):
+                fail(f"zh/en Skill Contract mismatch for {name}.{key}: {zh_meta[name].get(key)!r} != {en_meta[name].get(key)!r}")
+        for key in SKILL_REQUIRED:
+            if (key in zh_meta[name]) != (key in en_meta[name]):
+                fail(f"zh/en Skill Contract key-set mismatch for {name}.{key}")
+
+
 def validate_skill_frontmatter() -> None:
-    for skill_file in sorted(TEMPLATES.glob("*/skills/*/SKILL.md")):
-        text = read_text(skill_file)
-        if not text.startswith("---"):
-            fail(f"missing YAML frontmatter: {skill_file}")
-        parts = text.split("---", 2)
-        if len(parts) < 3:
-            fail(f"invalid YAML frontmatter: {skill_file}")
-        try:
-            meta = yaml.safe_load(parts[1]) or {}
-        except yaml.YAMLError as exc:
-            fail(f"invalid frontmatter YAML in {skill_file}: {exc}")
-        expected = skill_file.parent.name
-        if meta.get("name") != expected:
-            fail(f"skill name mismatch: {skill_file}: {meta.get('name')!r} != {expected!r}")
+    validate_skill_contracts_and_parity()
 
 
 def validate_yaml_files() -> None:
@@ -64,7 +147,6 @@ def validate_yaml_files() -> None:
 
 def validate_python_syntax() -> None:
     import ast
-
     for path in sorted(TEMPLATES.rglob("*.py")):
         try:
             ast.parse(read_text(path), filename=str(path))
@@ -112,7 +194,6 @@ def validate_t3_dependencies() -> None:
             fail(f"software-development squad missing multica-test-automation: templates/{lang}/squad/software-development/squad.md")
         if "G2.5 PASS" not in squad:
             fail(f"software-development squad missing G2.5→T3 dependency: templates/{lang}/squad/software-development/squad.md")
-
         automation = TEMPLATES / lang / "skills" / "multica-test-automation"
         if not (automation / "SKILL.md").is_file():
             fail(f"missing multica-test-automation Skill: {automation}")

@@ -1,58 +1,131 @@
 ---
 name: multica-verification
-description: 判门功能：客观检查产物是否满足验收标准。由 Leader 在门禁点（G1/G2/G2.5/G3）触发复跑；产出者负责提供产物和证据，但不得执行正式判门或自行出具门禁结论。用于设计检查 / 实现验收 / 测试报告复核。
+description: "独立门禁验证：由 Leader 在 G1/G2/G3 复跑验收标准并输出 PASS、FAIL 或 BLOCKED。用于客观判定交付条件，不负责产出业务/技术/测试产物。"
+category: gate
+owner: Leader
+version: 1.0
+inputs:
+  - Gate ID
+  - Issue
+  - Artifact
+  - Artifact Version
+  - Upstream Gates
+  - Acceptance Criteria
+  - Evidence
+outputs:
+  - Gate Result
+  - Criterion-level evidence mapping
+side_effects:
+  - Records Gate status for the specified Artifact Version
+requires:
+  - Valid Issue and Acceptance Criteria
+  - Valid upstream Gate results
+forbidden:
+  - Producing or modifying the Artifact under verification
+  - Self-approving a producer's Artifact
+  - Treating BLOCKED as PASS
+idempotent: true
+platform_dependent: false
 ---
 
-# Verification（判门）
+# Verification（独立门禁）
 
-## 这是什么
+## 定位
 
-验证是一个**功能**，不是一个角色。它回答一个问题：
+Verification 是**门禁动作**，不是角色，也不是产出 Skill。它只回答：
 
-> 每条验收标准，有没有客观证据证明满足？
+> 当前版本的指定产物，是否有客观证据满足当前 Gate 的验收标准？
 
-关键：验证必须是**客观可判定的动作**（跑命令、看输出、逐条对照），不是「我感觉没问题」。
-它不靠某个人的人品，靠证据本身——谁跑结果都一样。
+**唯一门禁执行者：Leader。** 产出角色不得使用本 Skill 给自己的产物盖 PASS。
 
-## 谁来执行
+如果产出角色需要提前检查，应在自己的产出 Skill 中执行 pre-submit checklist；该检查不产生 Gate 状态，也不能替代 Leader 的 Verification。
 
-- **判门**：由 **Leader** 在正式门禁点（G1 / G2 / G2.5 / G3）触发本 Skill，独立验证。Leader 不产出被判门产物，因此与产出者保持独立。
-- **产出者职责**：提供产物及支撑证据；不得执行正式判门动作，也不得自行出具门禁结论。
+## Gate 输入
 
-> 门禁出具方必须和被门禁方不同源。作者无法自己盖章「通过」。
+Leader 执行本 Skill 时至少需要明确：
+
+- `Gate ID`：`G1` / `G2` / `G3`
+- `Issue`
+- `Artifact`
+- `Artifact Version`
+- `Upstream Gates`
+- `Acceptance Criteria`
+- `Evidence`
+
+若任一必需输入缺失，结果必须是 `BLOCKED`，不得降级为 `PASS`。
 
 ## Process
 
-1. 读 Issue 的验收标准。
-2. 把每条标准映射到证据（哪个测试 / 哪条命令 / 哪段输出）。
-3. **复跑或独立核对**所需验证证据，不把产出者的自述直接当成正式结果。
-4. 检查改动范围：diff 是否只涉及本次需求。
-5. 逐条给出 PASS / FAIL（这是单项检查结果）。
-6. 汇总为门禁结论：APPROVED / APPROVED_NA / REJECTED / BLOCKED。
+1. 读取 Issue 的 Acceptance Criteria。
+2. 确认被验证 Artifact 及其当前 Version。
+3. 确认所有 Upstream Gates 仍为有效状态。
+4. 将每条 Acceptance Criterion 映射到可复跑 Evidence。
+5. **由 Leader 独立复跑**验证命令、测试或检查；不得把产出者口述/粘贴的结果当作复跑证据。
+6. 检查 diff / 变更范围是否符合 Issue Scope。
+7. 逐条记录检查结果，并汇总 Gate 状态。
 
-## Result
+## Gate Result
 
-门禁结论统一使用四值：
+### PASS
 
-**APPROVED** —— 所有适用标准都有充分证据，开放下游。
+所有当前 Gate 的 Acceptance Criteria 均满足，且 Upstream Gates 有效。
 
-**APPROVED_NA** —— 该产物 / 分支经 Leader 确认不适用；必须写清 N/A 理由，不得静默跳过，并按路由规则视为该分支已处理。
+### FAIL
 
-**REJECTED** —— 有适用标准未满足。必须给出：问题、为什么重要、位置、修复方向与可验证的通过条件。
+至少一条 Acceptance Criterion 未满足。必须记录：
 
-**BLOCKED** —— 缺信息 / 环境 / 依赖，无法验证。如实报告，不视为通过。
+- 问题
+- 为什么重要
+- 证据 / 位置
+- 修复方向
 
-> 单项证据仍可使用 PASS / FAIL；但最终门禁结论必须归一为上述四值，避免与 `gates-and-evidence` 的协议产生歧义。
+### BLOCKED
 
-## 已知失败案例
+缺少必要信息、环境、证据或有效的上游 Gate，无法客观判定。**BLOCKED 永远不能转换为 PASS，除非阻塞项被补齐并重新验证。**
 
-典型失败模式是产出者把「本地命令跑通」当成门禁证据，Leader 直接引用该输出判通过；随后发现实际变更包含未覆盖的文件，导致下游验证失效。规则：必须由 Leader 独立核对证据并检查 diff，不能把作者提供的证据直接当成正式判门依据。
+## Artifact 变更规则
 
-## 与 CI 硬门禁的关系
+**任何产物被修改后，其下游 Gate 立即失效。**
 
-本 Skill 是验证功能在 Agent 世界的形态（软门禁），适合起步或探索期。
-CI 提供机器证据，但不绕过 Leader 的 `multica-verification` 正式判门。能上 CI 就上 CI，但正式门禁结论仍由 Leader 出具。
+Leader 必须：
 
-## 为什么有效
+1. 识别被修改 Artifact 的下游依赖。
+2. 将受影响的下游 Gate 标记为需要重新验证。
+3. 不得复用修改前版本的 Gate PASS 作为当前版本的有效证据。
+4. 从最近受影响的 Gate 重新执行 Verification。
 
-「验证」最容易被做成「走个形式」。把验证写成可独立核对的动作清单，并规定由不产出该产物的 Leader 执行正式判门，才能防止产出者把自己的证据直接变成正式门禁结论。
+因此，Gate PASS 必须绑定到具体的 `Artifact Version`，而不是只绑定 Issue。
+
+## Gate 与其他角色的边界
+
+- **Reviewer**：判断专业质量是否达标，输出 review finding。
+- **Leader / Verification**：判断是否满足交付 Gate，输出 Gate Result。
+- **CI/PR**：提供机器可验证证据，不能被文字描述替代。
+- **Human Acceptance**：最终业务/产品是否接受，不由 Verification 代替。
+
+## 与 CI 的关系
+
+`multica-verification` 是 Agent 侧的 Gate 执行方式；CI 是机器侧的硬门禁。两者不是互相替代：
+
+- 能自动化的检查应进入 CI。
+- Leader 在 Gate 时仍需核对 CI 结果与 Artifact Version 是否对应。
+- `G2.5` CI/CD PASS 后，才允许触发 T3 自动化测试。
+
+## Result Contract
+
+建议 Leader 统一输出以下结构：
+
+```yaml
+gate:
+  id: G2
+  issue: <ISSUE_KEY>
+  artifact: <ARTIFACT_TYPE>
+  artifact_version: <VERSION>
+  upstream_gates: [G1]
+  result: PASS | FAIL | BLOCKED
+  checks:
+    - criterion: <AC_ID>
+      result: PASS | FAIL | BLOCKED
+      evidence: <COMMAND_OR_EVIDENCE_REF>
+  failures: []
+```

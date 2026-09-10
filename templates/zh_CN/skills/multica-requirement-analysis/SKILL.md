@@ -1,30 +1,48 @@
 ---
 name: multica-requirement-analysis
-description: 把 Issue / 诉求结构化为带编号的 PRD 内容。用于 @ProductManager 需求澄清、范围确认、验收标准定义；结构就绪后交 multica-artifact-req-sync 落地。
+description: 把 Issue / 诉求结构化为带编号、可评审、可测试的 PRD 内容，用于 ProductManager 需求澄清、范围确认与验收标准定义；结构就绪后交 multica-artifact-req-sync 落地。
+category: methodology
+owner: ProductManager
+version: 1.0
+inputs:
+  - issue
+  - business_context
+  - stakeholder_input
+outputs:
+  - structured_requirements
+  - acceptance_criteria
+  - open_questions
+  - risks
+side_effects: []
+requires: []
+forbidden:
+  - write platform URLs, credentials, tokens, or page IDs into requirements
+  - publish to external platforms directly
+  - make Gate PASS/FAIL decisions
+idempotent: true
+platform_dependent: false
 ---
 
 # Requirement Analysis
 
 ## Purpose
 
-把 Issue、会议结论、零散想法变成**清晰、可评审、可拆任务**的 PRD 内容（只管「写什么」，不管「落到哪个平台」）。
+把 Issue、会议结论和零散诉求变成**清晰、可评审、可拆任务、可测试**的 PRD 内容。
 
-> 本 skill 与 `multica-artifact-req-sync` 分工：**analysis 产出结构与编号；req-sync 负责 Confluence / JIRA / 钉钉等平台对接**。换平台只改 req-sync，不动本 skill。
+本 skill 只管“写什么”，不管“落到哪个平台”。`multica-artifact-req-sync` 负责后续 Artifact 发布与平台适配。
 
 ## Process
 
-1. 识别业务目标（G- + KPI-）。
+1. 识别业务目标（`G-` / `KPI-`）。
 2. 识别预期行为与用户角色 / 权限。
-3. 识别明确的范围（含 / 不含）。
-4. 识别非目标。
-5. 识别约束（兼容性 / 性能 / 安全 / 时间）。
-6. 识别验收标准（AC-，可测试）。
-7. 识别歧义 → 写入 OP- 待确认清单，不装作已确认。
-8. 识别依赖与风险（RISK-）。
+3. 明确范围（含 / 不含）。
+4. 明确非目标。
+5. 明确约束（兼容性 / 性能 / 安全 / 时间）。
+6. 定义可测试的验收标准（`AC-`）。
+7. 识别歧义，写入 `OP-` 待确认清单，不装作已确认。
+8. 识别依赖与风险（`RISK-`）。
 
 ## Requirement Structure
-
-把输入结构化为 PRD 章节（章节基线见 `multica-platform-confluence` 的 `scripts/templates/prd-template.md`），并叠加 Multica 编号：
 
 | 章节 | 编号 |
 | --- | --- |
@@ -37,7 +55,7 @@ description: 把 Issue / 诉求结构化为带编号的 PRD 内容。用于 @Pro
 | 待确认项 | OP- |
 | 风险项 | RISK- |
 
-正式 PRD 至少包含（详见 @ProductManager 角色指令）：一句话定义、背景、目标 G- + KPI-、用户与权限、范围、FR-/BR-/AC-、字段口径、空态 / 异常态 / 无权限态、RISK-/OP-、修订记录。
+正式 PRD 至少包含：一句话定义、背景、目标、用户与权限、范围、FR-/BR-/AC-、字段口径、空态 / 异常态 / 无权限态、RISK-/OP-、修订记录。
 
 ## Output
 
@@ -47,24 +65,37 @@ description: 把 Issue / 诉求结构化为带编号的 PRD 内容。用于 @Pro
 - **验收标准（AC-）**：可测试的检查项
 - **约束**：兼容性 / 性能 / 安全 / 时间
 - **依赖**：前置条件
-- **待确认项（OP-）**：集中维护，未关闭不得进开发
+- **待确认项（OP-）**：未关闭的关键问题
 - **风险（RISK-）**：需关注的风险
 
-## Rule
+## Ambiguity Rule
 
 不要默默消化有歧义的需求。
 
 如果歧义会实质影响实现：
 
-→ BLOCKED  
-→ 说明缺什么、谁提供，只问 1 个最关键问题。
+→ `BLOCKED`
+→ 说明缺什么、谁提供
+→ 只问 1 个最关键问题
+
+`BLOCKED` 不是 Gate PASS，也不代表需求已就绪。
 
 ## Handoff
 
-结构就绪后，用 `multica-artifact-req-sync` skill 落地到团队需求平台（Confluence 页面 + JIRA Story + 可选钉钉），并回传稳定链接给 Leader。
+结构就绪后，由 `multica-artifact-req-sync` 负责把需求 Artifact 发布到团队平台并回传稳定链接。
 
-> @ProductManager：「先用 `multica-requirement-analysis` 结构化 PRD，再用 `multica-artifact-req-sync` 落地并回传链接。」
+```text
+Issue
+  ↓
+multica-requirement-analysis
+  ↓
+structured PRD + AC + OP/RISK
+  ↓
+multica-artifact-req-sync
+  ↓
+requirement Artifact
+```
 
-## 为什么有效
+## Why it works
 
-需求阶段的歧义会在后续每个阶段被放大。用 BLOCKED 挡住歧义、用编号让下游可拆任务，比让 5 个 Agent 各自猜一遍便宜得多；内容与平台解耦后，换 Confluence / 语雀 / 飞书也不动分析逻辑。
+内容方法与平台适配解耦：换 Confluence、语雀、飞书或其他需求平台时，不需要修改需求分析逻辑、Agent Instructions 或 Gate 规则。

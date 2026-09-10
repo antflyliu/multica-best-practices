@@ -1,51 +1,97 @@
 ---
 name: multica-test-automation
-description: "Test-automation skill (placeholder shell): Tester phase-3 automation — after G2.5 the deploy environment is ready, run the team's automation tool against the scenario cases and produce G3 input. Concrete tool (Apifox / Postman / Playwright / pytest / etc.) onboarded by the team; credentials injected via runtime env, never in role prompts."
+description: "Tester T3 runtime automation: run automated tests only after G2.5 CI/CD PASS and the deployment environment is ready, producing G3 input. The concrete test tool is provided by a team adapter; this Skill is vendor-neutral."
+category: methodology
+owner: Tester
+version: 1.0
+inputs:
+  - Issue
+  - Deployed Artifact Version
+  - Deploy Base URL
+  - Test Suite
+  - G2.5 PASS evidence
+outputs:
+  - Machine-readable T3 test result
+  - Runtime test evidence
+side_effects:
+  - Executes runtime tests against the deployed environment
+requires:
+  - G2.5 PASS
+  - Deployment environment ready
+  - Team test adapter / runner
+forbidden:
+  - Running T3 before G2.5 PASS
+  - Declaring G3 PASS
+  - Hard-coding vendor-specific credentials in this Skill
+idempotent: true
+platform_dependent: false
 metadata:
-  layer: automation
   runtime:
     python: ">=3.10"
-    external:
-      - <team-test-cli>  # team automation-test CLI
 ---
 
-# Test Automation (placeholder shell · T3)
-
-> This is a **placeholder shell**. The public multica-best-practices binds to no specific company's internal URLs or test tools.
-> To onboard your own automation tool, only edit this skill's `scripts/` and `config.yaml`; the upstream Tester role stays untouched.
+# Test Automation (T3)
 
 ## Purpose
 
-Tester **T3**: after G2.5 gives `deploy_base_url`, run cases with the team's automation tool and produce G3 input (test report).
+Run post-deployment runtime automation against the target environment and produce machine-readable evidence for G3.
 
-> Cross-platform: wrap config + subprocess calls to the underlying CLI in Python, consistent on Windows / Linux.
+**Hard prerequisite: `G2.5 = PASS`.** T3 must not start before G2.5 PASS.
 
-## Install
+## Input Contract
 
-```bash
-pip install -r scripts/requirements.txt
-# install the team automation-test CLI (team-specific, e.g. apifox-cli / newman / playwright)
+```yaml
+t3:
+  issue: <ISSUE_KEY>
+  artifact_version: <DEPLOYED_VERSION>
+  base_url: <DEPLOY_BASE_URL>
+  test_suite: <TEST_SUITE>
+  g2_5: PASS
 ```
 
-## Workflow
+If `g2_5` is not `PASS`, the result must be `BLOCKED` and no tests may run.
+
+## Execution
+
+Use the team's adapter-provided test runner, for example:
 
 ```bash
-set TEST_TOOL_TOKEN=<token>   # runtime env, never in role prompts
-
 python scripts/run_tests.py \
-  --issue <ISSUE-KEY> \
+  --issue <ISSUE_KEY> \
   --base-url "<deploy_base_url>" \
-  --scenario-id <scenario> \
-  --environment-id <env> \
+  --suite <TEST_SUITE> \
   --json
 ```
 
-Or specify only the Issue (scenario / environment read from `config.yaml`):
+Concrete CLI names, scenario IDs, environment IDs, tokens, and platform details belong to the adapter / platform configuration. They must not be embedded in Tester Agent Instructions or the generic Skill.
 
-```bash
-python scripts/run_tests.py --issue <ISSUE-KEY> --base-url "<deploy_base_url>" --json
+## Output Contract
+
+```yaml
+test_run:
+  issue: <ISSUE_KEY>
+  artifact_version: <DEPLOYED_VERSION>
+  gate_prerequisite: G2.5:PASS
+  result: PASS | FAIL | BLOCKED
+  total: <N>
+  passed: <N>
+  failed: <N>
+  blocked: <N>
+  evidence: <MACHINE_READABLE_REPORT>
 ```
 
-## Why it works
+## Failure Rules
 
-Python owns config and the subprocess call to the underlying test CLI, isolating the "Tester role" from the "concrete test tool" — swap tools by editing only this skill, keeping the Tester prompt "use the multica-test-automation skill to run T3" unchanged.
+- Environment not ready / G2.5 not PASS → `BLOCKED`.
+- Test failure → `FAIL`, retaining reproducible steps and machine evidence.
+- A passing T3 run means only T3 execution passed; it does not mean G3 passed.
+- G3 is independently gated by the Leader using `multica-verification`.
+
+## Boundaries
+
+- `multica-test-design`: T1/T2 test design and coverage gaps.
+- `multica-test-automation`: T3 runtime execution after G2.5.
+- `multica-artifact-test-sync`: publishes/synchronizes test Artifacts.
+- `multica-verification`: independent Gate decision by the Leader.
+
+If the tested Artifact or test Artifact is modified, all downstream Gates immediately become invalid and must be re-verified.

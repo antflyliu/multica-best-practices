@@ -1,75 +1,129 @@
 ---
 name: multica-artifact-cicd-sync
-description: "CI/CD artifact-orchestration skill (placeholder shell): after G2 PASS and code push, call the underlying CI/CD platform skill to trigger dev/sit builds, write back to the Issue, and return the deploy URL. Parameters auto-discovered from the CI API; the orchestration layer never hardcodes parameter names. Concrete platform in the multica-platform-* layer."
-metadata:
-  layer: orchestration
-  orchestrates:
-    - multica-platform-jenkins
-    - multica-platform-jira
-  runtime:
-    python: ">=3.10"
+description: "CI/CD artifact orchestration: after G2 PASS and code push, invoke the platform adapter for deployment and return deployment version/evidence. This skill never owns G2.5/G3 Gate decisions."
+category: orchestration
+owner: Leader
+version: 1.0
+inputs:
+  - issue
+  - g2_result
+  - commit_or_artifact_version
+  - environment
+  - deploy_branch
+outputs:
+  - deployment_version
+  - deployment_evidence
+  - deployment_url
+side_effects:
+  - triggers deployment through platform adapter
+requires:
+  - multica-verification
+  - multica-platform-jenkins
+forbidden:
+  - trigger T3 before G2.5 PASS
+  - make G2.5 or G3 PASS decisions
+  - hardcode platform credentials or URLs
+idempotent: false
+platform_dependent: true
 ---
 
-# Artifact · CI/CD Sync (orchestration, placeholder shell)
+# Artifact · CI/CD Sync (orchestration)
 
 ## Purpose
 
-After G2 PASS + push, call the underlying CI/CD platform skill to trigger build/deploy. **Parameters auto-discovered from the CI API**; the orchestration layer never hardcodes parameter names.
+After **G2 PASS + code push**, orchestrate CI/CD deployment through the `multica-platform-*` adapter and return deployment version/evidence.
 
-## Agent flow
+> This skill owns deployment orchestration, not the G2.5 decision. G2.5 must be independently decided by the Leader using `multica-verification`.
+
+## Preconditions
+
+All must hold:
+
+- G2 = `PASS`
+- the Artifact Version / commit bound to G2 has not changed
+- the deploy branch is explicit in the Issue / confirmed deployment context
+- the required platform adapter is available
+
+If any condition is missing → `BLOCKED`; do not trigger downstream T3.
+
+## Workflow
 
 ```text
-1. discover-only (recommended first, check missing):
-   python scripts/trigger_cicd.py --issue <ISSUE-KEY> --env sit --branch release/<ISSUE-KEY>-<slug> --discover-only --json
-2. trigger (**only the Issue deploy branch, never a feature branch**):
-   python scripts/trigger_cicd.py --issue <ISSUE-KEY> --env sit --branch release/<ISSUE-KEY>-<slug> --json
-3. missing params: append --param name=value
+G2 PASS
+  ↓
+code push / artifact version fixed
+  ↓
+multica-artifact-cicd-sync
+  ↓
+multica-platform-* discover → trigger → poll
+  ↓
+deployment_version + evidence
+  ↓
+Leader / multica-verification decides G2.5
+  ↓
+G2.5 PASS
+  ↓
+Tester may trigger T3
 ```
 
-## Parameter resolution
-
-Default (`use_last_success=true`):
-
-1. Read all build params of `lastSuccessfulBuild`
-2. **Only** replace branch-type params (branchName / branch / gitBranch …) with `--branch`
-3. `--param` may override any item; `--no-last-success` disables this
-
----
-
-## Workflow A: dev deploy
+## Workflow A: dev
 
 ```bash
-python scripts/trigger_cicd.py --issue <ISSUE-KEY> --env dev --service <service> --branch release/<ISSUE-KEY>-<slug> --json
+python scripts/trigger_cicd.py \
+  --issue <ISSUE-KEY> \
+  --env dev \
+  --service <service> \
+  --branch release/<ISSUE-KEY>-<slug> \
+  --json
 ```
 
-## Workflow B: sit deploy (G2.5 → Tester T3)
+## Workflow B: sit
 
 ```bash
-python scripts/trigger_cicd.py --issue <ISSUE-KEY> --env sit --branch release/<ISSUE-KEY>-<slug> --json
+python scripts/trigger_cicd.py \
+  --issue <ISSUE-KEY> \
+  --env sit \
+  --branch release/<ISSUE-KEY>-<slug> \
+  --json
 ```
-
-Issue-prefix → logical-service mapping in `config.yaml` → `issue_service_map`, so `--service` is optional.
 
 ## Workflow C: multi-service
 
 ```bash
-python scripts/trigger_cicd.py --env sit --service svc-a,svc-b --branch release/<ISSUE-KEY>-<slug> --json
+python scripts/trigger_cicd.py --env sit --service <service1>,<service2> --branch release/<ISSUE-KEY>-<slug> --json
 ```
 
-## Usage (role side)
+## Parameter policy
 
-```text
-After G2 PASS and code push, use multica-artifact-cicd-sync to trigger CI/CD and return the deploy link.
+Platform parameters are discovered by `multica-platform-*`; this orchestration layer never hardcodes Job parameter names.
+
+- deploy branch must come from the Issue / confirmed deployment context
+- missing required parameters → fill them or `BLOCKED`
+- platform build `SUCCESS` is platform execution evidence, not automatically G2.5 PASS
+
+## Artifact Contract
+
+A successful deployment must return at least:
+
+```yaml
+artifact:
+  type: deployment
+  issue_key: <ISSUE-KEY>
+  version: <DEPLOYED_VERSION>
+  location:
+    type: cicd
+    url: <DEPLOY_URL>
+  source:
+    commit: <COMMIT_SHA>
+  status: deployed
 ```
 
-## Degradation when the platform is unavailable
+`<DEPLOYED_VERSION>` must uniquely identify the deployed content. If the deployment artifact version changes, downstream Gates become invalid and must be re-verified.
 
-1. Attempt discovery/trigger once; when the CI/CD platform is confirmed unavailable, stop repeated triggers.
-2. Mark G2.5 `BLOCKED` and record the platform, Job/environment, attempted operation, time/error, and the missing build URL/deploy URL/build ID.
-3. Never fabricate build, deployment, or environment URLs; an old build/deployment or local command output cannot substitute for evidence tied to the current commit.
-4. **Do not release T3 when CI/CD is unavailable.** T3 may start only after G2.5 is PASS with real deployed-environment evidence; otherwise the flow remains `BLOCKED` at G2.5.
-5. When the platform recovers and evidence for the current deploy branch/commit exists, the Leader reruns G2.5. If code, deployment artifacts, or associated references change, all downstream gates are immediately invalid and must be rerun.
+## T3 Boundary
+
+This skill **must not trigger T3 directly**. Only after the Leader records `G2.5 = PASS` may Tester use `multica-test-automation` for T3.
 
 ## Why it works
 
-The orchestration layer depends only on the script; Issue-prefix auto-maps to the logical service in `jobs-catalog.yaml`. The underlying CI system (Jenkins / GitLab CI / GitHub Actions / etc.) is wrapped by the `multica-platform-*` layer, invisible to this skill.
+Platform differences stay inside `multica-platform-*`; orchestration handles Issue, version, environment, and evidence. Swapping Jenkins / GitLab CI / GitHub Actions therefore does not require changes to Agent Instructions or Gate logic.

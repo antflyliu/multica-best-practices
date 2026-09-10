@@ -6,11 +6,20 @@
 # Feature
 
 ## Issue source (required, pick one)
-<!-- Decides how much to fill in. With "External link", only fill the link + summary + affected ends below; skip the other sections and reference the KEY in Notes. Full requirements live in Jira/Tapd etc., the Squad pulls them by KEY -->
-- [ ] External link (lightweight): only fill "link / one-line summary / affected ends"; other sections omitted
+- [ ] External system link (lightweight): only fill "link / one-line summary / affected ends"; other sections omitted
       - Link: https://jira.example.com/browse/<ISSUE-KEY>
       - Summary: <!-- one line on what to do -->
 - [ ] Fully self-contained (default): this Issue is the requirement; fill in all sections below
+
+## Change Type (required)
+- [ ] Feature
+- [ ] Bug Fix
+- [ ] Refactor
+- [ ] Performance
+- [ ] Security
+- [ ] Documentation
+- [ ] Infrastructure
+- [ ] Other: <!-- explain -->
 
 ## Background
 <!-- Why are we doing this? -->
@@ -24,16 +33,15 @@
   - [ ] Design (needs Architect to propose a plan)
   - [ ] Frontend (needs FrontendDev)
   - [ ] Backend (needs BackendDev + API contract)
-  - [ ] CI/CD deployment (needs DevOps)
 - What to change: <!-- What should change? -->
 
 ## Non-goals
 <!-- What explicitly won't be done? -->
 
 ## Acceptance criteria (must be testable)
-- [ ] AC-1:
-- [ ] AC-2:
-- [ ] AC-3:
+- [ ]
+- [ ]
+- [ ]
 
 ## References
 <!-- Docs, Issues, screenshots, code locations -->
@@ -46,14 +54,15 @@
 
 ## Why it's written this way
 
-- **The "affected ends" in the scope is the routing input**: the Leader's G0 uses it to decide which roles to dispatch. Missing or vague scope → G0 FAIL, instead of the Leader guessing.
-- **Goal / Scope / Non-goals separated**: prevents agents from freewheeling and expanding the scope.
-- **Acceptance criteria are numbered AC-**: downstream test cases and gates can reference each criterion unambiguously.
-- **"Source: pick one" lightens link-type Issues**: when the source is Jira/Tapd, full requirements live externally; this Issue only needs "link + affected ends + one-line summary" to drive G0 routing and gating. With "fully self-contained", prioritize Background / Goal / Scope / Non-goals / Acceptance criteria, and add References / Notes as needed. Both forms share the same `<ISSUE-KEY>`; the gate system is unchanged.
-- **An Issue is a requirement contract, not an implementation blueprint**: the person filing it is usually a PM (one Issue = one requirement). The template keeps only requirement elements (why / what / affected ends / non-goals / testable AC); technical context, constraints, traceability matrix, verification, and Git branch are produced by the Squad during the run, not front-loaded onto the PM.
+- **Change Type comes before routing**: Feature, Bug Fix, Refactor, Performance, Security, etc. have different risk and verification needs; declare the type first so the Squad can select the right flow.
+- **Affected ends in Scope are routing input**: the Leader's G0 uses them to decide which roles to dispatch. Missing or vague scope → G0 FAIL, instead of guessing.
+- **Goal / Scope / Non-goals separated**: prevents agents from freewheeling and expanding scope.
+- **Acceptance criteria must be testable**: without testable AC, `multica-verification` has nothing objective to check and the gate system breaks.
+- **An Issue is a requirement contract, not an implementation blueprint**: technical context, constraints, traceability, verification, and Git branch are produced by the Squad during execution, not front-loaded onto the requester.
 
-## Common failure
+## Common failure modes
 
-- Only writing "please build this feature for me" → the squad either guesses or gets stuck at G0.
-- Not checking "affected ends" → the Leader doesn't know whether to dispatch Frontend / Backend, and the flow runs as full-stack by default.
-- Writing requirement details into Agent Instructions instead of the Issue → those instructions are dead the moment the task changes.
+- **No Change Type**: every task gets treated as a Feature, causing routing and verification strength to drift.
+- **Only writing "please build this feature"**: the squad either guesses or gets stuck at G0.
+- **Not checking affected ends**: the Leader cannot tell whether to dispatch Frontend / Backend, so the flow may default to full-stack.
+- **Writing requirement details into Agent Instructions instead of the Issue**: those instructions become wrong as soon as the task changes.

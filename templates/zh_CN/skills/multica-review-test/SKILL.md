@@ -1,6 +1,27 @@
 ---
 name: multica-review-test
-description: 测试产物专属评审框架。由 TestReviewer 调用，对 Tester 产出的用例/测试报告/覆盖率文档做专业分析（覆盖深度/验收对应/覆盖率合理/结论真实/契约一致），输出 PASS/FAIL 与修改清单，汇报 Leader。
+description: 测试产物专业评审框架：评估覆盖、验收对应、风险覆盖与执行证据，并向 Leader 输出评审结论。
+category: methodology
+owner: TestReviewer
+version: 1.0
+inputs:
+  - Test Artifact
+  - Acceptance Criteria
+  - Relevant implementation changes
+  - Previous review findings when applicable
+outputs:
+  - Professional review result
+  - Blocking and non-blocking findings
+side_effects:
+  - None; review only
+requires:
+  - multica-test-design
+  - multica-artifact-test-sync
+forbidden:
+  - Modifying reviewed test artifacts
+  - Declaring G3 PASS
+idempotent: true
+platform_dependent: false
 ---
 
 # 测试产物专业评审（TestReviewer）

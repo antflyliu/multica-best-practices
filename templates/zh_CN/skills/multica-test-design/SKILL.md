@@ -1,57 +1,96 @@
 ---
 name: multica-test-design
-description: 测试设计功能：基于需求 / 设计 / API 契约产出功能用例与接口用例，自动化优先执行，出具逐条对照验收标准的测试报告。用于功能用例 / 接口测试用例 / 测试执行 / 测试报告。
+description: 基于需求、设计与 API 契约产出测试用例与覆盖矩阵。负责 T1/T2 的测试设计与测试缺口分析，不负责 G3 判门，也不负责部署后 T3 自动化执行。
+category: methodology
+owner: Tester
+version: 1.0
+inputs:
+  - Issue / PRD
+  - Acceptance Criteria
+  - Technical Design
+  - API Contract
+  - Implemented Code for T2
+outputs:
+  - T1 test cases
+  - T2 coverage matrix
+  - Test gaps
+side_effects:
+  - Creates or updates test-design artifacts
+requires:
+  - Stable Acceptance Criteria
+  - Design available for T1
+forbidden:
+  - Executing T3 runtime automation
+  - Declaring G3 PASS
+  - Replacing Leader Verification
+idempotent: true
+platform_dependent: false
 ---
 
 # Test Design（测试设计）
 
-## 这是什么
+## 定位
 
-测试设计是一个**功能**，不是一个角色。它回答一个问题：
-
-> 验收标准有没有被真正验证？证据是什么？
-
-关键：测试左移——用例在**设计 / 写码阶段**就准备，不等到代码完成才开始。实现完成时用例已就绪，测试立即可执行。
+测试设计是**产出功能**，不是门禁角色。它负责让 Acceptance Criteria 在实现前就有可执行的测试设计，并在实现后识别覆盖缺口。
 
 ## 谁来执行
 
-- **产出与执行**：由 **Tester** 触发本 Skill——设计阶段出功能用例，契约阶段出接口用例，实现完成后执行并出测试报告。
-- **判门**：测试报告由 **Leader** 在 G3 复核（逐条对照验收标准），Tester 不自证。
+- **Tester**：执行本 Skill，产出 T1/T2 测试设计与覆盖分析。
+- **Leader + `multica-verification`**：负责 G3 独立判门，Tester 不得给自己的测试结果盖 Gate PASS。
+- **`multica-test-automation`**：只负责 G2.5 PASS 后的 T3 runtime automation。
 
-## Process
+## Workflow
 
-1. **功能用例**（设计阶段，输入：需求 + 设计）：
-   - 逐条覆盖验收标准（每条标准 → 至少一个用例）
-   - 补边界 / 异常 / 回归场景
-2. **接口测试用例**（写码阶段，输入：API 契约）：
-   - 正例 / 反例 / 边界 / 鉴权 / 幂等
-   - 每条标注：方法、路径、参数、期望状态码与响应
-3. **执行**（G2.5 部署后，T3）：
-   - 自动化优先：可脚本化用例纳入仓库测试套件，由团队现有 CI / 测试自动化工具执行
-   - 无法自动化的才手动执行，并提供可复现步骤
-4. **测试报告**：
-   - 逐条对照验收标准：PASS / FAIL / BLOCKED
-   - FAIL 必须给出：复现步骤、期望行为、实际行为、证据、严重程度
+### T1 — 测试设计（G1 前）
+
+输入：PRD / Issue + 技术设计。
+
+产出：
+
+- 每条 `AC-*` 至少一个测试场景。
+- 正常、边界、异常、回归场景。
+- API 场景覆盖方法、路径、参数、预期响应。
+- 标记可自动化与必须手工验证的场景。
+
+### T2 — 测试缺口与覆盖分析（G2 前）
+
+输入：实现后的代码、T1 测试设计、Acceptance Criteria。
+
+产出：
+
+- `AC-*` → test case → implementation 的覆盖矩阵。
+- 未覆盖项与原因。
+- 自动化缺口。
+- 建议补充的测试用例。
+
+T2 不执行 T3 runtime automation，也不宣称 G3 PASS。
+
+## Test Case Contract
+
+每个关键用例至少包含：
+
+```yaml
+id: TC-001
+acceptance_criteria: [AC-001]
+scenario: <scenario>
+type: positive | negative | boundary | regression
+preconditions: []
+steps: []
+expected: <expected_behavior>
+automatable: true | false
+```
 
 ## Result
 
-**PASS** —— 验收标准全部满足且证据充分。
+- `READY`：测试设计完整，可进入下一阶段。
+- `GAP`：存在覆盖缺口，必须补齐或明确风险接受。
+- `BLOCKED`：缺少必要需求、设计、数据或环境信息。
 
-**FAIL** —— 有标准未满足。必须给出：复现步骤、期望行为、实际行为、证据、严重程度。
+## 与其他 Skill 的边界
 
-**BLOCKED** —— 缺环境 / 数据 / 依赖，无法验证。如实报告，绝不转成 PASS。
+- `multica-test-design`：T1/T2 设计、覆盖与缺口分析。
+- `multica-test-automation`：**仅在 G2.5 PASS 后**执行 T3 runtime automation。
+- `multica-verification`：Leader 在 G3 独立判门。
+- `multica-artifact-test-sync`：负责测试 Artifact 的发布/同步。
 
-## 已知失败案例
-
-典型失败模式是 Tester 在 G2.5 未 PASS 时提前执行 T3，并用本地 mock 环境的结果作为部署环境测试报告；报告虽然全绿，但无法证明真实部署环境满足验收标准。规则：T3 必须等待 G2.5 PASS，并明确记录实际测试环境；无法在部署环境执行时只能标记 BLOCKED 或按流程允许的降级方式说明。
-
-## 与 verification skill 的关系
-
-- `multica-verification`：判门（Leader 在门禁点复跑 / 核对 CI 结论）
-- `multica-test-design`：产出用例 + 执行 + 报告（Tester）
-
-测试报告是 G3 判门的**输入**；用例的自动化版本是 CI 硬门禁的一部分。两者互补：用例怎么来、怎么跑由本 Skill 定，判门由 Leader 定。
-
-## 为什么有效
-
-测试最容易做成「补作业」：代码写完才想怎么测，测过等于测了。左移 + 逐条对照 + 自动化优先三条规则，把测试从「事后证明」变成「设计的一部分」，也让判门有机器可复跑的证据。
+任何测试设计 Artifact 被修改后，其下游 Gate 立即失效，必须重新验证。

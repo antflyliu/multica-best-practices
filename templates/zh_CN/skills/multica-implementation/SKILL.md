@@ -1,6 +1,28 @@
 ---
 name: multica-implementation
 description: 以最小不必要的改动实现已批准的技术方案。用于编码、补测试、跑验证。
+category: methodology
+owner: BackendDev / FrontendDev
+version: 1.0
+inputs:
+  - Approved Technical Design
+  - Issue / Acceptance Criteria
+  - Existing Code
+outputs:
+  - Implementation changes
+  - Test changes
+  - Execution evidence
+side_effects:
+  - Modifies source code and tests
+requires:
+  - Approved technical design
+  - Clear Issue scope
+forbidden:
+  - Silent requirement changes
+  - Declaring Gate PASS
+  - Replacing Leader Verification
+idempotent: false
+platform_dependent: false
 ---
 
 # Implementation

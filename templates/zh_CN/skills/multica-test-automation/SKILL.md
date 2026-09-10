@@ -1,51 +1,97 @@
 ---
 name: multica-test-automation
-description: Tester T3 自动化：G2.5 部署环境就绪后，用 Apifox CLI 执行场景用例。Python 封装，Windows / Linux 通用。
+description: "Tester T3 runtime automation：仅在 G2.5 CI/CD PASS 且部署环境就绪后执行自动化测试，并产出 G3 输入。具体测试工具由团队 adapter 配置，本 Skill 不绑定具体厂商。"
+category: methodology
+owner: Tester
+version: 1.0
+inputs:
+  - Issue
+  - Deployed Artifact Version
+  - Deploy Base URL
+  - Test Suite
+  - G2.5 PASS evidence
+outputs:
+  - Machine-readable T3 test result
+  - Runtime test evidence
+side_effects:
+  - Executes runtime tests against the deployed environment
+requires:
+  - G2.5 PASS
+  - Deployment environment ready
+  - Team test adapter / runner
+forbidden:
+  - Running T3 before G2.5 PASS
+  - Declaring G3 PASS
+  - Hard-coding vendor-specific credentials in this Skill
+idempotent: true
+platform_dependent: false
 metadata:
-  credentials:
-    priority:
-      - APIFOX_ACCESS_TOKEN
   runtime:
     python: ">=3.10"
-    external:
-      - apifox-cli  # npm install -g apifox-cli
 ---
 
-# Test Automation（Apifox CLI · T3）
+# Test Automation（T3）
 
 ## Purpose
 
-Tester **T3**：G2.5 拿到 `deploy_base_url` 后，用 Apifox CLI 跑自动化并产出 G3 输入。
+执行部署后的 runtime automation，验证实现是否在目标环境满足测试场景，并产出供 G3 使用的机器可读测试结果。
 
-> **跨平台**：`python scripts/run_apifox.py`；Apifox 本体为 Node CLI（`npm install -g apifox-cli`），Windows / Linux 相同。
+**硬前置：`G2.5 = PASS`。** 未取得 G2.5 PASS 时禁止触发 T3。
 
-## 安装
+## Input Contract
 
-```bash
-pip install -r scripts/requirements.txt
-npm install -g apifox-cli
+```yaml
+t3:
+  issue: <ISSUE_KEY>
+  artifact_version: <DEPLOYED_VERSION>
+  base_url: <DEPLOY_BASE_URL>
+  test_suite: <TEST_SUITE>
+  g2_5: PASS
 ```
 
-## Workflow
+若 `g2_5` 不是 `PASS`，结果必须为 `BLOCKED`，不得执行测试。
+
+## Execution
+
+统一以团队 adapter 提供的测试 runner 执行，例如：
 
 ```bash
-set APIFOX_ACCESS_TOKEN=<token>
-
-python scripts/run_apifox.py \
-  --issue <JIRA_ISSUE_KEY> \
-  --base-url "https://sit-projectmanagement.example.com" \
-  --scenario-id <APIFOX_SCENARIO_ID> \
-  --environment-id <APIFOX_ENV_ID> \
+python scripts/run_tests.py \
+  --issue <ISSUE_KEY> \
+  --base-url "<deploy_base_url>" \
+  --suite <TEST_SUITE> \
   --json
 ```
 
-或仅指定 Issue（从 `config.yaml` 读 scenario / environment）：
+具体 CLI、场景 ID、环境 ID、token 等属于 adapter / platform 配置，不写入 Tester Agent Instructions，也不写死在通用 Skill 中。
 
-```bash
-python scripts/run_apifox.py --issue <JIRA_ISSUE_KEY> --base-url "%DEPLOY_URL%" --json
+## Output Contract
+
+```yaml
+test_run:
+  issue: <ISSUE_KEY>
+  artifact_version: <DEPLOYED_VERSION>
+  gate_prerequisite: G2.5:PASS
+  result: PASS | FAIL | BLOCKED
+  total: <N>
+  passed: <N>
+  failed: <N>
+  blocked: <N>
+  evidence: <MACHINE_READABLE_REPORT>
 ```
 
-## 为什么有效
+## Failure Rules
 
-Python 负责配置与 subprocess 调用 Apifox；不依赖 bash，与 Tester T3 在 Windows 开发机上可直接跑通。
+- 环境未就绪 / G2.5 非 PASS → `BLOCKED`。
+- 测试失败 → `FAIL`，保留复现步骤与机器证据。
+- 测试通过只代表 T3 execution PASS，不等于 G3 PASS。
+- G3 由 Leader 使用 `multica-verification` 独立判门。
 
+## Boundaries
+
+- `multica-test-design`：T1/T2 测试设计与覆盖缺口。
+- `multica-test-automation`：G2.5 后的 T3 runtime execution。
+- `multica-artifact-test-sync`：测试 Artifact 发布/同步。
+- `multica-verification`：Leader 的独立 Gate 判定。
+
+任何被测 Artifact 或测试 Artifact 修改后，其下游 Gate 立即失效，必须重新验证。

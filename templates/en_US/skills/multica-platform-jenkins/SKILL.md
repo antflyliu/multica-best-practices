@@ -1,97 +1,96 @@
 ---
 name: multica-platform-jenkins
-description: "Platform-layer skill (placeholder shell): read/write capability for CI/CD systems (Jenkins-class) — trigger parameterized builds, poll status, fetch console logs. Parameters are auto-discovered; never hardcode. Credentials injected via runtime env. Concrete CI URL / Job list in config.yaml, never in role prompts."
-metadata:
-  layer: platform
-  replaces: any CI/CD system (Jenkins / GitLab CI / GitHub Actions / self-hosted pipeline / etc.)
-  runtime:
-    python: ">=3.10"
+description: "CI/CD platform adapter: trigger parameterized builds, poll status, read build logs, and return deployment evidence. Concrete URLs, Jobs, and credentials are runtime configuration, never Agent Instructions."
+category: platform
+owner: Platform Adapter
+version: 1.0
+inputs:
+  - environment
+  - service
+  - deploy_branch
+  - optional_parameters
+outputs:
+  - build_status
+  - build_urls
+  - deployment_version
+side_effects:
+  - triggers CI/CD builds
+requires:
+  - multica-artifact-cicd-sync
+forbidden:
+  - hardcode platform URL or credentials in Agent Instructions
+  - make Gate PASS/FAIL decisions
+idempotent: false
+platform_dependent: true
 ---
 
-# Platform · Jenkins (placeholder shell)
-
-> This is a **platform-layer placeholder shell**. The public multica-best-practices binds to no specific company's internal URLs or credentials.
-> To onboard your own CI/CD system, only edit this skill's `config.yaml` and `scripts/`; all upstream orchestration skills stay untouched.
+# Platform · Jenkins
 
 ## Purpose
 
-CI/CD system **read + write**: trigger Jobs, poll builds, fetch `consoleText`, return build URLs.
+Provide CI/CD read/write capability: trigger Jobs, poll builds, read `consoleText`, and return build URLs plus deployment version.
 
-> **Parameter auto-discovery**: connect to the CI system API to read each Job's required parameters; Agents must not hardcode parameter names.
+> This is the platform adapter layer. Concrete Jenkins URL, Job names, accounts, and tokens live only in `config.yaml` / runtime environment / secret store. Upstream Agents, Squads, and methodology skills must not carry these details.
 
-Default CI URL configured in `config.yaml` → `cicd.base_url` (placeholder: `http://<your-cicd-host>`).
-
-## Agent standard flow (required)
+## Standard flow
 
 ```text
-1. Resolve service (jobs-catalog / issue_service_map) + **deploy branch** (from the Issue source + affected ends, not feature; for linked Issues use the branch in the external system)
-2. discover (required) — default copy from lastSuccessfulBuild, only override deploy branch
-3. ready=false → fill missing params or BLOCKED ask human
-4. trigger: multica-artifact-cicd-sync → trigger script
+1. Resolve service + deploy branch
+2. discover (required) — read parameters from the target Job, reusing lastSuccessfulBuild params where appropriate
+3. ready=false → fill missing parameters; if they cannot be resolved, BLOCKED
+4. trigger → poll → return build/deployment evidence
 ```
 
-**Parameter priority**: `--param` > **branch hint** (branchName etc.) > **last SUCCESS build params** > CI default
+**Parameter priority**: `--param` > branch hint > last SUCCESS build params > platform default.
 
-## Files (suggested structure)
+## Files
 
 ```text
 multica-platform-jenkins/
 ├── SKILL.md
 ├── config.yaml
-├── jobs-catalog.yaml     # per-env Job list (service → Job name)
+├── jobs-catalog.yaml
+├── reference.md
 ├── .env.example
 └── scripts/
-    ├── trigger_env.py    # trigger by env + service
-    ├── list_jobs.py      # list / query Jobs
-    ├── cicd_cli.py       # low-level API
+    ├── trigger_env.py
+    ├── list_jobs.py
+    ├── jenkins_cli.py
     └── lib/
 ```
 
-## Install deps (once)
+## Runtime configuration
+
+- `config.yaml`: CI/CD base URL, environments, and logical service → Job mapping.
+- `.env` / secret store: runtime accounts, tokens, and other secrets.
+- `jobs-catalog.yaml`: logical service-to-Job mapping; do not copy it into Agent Instructions.
+
+Use one credential naming convention. Prefer `JENKINS_USER` / `JENKINS_PASSWORD` or the organization's standard token variables; do not mix unrelated `ATLASSIAN_*` and `JENKINS_*` names.
+
+## Discover
 
 ```bash
-pip install -r scripts/requirements.txt
+python scripts/jenkins_cli.py discover-params --env sit --service <service> --branch release/<ISSUE-KEY>-<slug> --json
 ```
 
-## List Jobs
+Discover first, then trigger; Agents must not hardcode parameters such as `branchName`.
+
+## Trigger
 
 ```bash
-python scripts/list_jobs.py --env dev
-python scripts/list_jobs.py --env sit --service <service>
+python scripts/trigger_env.py --env sit --service <service> --branch release/<ISSUE-KEY>-<slug> --json
+python scripts/trigger_env.py --env sit --service <service> --branch release/<ISSUE-KEY>-<slug> --param deployVersion=<VERSION> --json
 ```
-
-## Discover parameters (live from CI, per Job)
-
-```bash
-python scripts/cicd_cli.py discover-params --env sit --service <service> --branch release/<ISSUE>-<slug> --json
-```
-
-## Trigger build (auto-params by default)
-
-```bash
-python scripts/trigger_env.py --env sit --service <service> --branch release/<ISSUE>-<slug> --json
-python scripts/trigger_env.py --env sit --service <service> --branch release/<ISSUE>-<slug> --param deployVersion=1.0.0_795 --json
-```
-
-## Credentials
-
-| Variable | Description |
-| --- | --- |
-| `CICD_USER` / `CICD_PASSWORD` | CI account (runtime env, never in role prompts) |
-| `CICD_TOKEN` | optional token |
 
 ## Success criteria
 
 - script exit code `0`
-- every build `result=SUCCESS`
-- return build URL list
+- target build returns `SUCCESS`
+- return a traceable build URL
+- when deployment produces an artifact, return stable `deployment_version`
 
-## Relationship to orchestration skill
+> Platform success is not G2.5 PASS. G2.5 is independently decided by the Leader using `multica-verification`.
 
-| Orchestration skill | Calls |
-| --- | --- |
-| `multica-artifact-cicd-sync` | `trigger_cicd.py` → internally calls this skill's Python scripts |
+## Relationship to orchestration
 
-## Why it works
-
-Parameter discovery: different projects have different parameter names, so the Agent discovers then triggers, avoiding hardcoding branchName. Job names live in `jobs-catalog.yaml`. A swappable platform layer is the core of "copy-paste-run".
+`multica-artifact-cicd-sync` owns workflow orchestration; this skill owns platform execution and evidence return. After execution, return deployment version/evidence to the orchestration layer, then let the Leader decide G2.5.
