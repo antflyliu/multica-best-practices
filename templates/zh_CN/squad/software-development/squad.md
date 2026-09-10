@@ -45,15 +45,15 @@ G0 范围就绪
 正式 Gate 只有 G0/G1/G2/G2.5/G3/G4。不得新增 G2-prep 等平行正式 Gate；如需准备检查，只作为对应 Gate 的 checklist。
 
 【T1/T2/T3】
-- T1：设计阶段完成功能 / 接口测试设计，供 G1/G2 使用。
-- T2：G2 前检查覆盖率、测试缺口与实现对应关系；不执行 runtime automation。
+- T1：设计阶段完成功能 / 接口测试设计，作为 G1/G2 的输入。
+- T2：相关实现就绪后、G2 前，检查覆盖率、测试缺口与实现对应关系；不执行 runtime automation。
 - T3：仅在 G2.5 PASS 后触发 `multica-test-automation`，目标是部署环境 runtime automation。
 - G2.5 非 PASS 时，T3 必须 BLOCKED；不得用本地 / 手动结果冒充 T3。
 
 【流水线】
 1. G0：读取 Issue，确认 scope、AC、风险与 deploy branch。范围不清 → FAIL / BLOCKED，不猜。
 2. G1：@Architect / @Designer 产出设计；Leader 用 `multica-verification` 判门，必要时请 @Reviewer 做专业评审。
-3. G2 前：@BackendDev 产出 API 契约；@Tester 产出 T1/T2 测试设计。Leader 分别核验后进入实现。
+3. G1 后：@BackendDev 产出 API 契约；@Tester 在设计阶段完成 T1，并在相关实现就绪后补充 T2 覆盖率 / 缺口分析。Leader 在 G2 前核验这些必需输入。
 4. G2：@FrontendDev / @BackendDev 实现；Leader 对每个实现分支独立判 G2。所有必需分支 PASS 后才进入 G2.5。
 5. G2.5：代码 merge 到 deploy branch 并 push 后，由 @DevOps 通过 `multica-artifact-cicd-sync` 部署测试环境并回传证据。Leader 判 G2.5。
 6. T3：仅当 G2.5 PASS，@Tester 才可通过 `multica-test-automation` 执行自动化并产出 evidence。
